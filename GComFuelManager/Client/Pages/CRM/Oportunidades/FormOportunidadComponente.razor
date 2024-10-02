@@ -305,16 +305,16 @@
     [Parameter] public int Id { get; set; }
 
     CRMOportunidadPostDTO Oportunidad = new();
-    List<Catalogo_Fijo> OrigenProductos = new();
-    List<Catalogo_Fijo> TipoProductos = new();
-    List<Catalogo_Fijo> Medida = new();
-    List<Catalogo_Fijo> Periodos = new();
-    List<Catalogo_Fijo> ModeloVenta = new();
-    List<Catalogo_Fijo> Volumen = new();
-    List<Catalogo_Fijo> FormaPago = new();
-    List<Catalogo_Fijo> DiasCredito = new();
-    List<Catalogo_Fijo> Tipos = new();
-    List<Catalogo_Fijo> Etapas = new();
+    List<CRMCatalogoValor> OrigenProductos = new();
+    List<CRMCatalogoValor> TipoProductos = new();
+    List<CRMCatalogoValor> Medida = new();
+    List<CRMCatalogoValor> Periodos = new();
+    List<CRMCatalogoValor> ModeloVenta = new();
+    List<CRMCatalogoValor> Volumen = new();
+    List<CRMCatalogoValor> FormaPago = new();
+    List<CRMCatalogoValor> DiasCredito = new();
+    List<CRMCatalogoValor> Tipos = new();
+    List<CRMCatalogoValor> Etapas = new();
 
     List<CRMVendedorDTO> Vendedores = new();
     List<CRMCliente> Clientes = new();
@@ -381,7 +381,7 @@
     {
         try
         {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/tipo");
+            var response = await http.Get<List<CRMCatalogoValor>>($"api/crmoportunidad/catalogo/tipo");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -403,7 +403,7 @@
     {
         try
         {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/medida");
+            var response = await http.Get<List<CRMCatalogoValor>>($"api/crmoportunidad/catalogo/medida");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -425,7 +425,7 @@
     {
         try
         {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/etapa");
+            var response = await http.Get<List<CRMCatalogoValor>>($"api/crmoportunidad/catalogo/etapa");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -447,7 +447,7 @@
     {
         try
         {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/periodo");
+            var response = await http.Get<List<CRMCatalogoValor>>($"api/crmoportunidad/catalogo/periodo");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -469,7 +469,7 @@
     {
         try
         {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/origen/producto");
+            var response = await http.Get<List<CRMCatalogoValor>>($"api/crmoportunidad/catalogo/origen/producto");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -491,7 +491,7 @@
     {
         try
         {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/tipo/producto");
+            var response = await http.Get<List<CRMCatalogoValor>>($"api/crmoportunidad/catalogo/tipo/producto");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -513,7 +513,7 @@
     {
         try
         {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/modelo/venta");
+            var response = await http.Get<List<CRMCatalogoValor>>($"api/crmoportunidad/catalogo/modelo/venta");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -535,7 +535,7 @@
     {
         try
         {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/volumen");
+            var response = await http.Get<List<CRMCatalogoValor>>($"api/crmoportunidad/catalogo/volumen");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -557,7 +557,7 @@
     {
         try
         {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/forma/pago");
+            var response = await http.Get<List<CRMCatalogoValor>>($"api/crmoportunidad/catalogo/forma/pago");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -579,7 +579,7 @@
     {
         try
         {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/dias/credito");
+            var response = await http.Get<List<CRMCatalogoValor>>($"api/crmoportunidad/catalogo/dias/credito");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();

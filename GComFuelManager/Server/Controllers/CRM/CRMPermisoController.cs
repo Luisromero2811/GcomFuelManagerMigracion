@@ -41,20 +41,6 @@ namespace GComFuelManager.Server.Controllers.CRM
                         Nombre = x.Name!
                     });
 
-                //foreach (var item in permisosDeRol)
-                //{
-                //    var permiso = await context.Roles.Where(x => !string.IsNullOrEmpty(x.Name) && x.Id == item.PermisoId)
-                //        .Select(x => new CRMPermisoDTO()
-                //        {
-                //            Id = x.Id,
-                //            Nombre = x.Name!
-                //        })
-                //        .FirstOrDefaultAsync();
-
-                //    if (permiso is not null)
-                //        permisos.Add(permiso);
-                //}
-
                 return Ok(permisosRol);
             }
             catch (Exception e)

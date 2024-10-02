@@ -118,6 +118,12 @@ namespace GComFuelManager.Server.Mappers
                 .ForMember(x => x.FechaCaducidad, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First().FechaCaducidad : DateTime.MinValue))
                 .ForMember(x => x.Descripcion, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First().Descripcion : string.Empty));
 
+
+            CreateMap<CRMCatalogo, CRMCatalogoDTO>();
+            CreateMap<CRMCatalogoValor, CRMCatalogoValorDTO>();
+            CreateMap<CRMCatalogoValor, CRMCatalogoValorPostDTO>();
+            CreateMap<CRMCatalogoValorPostDTO, CRMCatalogoValor>();
+
         }
     }
 }

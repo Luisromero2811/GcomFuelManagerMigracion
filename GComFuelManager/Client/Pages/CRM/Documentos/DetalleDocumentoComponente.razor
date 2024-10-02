@@ -102,8 +102,8 @@
                                     <p>@Documento.DocumentoRevision?.NombreDocumento</p>
                                     <div class="btn-group">
                                         <button class="btn gcom-bg-amarillo" @onclick="@(()=>DescargarDocumento(Documento.DocumentoRevision?.Id,
-                                                                                                            Documento.DocumentoRevision?.NombreDocumento,
-                                                                                                            Documento.DocumentoRevision?.TipoDocumento))">
+                                                                                                                Documento.DocumentoRevision?.NombreDocumento,
+                                                                                                                Documento.DocumentoRevision?.TipoDocumento))">
                                             <i class="fa fa-solid fa-download" /> Descargar
                                         </button>
                                         <button class="btn gcom-bg-amarillo" @onclick=@(()=>AbrirModal("Documento de revision",Documento.DocumentoRevision?.Url))>

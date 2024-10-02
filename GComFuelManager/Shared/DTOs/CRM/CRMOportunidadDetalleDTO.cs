@@ -31,19 +31,19 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public double PrecioLts { get; set; }
         public double TotalLts { get; set; }
         public int EquipoId { get; set; }
-        public Catalogo_Fijo? UnidadMedida { get; set; } = null!;
+        public CRMCatalogoValor? UnidadMedida { get; set; } = null!;
         public CRMVendedorDTO? Vendedor { get; set; } = null!;
         public CRMCliente? CRMCliente { get; set; } = null!;
-        public Catalogo_Fijo? Tipo { get; set; } = null!;
-        public Catalogo_Fijo? EtapaVenta { get; set; } = null!;
+        public CRMCatalogoValor? Tipo { get; set; } = null!;
+        public CRMCatalogoValor? EtapaVenta { get; set; } = null!;
         public CRMContactoDTO? Contacto { get; set; } = null!;
-        public Catalogo_Fijo? Periodo { get; set; } = null!;
-        public Catalogo_Fijo? OrigenProducto { get; set; } = null!;
-        public Catalogo_Fijo? TipoProducto { get; set; } = null!;
-        public Catalogo_Fijo? ModeloVenta { get; set; } = null!;
-        public Catalogo_Fijo? Volumen { get; set; } = null!;
-        public Catalogo_Fijo? FormaPago { get; set; } = null!;
-        public Catalogo_Fijo? DiasCredito { get; set; } = null!;
+        public CRMCatalogoValor? Periodo { get; set; } = null!;
+        public CRMCatalogoValor? OrigenProducto { get; set; } = null!;
+        public CRMCatalogoValor? TipoProducto { get; set; } = null!;
+        public CRMCatalogoValor? ModeloVenta { get; set; } = null!;
+        public CRMCatalogoValor? Volumen { get; set; } = null!;
+        public CRMCatalogoValor? FormaPago { get; set; } = null!;
+        public CRMCatalogoValor? DiasCredito { get; set; } = null!;
         public CRMEquipoDTO? Equipo { get; set; } = null!;
         public CRMDocumentoDTO? Documento { get; set; } = null!;
     }

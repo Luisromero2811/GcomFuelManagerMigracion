@@ -1,10 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace GComFuelManager.Shared.Modelos
 {
-	public class Catalogo_Fijo
-	{
+    public class Catalogo_Fijo
+    {
         public int Id { get; set; }
         [StringLength(250)]
         public string Valor { get; set; } = string.Empty;

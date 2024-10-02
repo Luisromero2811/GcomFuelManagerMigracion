@@ -139,9 +139,9 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!validate.IsValid) { return BadRequest(validate.Errors); }
 
                 var rol = mapper.Map<CRMRolPostDTO, CRMRol>(dTO);
-                //var originadores = dTO.OriginadoresDTO.Select(x => mapper.Map<CRMOriginadorDTO, CRMOriginador>(x)).ToList();
 
-                //vendedor.Originadores = originadores;
+                if (await context.CRMRoles.AnyAsync(x => x.Nombre.ToLower().Equals(rol.Nombre.ToLower())))
+                    return BadRequest("Ya existe un rol con ese nombre");
 
                 if (rol.Id != 0)
                 {
@@ -206,13 +206,35 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (rol is null) { return NotFound(); }
                 rol.Activo = false;
                 context.Update(rol);
-
+                //ids del permiso relacionado al rol a desactivar
                 var relacion_permisos = await context.CRMRolPermisos.Where(x => x.RolId.Equals(rol.Id)).Select(x => x.PermisoId).ToListAsync();
+                //permisos del rol a desactivar
                 var roles = await context.Roles.Where(x => relacion_permisos.Contains(x.Id)).ToListAsync();
 
+                //ids de usuarios relacionados al rol a desactivar
                 var relacion_usuario = await context.CRMRolUsuarios.Where(x => x.RolId.Equals(rol.Id)).Select(x => x.UserId).ToListAsync();
+                //roles de usuarios
+                var relacion_roles_usuario = await context.CRMRolUsuarios.Where(x => relacion_usuario.Contains(x.UserId)).ToListAsync();
 
+                foreach (var userid in relacion_usuario)
+                {
+                    //ids de roles de usuarios
+                    var rolesuser = relacion_roles_usuario.Where(x => x.UserId == userid && x.RolId != rol.Id).Select(x => x.RolId).ToList();
+                    //ids de permisos de roles del usuario
+                    var permisosderoldeusuario = await context.CRMRolPermisos.Where(x => rolesuser.Contains(x.RolId)).Select(x => x.PermisoId).ToListAsync();
+                    //permisos de roles
+                    var permisosasociadosarolesdeusuario = await context.Roles.Where(x => permisosderoldeusuario.Contains(x.Id)).Select(x => x.Name).ToListAsync();
+                    //permisos que no estan asociados a otros roles que mantiene el usuario
+                    var rolesnopertenecientes = roles.ExceptBy(permisosasociadosarolesdeusuario, x => x.Name)
+                        .Where(x => !string.IsNullOrEmpty(x.Name) && !string.IsNullOrWhiteSpace(x.Name))
+                        .Select(x => x.Name!);
 
+                    var user = await userManager.FindByIdAsync(userid);
+
+                    if (rolesnopertenecientes is not null)
+                        if (user is not null)
+                            await userManager.RemoveFromRolesAsync(user, rolesnopertenecientes);
+                }
 
                 await context.SaveChangesAsync();
 

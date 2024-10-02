@@ -17,20 +17,20 @@
         public string Ciudad { get; set; } = string.Empty;
         public string CP { get; set; } = string.Empty;
         public string Pais { get; set; } = string.Empty;
-        public int EstatusId { get; set; }
+        public int? EstatusId { get; set; }
         public string Estatus_Desc { get; set; } = string.Empty;
-        public int OrigenId { get; set; }
+        public int? OrigenId { get; set; }
         public string Recomen { get; set; } = string.Empty;
         public int? VendedorId { get; set; }
         public DateTime Fecha_Creacion { get; set; } = DateTime.Now;
         public DateTime Fecha_Mod { get; set; } = DateTime.Now;
         public bool Activo { get; set; } = true;
-        public int DivisionId { get; set; }
+        public int? DivisionId { get; set; }
 
-        public Catalogo_Fijo? Estatus { get; set; } = null!;
-        public Catalogo_Fijo? Origen { get; set; } = null!;
+        public CRMCatalogoValor? Estatus { get; set; } = null!;
+        public CRMCatalogoValor? Origen { get; set; } = null!;
         public CRMVendedor? Vendedor { get; set; } = null!;
         public CRMCliente? Cliente { get; set; } = null!;
-        public CRMDivision Division { get; set; } = null!;
+        public CRMDivision? Division { get; set; } = null!;
     }
 }

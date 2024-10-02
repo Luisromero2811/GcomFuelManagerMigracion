@@ -331,6 +331,11 @@ namespace GComFuelManager.Server
 
             modelBuilder.Entity<CRMDocumentoRelacionado>().HasKey(x => new { x.DocumentoId, x.DocumentoRelacionadoId });
             modelBuilder.Entity<CRMDocumentoRevision>().HasKey(x => new { x.DocumentoId, x.RevisionId });
+
+            modelBuilder.Entity<CRMCatalogo>()
+                .HasMany(x => x.Valores)
+                .WithOne(x => x.Catalogo)
+                .HasForeignKey(x => x.CatalogoId);
         }
         public DbSet<Accion> Accion { get; set; }
         public DbSet<Cliente> Cliente { get; set; }
@@ -367,5 +372,7 @@ namespace GComFuelManager.Server
         public DbSet<CRMActividadDocumento> CRMActividadDocumentos { get; set; }
         public DbSet<CRMDocumentoRelacionado> CRMDocumentoRelacionados { get; set; }
         public DbSet<CRMDocumentoRevision> CRMDocumentoRevisiones { get; set; }
+        public DbSet<CRMCatalogo> CRMCatalogos { get; set; }
+        public DbSet<CRMCatalogoValor> CRMCatalogoValores { get; set; }
     }
 }
