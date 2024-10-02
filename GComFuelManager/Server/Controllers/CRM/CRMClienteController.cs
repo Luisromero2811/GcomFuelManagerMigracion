@@ -154,7 +154,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     var contactos = await context.CRMContactos.AsNoTracking().Where(x => x.Activo).Select(x => x.CuentaId).ToListAsync();
                     clientes = context.CRMClientes.AsNoTracking().Where(x => x.Activo && contactos.Contains(x.Id)).AsQueryable();
                 }
-                else if (await userManager.IsInRoleAsync(user, "CRM_LIDER"))
+                else if (await userManager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
                 {
                     var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null) return NotFound();

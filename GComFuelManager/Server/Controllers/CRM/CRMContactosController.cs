@@ -53,7 +53,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Include(x => x.Division)
                         .AsQueryable();
                 }
-                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
                 {
                     var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is not null)
@@ -159,7 +159,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Include(x => x.Division)
                         .AsQueryable();
                 }
-                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
                 {
                     var originador = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (originador is not null)

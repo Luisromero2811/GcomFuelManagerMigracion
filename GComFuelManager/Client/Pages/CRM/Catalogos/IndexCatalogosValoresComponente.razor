@@ -61,7 +61,7 @@
                                             <div class="btn-group">
                                                 <AuthorizeView Roles="Admin, EDITAR_VALOR_CATALOGO">
                                                     <Authorized Context="EDITARVALORCATALOGO">
-                                                        <NavLink class="btn gcom-bg-amarillo g-1 col-12" href="@($"crm/catalogo/valores/formulario/{item.Id}")" Match="NavLinkMatch.All">
+                                                        <NavLink class="btn gcom-bg-amarillo g-1 col-12" href="@($"crm/catalogo/valores/formulario/{Id}/{item.Id}")" Match="NavLinkMatch.All">
                                                             <i class="fa fa-solid fa-edit" />
                                                         </NavLink>
                                                     </Authorized>
@@ -165,7 +165,7 @@
                 });
             if (!string.IsNullOrEmpty(confirm.Value))
             {
-                var response = await http.Delete($"api/crmrol/{crm.Id}");
+                var response = await http.Delete($"api/crmcatalogo/{crm.Id}");
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();

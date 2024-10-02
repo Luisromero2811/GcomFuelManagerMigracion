@@ -214,7 +214,7 @@ namespace GComFuelManager.Server.Controllers
                                      .Include(x => x.Vendedor)
                                      .ToList();
                 }
-                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
                 {
                     var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null) return NotFound();
@@ -280,7 +280,7 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.prioridades)
                        .AsQueryable();
                 }
-                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
                 {
                     var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null)
@@ -415,7 +415,7 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.prioridades)
                    .AsQueryable();
                 }
-                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
                 {
                     var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null)
@@ -538,7 +538,7 @@ namespace GComFuelManager.Server.Controllers
                     return Ok(excel.GetAsByteArray());
 
                 }
-                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
                 {
                     var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null)

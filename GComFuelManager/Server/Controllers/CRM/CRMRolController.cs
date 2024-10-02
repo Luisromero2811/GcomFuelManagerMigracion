@@ -140,7 +140,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 var rol = mapper.Map<CRMRolPostDTO, CRMRol>(dTO);
 
-                if (await context.CRMRoles.AnyAsync(x => x.Nombre.ToLower().Equals(rol.Nombre.ToLower())))
+                if (await context.CRMRoles.AnyAsync(x => x.Nombre.ToLower().Equals(rol.Nombre.ToLower()) && x.Id != dTO.Id))
                     return BadRequest("Ya existe un rol con ese nombre");
 
                 if (rol.Id != 0)
