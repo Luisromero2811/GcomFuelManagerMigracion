@@ -378,7 +378,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     var division = await context.CRMDivisiones.FindAsync(info.IDDivision);
                     if (division == null)
                     {
-                        return BadRequest(new { message = "La division seleccionada no existe."});
+                        return BadRequest(new { message = "La division seleccionada no existe." });
                     }
                     //creamos la relación
                     var usuarioDivision = new CRMUsuarioDivision
@@ -390,7 +390,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 }
                 else
                 {
-                    return BadRequest(new { message = "No se ha proporcionado una División valida"});
+                    return BadRequest(new { message = "No se ha proporcionado una División valida" });
                 }
 
                 await context.SaveChangesAsync();
@@ -529,16 +529,28 @@ namespace GComFuelManager.Server.Controllers.CRM
                             .ToList();
                         foreach (var permisoId in permisosEliminar)
                         {
-                            var identityRole = await roleManager.FindByIdAsync(permisoId.ToString());
-                            if (identityRole != null)
+                            //Verificamos si algún otro rol del usuario tiene este permiso
+                            var otrosRolesConPermiso = await context.CRMRolPermisos
+                                .Where(x => x.PermisoId == permisoId && x.RolId != rolActual.RolId)
+                                .Select(x => x.RolId)
+                                .ToListAsync();
+
+                            var tieneOtrosRolesConPermiso = otrosRolesConPermiso
+                                .Any(rolId => rolesActuales.Any(x => x.RolId == rolId));
+
+                            if (!tieneOtrosRolesConPermiso)
                             {
-                                var alreadyInRole = await userManager.IsInRoleAsync(usuario, identityRole.Name);
-                                if (alreadyInRole)
+                                var identityRole = await roleManager.FindByIdAsync(permisoId.ToString());
+                                if (identityRole != null)
                                 {
-                                    var identityRoleResult = await userManager.RemoveFromRoleAsync(usuario, identityRole.Name);
-                                    if (!identityRoleResult.Succeeded)
+                                    var alreadyInRole = await userManager.IsInRoleAsync(usuario, identityRole.Name);
+                                    if (alreadyInRole)
                                     {
-                                        return BadRequest(new { errors = identityRoleResult.Errors });
+                                        var identityRoleResult = await userManager.RemoveFromRoleAsync(usuario, identityRole.Name);
+                                        if (!identityRoleResult.Succeeded)
+                                        {
+                                            return BadRequest(new { errors = identityRoleResult.Errors });
+                                        }
                                     }
                                 }
                             }
