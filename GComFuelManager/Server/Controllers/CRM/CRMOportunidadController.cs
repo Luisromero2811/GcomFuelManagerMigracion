@@ -56,6 +56,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Include(x => x.Contacto)
                         .Include(x => x.Equipo)
                         .ThenInclude(x => x.Division)
+                        .OrderByDescending(x => x.FechaCreacion)
                         .AsQueryable();
                 }
                 else if (await userManager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
@@ -120,6 +121,9 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (!dTO.CuentaId.IsZero())
                     oportunidades = oportunidades.Where(x => x.CuentaId.Equals(dTO.CuentaId));
+
+                if (!dTO.VendedorId.IsZero())
+                    oportunidades = oportunidades.Where(x => x.VendedorId.Equals(dTO.VendedorId));
 
                 if (dTO.Excel)
                 {

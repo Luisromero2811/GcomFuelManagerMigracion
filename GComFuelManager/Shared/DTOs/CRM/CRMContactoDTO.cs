@@ -16,8 +16,7 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string Estatus { get; set; } = string.Empty;
         //public int Estatus { get; set; }
         public string Vendedor { get; set; } = string.Empty;
-        //public int IdAsignado { get; set; }
-        //public DateTime Fecha_Creacion { get; set; }
+        public int VendedorId { get; set; }
         public bool Activo { get; set; }
         public string Division { get; set; } = string.Empty;
         public string FullName

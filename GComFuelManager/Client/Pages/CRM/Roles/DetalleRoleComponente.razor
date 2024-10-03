@@ -28,18 +28,25 @@
                     </Card>
                     <Card HeaderText="Permisos asignados">
                         <Body>
-                            <Tabla Datos="Rol.Permisos">
-                                <Cabeceras>
-                                    <tr>
-                                        <th>Permiso</th>
-                                    </tr>
-                                </Cabeceras>
-                                <Columnas Context="item">
-                                    <tr>
-                                        <td>@item.Nombre</td>
-                                    </tr>
-                                </Columnas>
-                            </Tabla>
+                            @foreach (var item in Rol.Permisos)
+                            {
+                                <Card HeaderText="@item.Grupo">
+                                    <Body>
+                                        <Tabla Datos="item.Permisos">
+                                            <Cabeceras>
+                                                <tr>
+                                                    <th>Permiso</th>
+                                                </tr>
+                                            </Cabeceras>
+                                            <Columnas Context="item">
+                                                <tr>
+                                                    <td>@item.Nombre</td>
+                                                </tr>
+                                            </Columnas>
+                                        </Tabla>
+                                    </Body>
+                                </Card>
+                            }
                         </Body>
                     </Card>
                 </div>

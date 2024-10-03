@@ -11,5 +11,6 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string TelMovil { get; set; } = string.Empty;
         public string Correo { get; set; } = string.Empty;
         public string Division { get; set; } = string.Empty;
+        public int VendedorId { get; set; }
     }
 }

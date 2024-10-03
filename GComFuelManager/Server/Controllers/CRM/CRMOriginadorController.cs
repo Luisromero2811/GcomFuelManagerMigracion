@@ -38,7 +38,7 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var originadores = context.CRMOriginadores.AsNoTracking().AsQueryable();
+                var originadores = context.CRMOriginadores.AsNoTracking().OrderBy(x => x.Nombre).AsQueryable();
 
                 if (!string.IsNullOrEmpty(dTO.Nombre) || !string.IsNullOrWhiteSpace(dTO.Nombre))
                     originadores = originadores.Where(v => v.Nombre.ToLower().Contains(dTO.Nombre.ToLower()) || v.Apellidos.ToLower().Contains(dTO.Nombre.ToLower()));

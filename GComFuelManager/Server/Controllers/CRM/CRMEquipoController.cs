@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using GComFuelManager.Client.Helpers;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs.CRM;
@@ -50,6 +51,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     .AsNoTracking()
                     .Include(x => x.Originador)
                     .Include(x => x.Division)
+                    .Include(x => x.Vendedores)
                     .OrderBy(x => x.Nombre)
                     .AsQueryable();
                 }
@@ -61,6 +63,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     equipos = context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.LiderId == comercial.Id)
                     .Include(x => x.Originador)
                     .Include(x => x.Division)
+                    .Include(x => x.Vendedores)
                     .OrderBy(x => x.Nombre)
                     .AsQueryable();
                 }
@@ -88,6 +91,9 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (!string.IsNullOrEmpty(dTO.Division) || !string.IsNullOrWhiteSpace(dTO.Division))
                     equipos = equipos.Where(v => v.Division.Nombre.ToLower().Contains(dTO.Division.ToLower()));
+
+                if (!dTO.VendedorId.IsZero())
+                    equipos = equipos.Where(x => x.Vendedores.Any(y => y.Id == dTO.VendedorId));
 
                 if (dTO.Paginacion)
                 {

@@ -41,7 +41,25 @@ namespace GComFuelManager.Server.Controllers.CRM
                         Nombre = x.Name!
                     });
 
-                return Ok(permisosRol);
+                var idspermisos = permisosRol.Select(x => x.Id);
+
+                var grupo = await context.CRMGrupos
+                    .Where(x => x.Activo)
+                    .Include(x => x.GrupoRols)
+                    .ToListAsync();
+
+                var gruporoles = grupo.Select(x => new CRMGrupoPermisoDTO
+                {
+                    Grupo = x.Nombre,
+                    Permisos = x.GrupoRols.IntersectBy(idspermisos, y => y.RolId).Select(y => new CRMPermisoDTO
+                    {
+                        Id = y.RolId,
+                        Nombre = permisosRol.First(x => x.Id == y.RolId).Nombre
+                    })
+                    .ToList()
+                });
+
+                return Ok(gruporoles.Where(x => x.Permisos.Any()));
             }
             catch (Exception e)
             {
@@ -66,7 +84,25 @@ namespace GComFuelManager.Server.Controllers.CRM
                         Nombre = x.Name!
                     });
 
-                return Ok(permisosNoRol);
+                var idspermisos = permisosNoRol.Select(x => x.Id);
+
+                var grupo = await context.CRMGrupos
+                    .Where(x => x.Activo)
+                    .Include(x => x.GrupoRols)
+                    .ToListAsync();
+
+                var gruporoles = grupo.Select(x => new CRMGrupoPermisoDTO
+                {
+                    Grupo = x.Nombre,
+                    Permisos = x.GrupoRols.IntersectBy(idspermisos, y => y.RolId).Select(y => new CRMPermisoDTO
+                    {
+                        Id = y.RolId,
+                        Nombre = permisosNoRol.First(x => x.Id == y.RolId).Nombre
+                    })
+                    .ToList()
+                });
+
+                return Ok(gruporoles.Where(x => x.Permisos.Any()));
             }
             catch (Exception e)
             {

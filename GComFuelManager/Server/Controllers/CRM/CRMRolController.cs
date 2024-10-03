@@ -111,16 +111,20 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var permisosrol = await context.CRMRolPermisos.AsNoTracking().Where(x => x.RolId == rol.Id).ToListAsync();
                 var allpermisos = await context.Roles.AsNoTracking().Where(x => x.Show && !string.IsNullOrEmpty(x.Name)).AsNoTracking().ToListAsync();
 
-                var permisos = allpermisos.IntersectBy(permisosrol.Select(x => x.PermisoId), x => x.Id)
-                    .Select(x => new CRMPermisoDTO
+                var grupos = await context.CRMGrupos.Where(x => x.Activo).Include(x => x.GrupoRols).ToListAsync();
+
+                var gruporoles = grupos.Select(x => new CRMGrupoPermisoDTO
+                {
+                    Grupo = x.Nombre,
+                    Permisos = allpermisos.IntersectBy(permisosrol.Select(x => x.PermisoId), y => y.Id).Select(x => new CRMPermisoDTO
                     {
                         Id = x.Id,
-                        Nombre = x.Name!
+                        Nombre = allpermisos.First(y => y.Id == x.Id).Name!
                     })
-                    .OrderBy(x => x.Nombre)
-                    .ToList();
+                    .ToList()
+                }).ToList();
 
-                rol.Permisos = permisos;
+                rol.Permisos = gruporoles;
 
                 return Ok(rol);
             }
