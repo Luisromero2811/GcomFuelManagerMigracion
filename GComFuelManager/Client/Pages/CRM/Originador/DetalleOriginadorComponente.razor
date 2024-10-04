@@ -58,31 +58,33 @@
                 </Card>
                 <Card HeaderText="Equipos" CardClass="my-2">
                     <Body>
-                        <Tabla Datos="Originador.Equipos">
-                            <Cabeceras>
-                                <tr>
-                                    <th>Equipo</th>
-                                    <th>Division del equipo</th>
-                                </tr>
-                            </Cabeceras>
-                            <Columnas Context="item">
-                                <tr>
-                                    <td>
-                                        <AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
-                                            <Authorized Context="VERDETALLEEQUIPO">
-                                                <NavLink href=@($"crm/equipo/{item.Id}")>
+                        <div class="container-fluid overflow-scroll">
+                            <Tabla Datos="Originador.Equipos">
+                                <Cabeceras>
+                                    <tr>
+                                        <th>Equipo</th>
+                                        <th>Division del equipo</th>
+                                    </tr>
+                                </Cabeceras>
+                                <Columnas Context="item">
+                                    <tr>
+                                        <td>
+                                            <AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
+                                                <Authorized Context="VERDETALLEEQUIPO">
+                                                    <NavLink href=@($"crm/equipo/{item.Id}")>
+                                                        @item.Nombre
+                                                    </NavLink>
+                                                </Authorized>
+                                                <NotAuthorized Context="VERDETALLEEQUIPO">
                                                     @item.Nombre
-                                                </NavLink>
-                                            </Authorized>
-                                            <NotAuthorized Context="VERDETALLEEQUIPO">
-                                                @item.Nombre
-                                            </NotAuthorized>
-                                        </AuthorizeView>
-                                    </td>
-                                    <td>@item.Division</td>
-                                </tr>
-                            </Columnas>
-                        </Tabla>
+                                                </NotAuthorized>
+                                            </AuthorizeView>
+                                        </td>
+                                        <td>@item.Division</td>
+                                    </tr>
+                                </Columnas>
+                            </Tabla>
+                        </div>
                     </Body>
                 </Card>
             </Body>

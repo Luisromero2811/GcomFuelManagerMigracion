@@ -48,9 +48,6 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<RenovadorToken>();
     services.AddSingleton(new CultureInfo("es-MX"));
     services.AddScoped<UsuarioInfoValidation>();
-    services.AddScoped<CodigoClienteValidation>();
-    services.AddScoped<AsignarGrupoClienteValidation>();
-    services.AddScoped<GestionClienteValidation>();
     //CRM
     services.AddScoped<CRMContactoPostValidator>();
     services.AddScoped<CRMOportunidadPostValidator>();

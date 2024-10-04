@@ -4,10 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
+using Microsoft.AspNetCore.Identity;
 
 namespace GComFuelManager.Server
 {
-    public class ApplicationDbContext : IdentityDbContext<IdentityUsuario, IdentityRol, string>
+    public class ApplicationDbContext : IdentityDbContext<IdentityUsuario>
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -80,124 +81,89 @@ namespace GComFuelManager.Server
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Contacto>()
-                .HasOne(x => x.Cliente)
-                .WithMany()
-                .HasForeignKey(x => x.CodCte);
-
-            modelBuilder.Entity<Cliente>()
-                .HasOne(x => x.Vendedor)
-                .WithMany()
-                .HasForeignKey(x => x.Id_Vendedor);
-
-            modelBuilder.Entity<Cliente>()
-                .HasOne(x => x.Originador)
-                .WithMany()
-                .HasForeignKey(x => x.Id_Originador);
-
-            modelBuilder.Entity<Vendedor>()
-                .HasMany(x => x.Clientes)
-                .WithOne(x => x.Vendedor)
-                .HasForeignKey(x => x.Id_Vendedor)
-                .HasPrincipalKey(x => x.Id);
-
-            modelBuilder.Entity<Originador>()
-                .HasMany(x => x.Clientes)
-                .WithOne(x => x.Originador)
-                .HasForeignKey(x => x.Id_Originador)
-                .HasPrincipalKey(x => x.Id);
-
-            modelBuilder.Entity<Vendedor_Originador>().HasKey(vo => new { vo.VendedorId, vo.OriginadorId });
-
-            modelBuilder.Entity<Vendedor>()
-                .HasMany(x => x.Originadores)
-                .WithMany(x => x.Vendedores)
-                .UsingEntity<Vendedor_Originador>(
-                    l => l.HasOne(x => x.Originador).WithMany(x => x.Vendedor_Originador).OnDelete(DeleteBehavior.Restrict),
-                    r => r.HasOne(x => x.Vendedor).WithMany(x => x.Vendedor_Originador).OnDelete(DeleteBehavior.Restrict)
-                );
-
-            modelBuilder.Entity<Vendedor>()
-                .HasMany(x => x.Metas_Vendedor)
-                .WithOne(x => x.Vendedor)
-                .HasForeignKey(x => x.VendedorId);
-
-            modelBuilder.Entity<Cliente_Tad>().HasKey(ct => new { ct.Id_Cliente, ct.Id_Terminal });
-            modelBuilder.Entity<Usuario_Tad>().HasKey(ut => new { ut.Id_Usuario, ut.Id_Terminal });
-
-            modelBuilder.Entity<Cliente>()
-                .HasMany(x => x.Terminales)
-                .WithMany(x => x.Clientes)
-                .UsingEntity<Cliente_Tad>(
-                    l => l.HasOne(x => x.Terminal).WithMany(x => x.Cliente_Tads).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
-                    r => r.HasOne(x => x.Cliente).WithMany(x => x.Cliente_Tads).HasForeignKey(x => x.Id_Cliente).OnDelete(DeleteBehavior.Restrict)
-                );
-
             //Actividad a Asignado a CRMVendedor
             modelBuilder.Entity<CRMActividades>()
                 .HasOne(x => x.vendedor)
                 .WithMany(x => x.Actividades)
-                .HasForeignKey(x => x.Asignado);
+                .HasForeignKey(x => x.Asignado)
+                .OnDelete(DeleteBehavior.Restrict);
+
             //Actividad Relacionada Con CRMContacto
             modelBuilder.Entity<CRMActividades>()
                 .HasOne(x => x.contacto)
                 .WithMany()
-                .HasForeignKey(x => x.Contacto_Rel);
+                .HasForeignKey(x => x.Contacto_Rel)
+                .OnDelete(DeleteBehavior.Restrict);
+
             //Actividad a Catalogo Fijo de Asunto
             modelBuilder.Entity<CRMActividades>()
                 .HasOne(x => x.asuntos)
                 .WithMany()
-                .HasForeignKey(x => x.Asunto);
+                .HasForeignKey(x => x.Asunto)
+                .OnDelete(DeleteBehavior.Restrict);
+
             //Actividad a Catalogo Fijo de Estado
             modelBuilder.Entity<CRMActividades>()
                 .HasOne(x => x.Estados)
                 .WithMany()
-                .HasForeignKey(x => x.Estatus);
+                .HasForeignKey(x => x.Estatus)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
             //Actividad a Catalogo Fijo de prioridades
             modelBuilder.Entity<CRMActividades>()
                 .HasOne(x => x.prioridades)
                 .WithMany()
-                .HasForeignKey(x => x.Prioridad);
+                .HasForeignKey(x => x.Prioridad)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMContacto>()
                 .HasOne(x => x.Estatus)
                 .WithMany()
-                .HasForeignKey(x => x.EstatusId);
+                .HasForeignKey(x => x.EstatusId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMContacto>()
                 .HasOne(x => x.Vendedor)
                 .WithMany()
-                .HasForeignKey(x => x.VendedorId);
+                .HasForeignKey(x => x.VendedorId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMContacto>()
                 .HasOne(x => x.Origen)
                 .WithMany()
-                .HasForeignKey(x => x.OrigenId);
+                .HasForeignKey(x => x.OrigenId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMVendedor>()
                 .HasMany(x => x.Contactos)
                 .WithOne(x => x.Vendedor)
-                .HasForeignKey(x => x.VendedorId);
+                .HasForeignKey(x => x.VendedorId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMContacto>()
                 .HasOne(x => x.Cliente)
                 .WithMany()
-                .HasForeignKey(x => x.CuentaId);
+                .HasForeignKey(x => x.CuentaId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.Vendedor)
                 .WithMany(x => x.Oportunidades)
-                .HasForeignKey(x => x.VendedorId);
+                .HasForeignKey(x => x.VendedorId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.CRMCliente)
                 .WithMany()
-                .HasForeignKey(x => x.CuentaId);
+                .HasForeignKey(x => x.CuentaId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.EtapaVenta)
                 .WithMany()
-                .HasForeignKey(x => x.EtapaVentaId);
+                .HasForeignKey(x => x.EtapaVentaId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.Tipo)
@@ -207,57 +173,68 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.UnidadMedida)
                 .WithMany()
-                .HasForeignKey(x => x.UnidadMedidaId);
+                .HasForeignKey(x => x.UnidadMedidaId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.Contacto)
                 .WithMany()
-                .HasForeignKey(x => x.ContactoId);
+                .HasForeignKey(x => x.ContactoId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.Periodo)
                 .WithMany()
-                .HasForeignKey(x => x.PeriodoId);
+                .HasForeignKey(x => x.PeriodoId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.OrigenProducto)
                 .WithMany()
-                .HasForeignKey(x => x.OrigenPrductoId);
+                .HasForeignKey(x => x.OrigenPrductoId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.TipoProducto)
                 .WithMany()
-                .HasForeignKey(x => x.TipoProductoId);
+                .HasForeignKey(x => x.TipoProductoId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.ModeloVenta)
                 .WithMany()
-                .HasForeignKey(x => x.ModeloVentaId);
+                .HasForeignKey(x => x.ModeloVentaId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.Volumen)
                 .WithMany()
-                .HasForeignKey(x => x.VolumenId);
+                .HasForeignKey(x => x.VolumenId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.FormaPago)
                 .WithMany()
-                .HasForeignKey(x => x.FormaPagoId);
+                .HasForeignKey(x => x.FormaPagoId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.DiasCredito)
                 .WithMany()
-                .HasForeignKey(x => x.DiasPagoId);
+                .HasForeignKey(x => x.DiasPagoId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMContacto>()
                 .HasOne(x => x.Division)
                 .WithMany()
-                .HasForeignKey(x => x.DivisionId);
+                .HasForeignKey(x => x.DivisionId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOriginador>()
                 .HasOne(x => x.Division)
                 .WithMany()
-                .HasForeignKey(x => x.DivisionId);
+                .HasForeignKey(x => x.DivisionId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMVendedorOriginador>().HasKey(x => new { x.VendedorId, x.OriginadorId });
 
@@ -275,12 +252,14 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<CRMRol>()
                 .HasOne(x => x.Division)
                 .WithMany()
-                .HasForeignKey(x => x.DivisionId);
+                .HasForeignKey(x => x.DivisionId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMEquipo>()
                 .HasOne(x => x.Originador)
                 .WithMany(x => x.Equipos)
-                .HasForeignKey(x => x.LiderId);
+                .HasForeignKey(x => x.LiderId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMEquipoVendedor>().HasKey(x => new { x.EquipoId, x.VendedorId });
             modelBuilder.Entity<CRMEquipo>()
@@ -295,23 +274,26 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<CRMVendedor>()
                 .HasMany(x => x.Oportunidades)
                 .WithOne(x => x.Vendedor)
-                .HasForeignKey(x => x.VendedorId);
+                .HasForeignKey(x => x.VendedorId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.Equipo)
                 .WithMany(x => x.Oportunidades)
-                .HasForeignKey(x => x.EquipoId);
+                .HasForeignKey(x => x.EquipoId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMCliente>()
                 .HasOne(x => x.Contacto)
                 .WithMany()
-                .HasForeignKey(x => x.ContactoPrincipalId);
+                .HasForeignKey(x => x.ContactoPrincipalId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMActividades>()
                 .HasOne(x => x.Equipo)
                 .WithMany(x => x.Actividades)
-                .HasForeignKey(x => x.EquipoId);
-
+                .HasForeignKey(x => x.EquipoId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMOportunidadDocumento>().HasKey(x => new { x.OportunidadId, x.DocumentoId });
             modelBuilder.Entity<CRMOportunidad>()
@@ -335,30 +317,20 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<CRMCatalogo>()
                 .HasMany(x => x.Valores)
                 .WithOne(x => x.Catalogo)
-                .HasForeignKey(x => x.CatalogoId);
+                .HasForeignKey(x => x.CatalogoId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMGrupoRol>().HasKey(x => new { x.RolId, x.GrupoId });
             modelBuilder.Entity<CRMGrupo>()
                 .HasMany(x => x.GrupoRols)
                 .WithOne(x => x.Grupo)
-                .HasForeignKey(x => x.GrupoId);
+                .HasForeignKey(x => x.GrupoId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
-        public DbSet<Accion> Accion { get; set; }
-        public DbSet<Cliente> Cliente { get; set; }
-        public DbSet<GrupoUsuario> GrupoUsuario { get; set; }
         public DbSet<Log> Log { get; set; }
-        public DbSet<Tad> Tad { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
-        public DbSet<Contacto> Contacto { get; set; }
         public DbSet<ActividadRegistrada> ActividadRegistrada { get; set; }
         public DbSet<Errors> Errors { get; set; }
-        public DbSet<Vendedor> Vendedores { get; set; }
-        public DbSet<Originador> Originadores { get; set; }
-        public DbSet<Vendedor_Originador> Vendedor_Originador { get; set; }
-        public DbSet<Metas_Vendedor> Metas_Vendedor { get; set; }
-        public DbSet<Cliente_Tad> Cliente_Tad { get; set; }
-        public DbSet<Usuario_Tad> Usuario_Tad { get; set; }
-        public DbSet<Catalogo_Fijo> Catalogo_Fijo { get; set; }
         public DbSet<CRMContacto> CRMContactos { get; set; }
         public DbSet<CRMCliente> CRMClientes { get; set; }
         public DbSet<CRMActividades> CRMActividades { get; set; }

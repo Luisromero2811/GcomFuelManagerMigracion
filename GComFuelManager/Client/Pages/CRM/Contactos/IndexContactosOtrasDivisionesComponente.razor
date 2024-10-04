@@ -2,7 +2,7 @@
 @inject SweetAlertService swal
 @attribute [Authorize(Roles = "Admin, VER_CONTACTOS")]
 
-<div class="ancho-tabla">
+<div class="container-fluid overflow-scroll">
     <Tabla Datos="contactos" Cargando="loading_info">
         <Cabeceras>
             <tr>

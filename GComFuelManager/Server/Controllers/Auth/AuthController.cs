@@ -18,19 +18,16 @@ namespace GComFuelManager.Server.Controllers.Auth
     {
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly SignInManager<IdentityUsuario> signInManager;
-        private readonly RoleManager<IdentityRol> roleManager;
         private readonly IConfiguration configuration;
         private readonly ApplicationDbContext context;
 
         public AuthController(UserManager<IdentityUsuario> userManager,
             SignInManager<IdentityUsuario> signInManager,
-            RoleManager<IdentityRol> roleManager,
             IConfiguration configuration,
             ApplicationDbContext context)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
-            this.roleManager = roleManager;
             this.configuration = configuration;
             this.context = context;
         }

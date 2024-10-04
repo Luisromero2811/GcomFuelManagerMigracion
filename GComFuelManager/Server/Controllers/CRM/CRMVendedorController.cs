@@ -23,13 +23,13 @@ namespace GComFuelManager.Server.Controllers.CRM
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
-        private readonly RoleManager<IdentityRol> roleManager;
+        private readonly RoleManager<IdentityRole> roleManager;
         private readonly IMapper mapper;
         private readonly IValidator<CRMVendedorPostDTO> validator;
 
         public CRMVendedorController(ApplicationDbContext context,
             UserManager<IdentityUsuario> userManager,
-            RoleManager<IdentityRol> roleManager,
+            RoleManager<IdentityRole> roleManager,
             IMapper mapper,
             IValidator<CRMVendedorPostDTO> validator)
         {
@@ -76,6 +76,9 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (!string.IsNullOrEmpty(dTO.Correo) || !string.IsNullOrWhiteSpace(dTO.Correo))
                     vendedores = vendedores.Where(v => !string.IsNullOrEmpty(v.Correo) && v.Correo.ToLower().Contains(dTO.Correo.ToLower()));
+
+                if (!string.IsNullOrEmpty(dTO.NombreDivision) || !string.IsNullOrWhiteSpace(dTO.NombreDivision))
+                    vendedores = vendedores.Where(v => v.Division.Nombre.ToLower().Contains(dTO.NombreDivision.ToLower()));
 
                 if (dTO.EquipoId != 0)
                     vendedores = vendedores.Where(x => x.Equipos.Any(x => x.Id == dTO.EquipoId));
@@ -528,10 +531,10 @@ namespace GComFuelManager.Server.Controllers.CRM
                                 var identityRole = await roleManager.FindByIdAsync(permisoId.ToString());
                                 if (identityRole != null)
                                 {
-                                    var alreadyInRole = await userManager.IsInRoleAsync(usuario, identityRole.Name);
+                                    var alreadyInRole = await userManager.IsInRoleAsync(usuario, identityRole.Name ?? string.Empty);
                                     if (alreadyInRole)
                                     {
-                                        var identityRoleResult = await userManager.RemoveFromRoleAsync(usuario, identityRole.Name);
+                                        var identityRoleResult = await userManager.RemoveFromRoleAsync(usuario, identityRole.Name ?? string.Empty);
                                         if (!identityRoleResult.Succeeded)
                                         {
                                             return BadRequest(new { errors = identityRoleResult.Errors });
