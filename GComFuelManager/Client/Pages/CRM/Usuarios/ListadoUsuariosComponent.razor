@@ -21,59 +21,6 @@
                     <div class="col-md-2 col">
                         <NavLink class="btn btn-sm g-1 col-12 gcom-bg-amarillo" href="crm/gestion/usuarios">
                             <i class="fa fa-solid fa-plus"></i> Crear Nuevo Usuario
-<div class="card">
-    <div class="card-header d-flex justify-content-between">
-        <b>Usuarios</b>
-        <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
-            <i class="fa fa-solid fa-arrow-left"></i>
-            Volver
-        </NavLink>
-    </div>
-</div>
-<div class="col-12 my-2">
-    <div class="col-md-2 col">
-        <NavLink class="btn btn-sm g-1 col-12 gcom-bg-amarillo" href="crm/gestion/usuarios">
-            <i class="fa fa-solid fa-plus"></i> Crear Nuevo Usuario
-        </NavLink>
-    </div>
-</div>
-<div class="container-fluid overflow-scroll">
-    <Tabla Datos="CRMUsuariosList">
-        <Cabeceras>
-            <tr>
-                <th>Nombre de Usuario</th>
-                <th>Usuario</th>
-                <th>Tipo:</th>
-                <th>Habilitar / Deshabilitar</th>
-                <th>Editar</th>
-            </tr>
-        </Cabeceras>
-        <Filtros>
-            <tr>
-                <td>
-                    <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Nombre(args))" />
-                </td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </Filtros>
-        <Columnas Context="item">
-            <tr>
-                <td>@item.NombreUsuario</td>
-                <td>@item.UserName</td>
-                <td>@item.TipoUsuario</td>
-                <td>
-                    <div class="form-check form-switch m-2">
-                        <input class="form-check-input" type="checkbox" role="switch" id="@item?.Id_Asp" checked="@item?.Activo"
-                               @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))" />
-                    </div>
-                </td>
-                <td>
-                    <div class="col-12">
-                        <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/usuarios/{item?.Id_Asp}")>
-                            <i class="fa fa-solid fa-edit" />
                         </NavLink>
                     </div>
                 </div>

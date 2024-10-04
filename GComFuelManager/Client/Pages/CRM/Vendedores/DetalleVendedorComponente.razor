@@ -169,7 +169,7 @@
                 </div>
                 <Card HeaderText="Actividades">
                     <Body>
-                        <div class="ancho-tabla">
+                        <div class="container-fluid overflow-scroll">
                             <Tabla Datos="Actividades">
                                 <Cabeceras>
                                     <tr>
@@ -194,7 +194,7 @@
                                             <input class="form-control" @bind-value="filtroActividad.Estatus" placeholder="Filtrar estado"
                                                    @oninput="@((args) => FiltrarParametrosActividad(args, nameof(filtroActividad.Estatus)))" />
                                         </td>
-                                        <td></td>  
+                                        <td></td>
                                     </tr>
                                 </Filtros>
                                 <Columnas Context="item">
@@ -215,7 +215,6 @@
                     <PaginacionComponent PaginaActual="filtroActividad.Pagina_ACtual" PaginasTotales="filtroActividad.Total_paginas"
                                          Radio="5" PaginaSeleccionada="PaginaSeleccionadaActividad" />
                 </div>
-                <Card HeaderText="Oportunidades">
                 <Card HeaderClass="col-12 d-flex justify-content-between">
                     <Header>
                         <b>Oportunidades</b>
@@ -300,7 +299,6 @@
         <NoAutorizado />
     </NotAuthorized>
 </AuthorizeView>
-
 @code {
     [Parameter] public int Id { get; set; } = 0;
 
