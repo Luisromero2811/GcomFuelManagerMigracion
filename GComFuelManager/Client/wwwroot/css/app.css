@@ -223,6 +223,7 @@ a, .btn-link {
 .ancho-tabla {
     max-width: calc(100vw - 70px);
     overflow-x: scroll;
+    margin: auto;
 }
 
 /* typical phone screen resolution */

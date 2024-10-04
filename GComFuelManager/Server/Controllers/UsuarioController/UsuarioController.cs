@@ -54,17 +54,6 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                     if (u != null)
                     {
                         IList<string> roles = await userManager.GetRolesAsync(u);
-                        var terminales_usuario = context.Usuario_Tad.Where(x => x.Id_Usuario.Equals(u.Id)).ToList();
-
-                        foreach (var terminal in terminales_usuario)
-                        {
-                            var ter = context.Tad.FirstOrDefault(x => x.Cod == terminal.Id_Terminal);
-                            if (ter is not null)
-                            {
-                                usuarios.Single(x => x.UserCod == item.UserCod).Terminales.Add(ter);
-                                usuarios.Single(x => x.UserCod == item.UserCod).Terminales_Seleccionadas.Add(ter.Cod);
-                            }
-                        }
 
                         usuarios.Single(x => x.UserCod == item.UserCod).Roles = roles.ToList();
                         usuarios.Single(x => x.UserCod == item.UserCod).Id = u.Id;
@@ -96,16 +85,6 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                 var userAsp = await userManager.FindByNameAsync(info.UserName);
                 if (userAsp != null)
                     return BadRequest("El usuario ya existe");
-
-                if (info.IsClient)
-                {
-                    var cliente = context.Cliente.Find(info.CodCte);
-                    if (cliente is null) { return BadRequest("El cliente seleccionado no existe"); }
-
-                    foreach (var terminal in info.Terminales_Seleccionadas)
-                        if (!context.Cliente.Any(x => x.Id_Tad == terminal && x.Den == cliente.Den))
-                            return BadRequest($"El cliente selecconado no existe en una terminal seleccionada. Terminal: {context.Tad.Find(terminal)?.Den}");
-                }
 
                 var newUserSistema = new Usuario
                 {
@@ -141,15 +120,6 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                 }
                 //Si el resultado fue exitoso, retorna el nuevo usuario
 
-                foreach (var terminal in info.Terminales_Seleccionadas)
-                {
-                    if (!context.Usuario_Tad.Any(x => x.Id_Terminal == terminal && x.Id_Usuario == newUserAsp.Id))
-                    {
-                        context.Add(new Usuario_Tad() { Id_Usuario = newUserAsp.Id, Id_Terminal = terminal });
-                        await context.SaveChangesAsync();
-                    }
-                }
-
                 return Ok(newUserSistema);
             }
             catch (Exception e)
@@ -168,15 +138,6 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                 if (updateUserSistema is null)
                     return NotFound();
 
-                if (info.IsClient)
-                {
-                    var cliente = context.Cliente.Find(info.CodCte);
-                    if (cliente is null) { return BadRequest("El cliente seleccionado no existe"); }
-
-                    foreach (var terminal in info.Terminales_Seleccionadas)
-                        if (!context.Cliente.Any(x => x.Id_Tad == terminal && x.Den == cliente.Den))
-                            return BadRequest($"El cliente selecconado no existe en una terminal seleccionada. Terminal: {context.Tad.Find(terminal)?.Den}");
-                }
 
                 var oldUser = updateUserSistema;
 
@@ -224,19 +185,6 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                         context.Update(oldUser);
                         await context.SaveChangesAsync();
                         return BadRequest();
-                    }
-
-                    var relaciones_anteriores = context.Usuario_Tad.Where(x => x.Id_Usuario == updateUserAsp.Id).ToList();
-                    context.RemoveRange(relaciones_anteriores);
-                    await context.SaveChangesAsync();
-
-                    foreach (var terminal in info.Terminales_Seleccionadas)
-                    {
-                        if (!context.Usuario_Tad.Any(x => x.Id_Terminal == terminal && x.Id_Usuario == updateUserAsp.Id))
-                        {
-                            context.Add(new Usuario_Tad() { Id_Usuario = updateUserAsp.Id, Id_Terminal = terminal });
-                            await context.SaveChangesAsync();
-                        }
                     }
                 }
 
@@ -294,17 +242,7 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                         var user = await userManager.FindByNameAsync(usuario.Usu);
                         if (user != null)
                         {
-                            if (!context.Usuario_Tad.Any(x => x.Id_Usuario == user.Id && x.Id_Terminal == 1))
-                            {
-                                Usuario_Tad usuario_tad = new()
-                                {
-                                    Id_Usuario = user.Id,
-                                    Id_Terminal = 1
-                                };
 
-                                context.Add(usuario_tad);
-                                await context.SaveChangesAsync();
-                            }
                         }
                     }
                 }

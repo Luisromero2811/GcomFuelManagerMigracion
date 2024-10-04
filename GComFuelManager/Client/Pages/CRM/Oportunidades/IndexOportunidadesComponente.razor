@@ -14,28 +14,28 @@
                 </NavLink>
             </Header>
         </Card>
-        <AuthorizeView Roles="Admin, CREAR_OPORTUNIDAD">
-            <Authorized Context="CREAROPORTUNIDAD">
-                <div class="col-12 my-2 d-flex justify-content-between">
-                    <div class="col-md-2 col">
+        <div class="col-12 my-2 d-md-flex justify-content-md-between d-grid gap-2">
+            <AuthorizeView Roles="Admin, CREAR_OPORTUNIDAD">
+                <Authorized Context="CREAROPORTUNIDAD">
+                    <div class="col-md-2 col-12">
                         <NavLink Match="NavLinkMatch.All" href="crm/oportunidades/formulario" class="btn btn-sm gcom-bg-amarillo col-12 g-1">
                             <i class="fa fa-solid fa-plus" /> Agregar
                         </NavLink>
                     </div>
 
-                    <div class="col-md-2 col">
-                        <button class="btn col-12 gcom-bg-amarillo btn-sm g-1" @onclick="ExportarOportunidades">
-                            <i class="fa fa-solid fa-file-excel"></i>
-                            Exportar
-                        </button>
-                    </div>
-                </div>
-            </Authorized>
-        </AuthorizeView>
+                </Authorized>
+            </AuthorizeView>
+            <div class="col-md-2 col-12">
+                <button class="btn col-12 gcom-bg-amarillo btn-sm g-1" @onclick="ExportarOportunidades">
+                    <i class="fa fa-solid fa-file-excel"></i>
+                    Exportar
+                </button>
+            </div>
+        </div>
 
         <AuthorizeView Roles="Admin, VER_OPORTUNIDADES">
             <Authorized Context="VEROPORTUNIDADES">
-                <div class="ancho-tabla">
+                <div class="container-fluid overflow-scroll">
                     <Tabla Datos="Oportunidades" Cargando="loading_info">
                         <Cabeceras>
                             <tr>

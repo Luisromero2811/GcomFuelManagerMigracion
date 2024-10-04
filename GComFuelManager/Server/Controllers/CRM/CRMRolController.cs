@@ -22,15 +22,13 @@ namespace GComFuelManager.Server.Controllers.CRM
         private readonly IMapper mapper;
         private readonly IValidator<CRMRolPostDTO> validator;
         private readonly UserManager<IdentityUsuario> userManager;
-        private readonly RoleManager<IdentityRol> roleManager;
 
-        public CRMRolController(ApplicationDbContext context, IMapper mapper, IValidator<CRMRolPostDTO> validator, UserManager<IdentityUsuario> userManager, RoleManager<IdentityRol> roleManager)
+        public CRMRolController(ApplicationDbContext context, IMapper mapper, IValidator<CRMRolPostDTO> validator, UserManager<IdentityUsuario> userManager)
         {
             this.context = context;
             this.mapper = mapper;
             this.validator = validator;
             this.userManager = userManager;
-            this.roleManager = roleManager;
         }
 
         [HttpGet]
@@ -109,22 +107,22 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (rol is null) { return NotFound(); }
 
                 var permisosrol = await context.CRMRolPermisos.AsNoTracking().Where(x => x.RolId == rol.Id).ToListAsync();
-                var allpermisos = await context.Roles.AsNoTracking().Where(x => x.Show && !string.IsNullOrEmpty(x.Name)).AsNoTracking().ToListAsync();
+                var allpermisos = await context.Roles.AsNoTracking().Where(x => !string.IsNullOrEmpty(x.Name)).AsNoTracking().ToListAsync();
 
-                var grupos = await context.CRMGrupos.Where(x => x.Activo).Include(x => x.GrupoRols).ToListAsync();
+                var idspermisos = permisosrol.Select(x => x.PermisoId).ToList();
 
-                var gruporoles = grupos.Select(x => new CRMGrupoPermisoDTO
+                var grupos = await context.CRMGrupos.Where(x => x.Activo)
+                    .Include(x => x.GrupoRols.Where(x => idspermisos.Contains(x.RolId)))
+                    .ToListAsync();
+
+                rol.Permisos = grupos.Select(x => new CRMGrupoPermisoDTO
                 {
                     Grupo = x.Nombre,
-                    Permisos = allpermisos.IntersectBy(permisosrol.Select(x => x.PermisoId), y => y.Id).Select(x => new CRMPermisoDTO
+                    Permisos = x.GrupoRols.Select(y => new CRMPermisoDTO
                     {
-                        Id = x.Id,
-                        Nombre = allpermisos.First(y => y.Id == x.Id).Name!
-                    })
-                    .ToList()
-                }).ToList();
-
-                rol.Permisos = gruporoles;
+                        Nombre = allpermisos.First(x => x.Id == y.RolId).Name ?? string.Empty
+                    }).ToList()
+                }).Where(x => x.Permisos.Any()).ToList();
 
                 return Ok(rol);
             }

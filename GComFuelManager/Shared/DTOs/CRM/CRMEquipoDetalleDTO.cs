@@ -10,6 +10,6 @@ namespace GComFuelManager.Shared.DTOs.CRM
         
         public CRMDivision Division { get; set; } = new();
         public CRMOriginadorDTO Originador { get; set; } = new();
-        public List<CRMVendedorDTO> Vendedores { get; set; } = new();
+        //public List<CRMVendedorDTO> Vendedores { get; set; } = new();
     }
 }

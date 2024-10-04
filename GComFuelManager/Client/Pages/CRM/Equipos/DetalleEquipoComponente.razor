@@ -44,7 +44,7 @@
                 <Card HeaderText="Integrantes de equipo" BodyClass="g-1">
                     <Body>
                         <label><b>Lider de equipo</b></label>
-                        <div class="ancho-tabla">
+                        <div class="container-fluid overflow-scroll">
                             <Tabla Datos="Lider">
                                 <Cabeceras>
                                     <tr>
@@ -52,70 +52,84 @@
                                         <th>Division</th>
                                         <th>Correo</th>
                                         <th>Telefono movil</th>
-                                        <AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
-                                            <Authorized Context="VERCOMERCIAL">
-                                                <th>Ver detalle</th>
-                                            </Authorized>
-                                        </AuthorizeView>
                                     </tr>
                                 </Cabeceras>
                                 <Columnas Context="item">
                                     <tr>
-                                        <td>@item.Nombre @item.Apellidos</td>
-                                        <td>@item.NombreDivision</td>
-                                        <td>@item.Correo</td>
-                                        <td>@item.Tel_Movil</td>
                                         <AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
                                             <Authorized Context="VERCOMERCIAL">
                                                 <td>
                                                     <NavLink class="btn gcom-bg-amarillo" href=@($"crm/originador/{item.Id}")>
-                                                        <i class="fa fa-solid fa-eye" />
+                                                        <td>@item.Nombre @item.Apellidos</td>
                                                     </NavLink>
                                                 </td>
                                             </Authorized>
+                                            <NotAuthorized Context="VERCOMERCIAL">
+                                                <td>@item.Nombre @item.Apellidos</td>
+                                            </NotAuthorized>
                                         </AuthorizeView>
+                                        <td>@item.NombreDivision</td>
+                                        <td>@item.Correo</td>
+                                        <td>@item.Tel_Movil</td>
                                     </tr>
                                 </Columnas>
                             </Tabla>
                         </div>
 
                         <label><b>Vendedores</b></label>
-                        <div class="ancho-tabla">
-                            <Tabla Datos="Equipo.Vendedores">
+                        <div class="container-fluid overflow-scroll">
+                            <Tabla Datos="Vendedores">
                                 <Cabeceras>
                                     <tr>
                                         <th>Nombre</th>
                                         <th>Division</th>
                                         <th>Correo</th>
                                         <th>Telefono movil</th>
-                                        <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
-                                            <Authorized Context="VERVENDEDOR">
-                                                <th>Ver detalle</th>
-                                            </Authorized>
-                                        </AuthorizeView>
                                     </tr>
                                 </Cabeceras>
+                                <Filtros>
+                                    <tr>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroVendedor.Nombre" @oninput="@((args)=>FiltrarParametrosVendedor(args, nameof(CRMVendedorDTO.Nombre)))" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroVendedor.NombreDivision" @oninput="@((args)=>FiltrarParametrosVendedor(args, nameof(CRMVendedorDTO.NombreDivision)))" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroVendedor.Correo" @oninput="@((args)=>FiltrarParametrosVendedor(args, nameof(CRMVendedorDTO.Correo)))" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroVendedor.Tel_Movil" @oninput="@((args)=>FiltrarParametrosVendedor(args, nameof(CRMVendedorDTO.Tel_Movil)))" />
+                                        </td>
+                                    </tr>
+                                </Filtros>
                                 <Columnas Context="item">
                                     <tr>
-                                        <td>@item.Nombre @item.Apellidos</td>
-                                        <td>@item.NombreDivision</td>
-                                        <td>@item.Correo</td>
-                                        <td>@item.Tel_Movil</td>
                                         <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
                                             <Authorized Context="VERVENDEDOR">
                                                 <td>
-                                                    <NavLink class="btn gcom-bg-amarillo" href=@($"crm/vendedor/{item.Id}")>
-                                                        <i class="fa fa-solid fa-eye" />
+                                                    <NavLink href=@($"crm/vendedor/{item.Id}")>
+                                                        @item.Fullname
                                                     </NavLink>
                                                 </td>
                                             </Authorized>
+                                            <NotAuthorized Context="VERVENDEDOR">
+                                                <td>@item.Fullname</td>
+                                            </NotAuthorized>
                                         </AuthorizeView>
+                                        <td>@item.NombreDivision</td>
+                                        <td>@item.Correo</td>
+                                        <td>@item.Tel_Movil</td>
                                     </tr>
                                 </Columnas>
                             </Tabla>
                         </div>
                     </Body>
                 </Card>
+                <div class="col-12">
+                    <PaginacionComponent PaginaActual="filtroVendedor.Pagina_ACtual" PaginasTotales="filtroVendedor.Total_paginas"
+                                         Radio="5" PaginaSeleccionada="Pagina_Seleccionada" />
+                </div>
             </Body>
         </Card>
     </Authorized>
@@ -130,9 +144,14 @@
     CRMEquipoDetalleDTO Equipo = new();
     List<CRMOriginadorDTO> Lider = new();
 
+    Dictionary<string, string> query = new();
+    CRMVendedorDTO filtroVendedor = new();
+    List<CRMVendedorDTO> Vendedores = new();
+
     protected override async Task OnParametersSetAsync()
     {
         await Obtener();
+        await ObtenerVendedor();
     }
 
     private async Task Obtener()
@@ -160,5 +179,75 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
 
+    }
+
+    private Dictionary<string, string> SetFiltro()
+    {
+        query[$"{nameof(filtroVendedor.Nombre)}"] = filtroVendedor.Nombre;
+        query[$"{nameof(filtroVendedor.Tel_Movil)}"] = filtroVendedor.Tel_Movil;
+        query[$"{nameof(filtroVendedor.Correo)}"] = filtroVendedor.Correo;
+        query[$"{nameof(filtroVendedor.Pagina)}"] = filtroVendedor.Pagina.ToString();
+        query[$"{nameof(filtroVendedor.EquipoId)}"] = Id.ToString();
+        query[$"{nameof(filtroVendedor.Registros_por_pagina)}"] = filtroVendedor.Registros_por_pagina.ToString();
+        query[nameof(filtroVendedor.Paginacion)] = true.ToString();
+        return query;
+    }
+
+    private async Task ObtenerVendedor()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+
+            var response = await http.Get<List<CRMVendedorDTO>>($"api/crmvendedor?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Vendedores = response.Response;
+
+                filtroVendedor.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                filtroVendedor.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+                filtroVendedor.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task FiltrarParametrosVendedor(ChangeEventArgs args, string param)
+    {
+        switch (param)
+        {
+            case nameof(CRMVendedorDTO.Nombre):
+                filtroVendedor.Nombre = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(CRMVendedorDTO.Correo):
+                filtroVendedor.Correo = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(CRMVendedorDTO.Tel_Movil):
+                filtroVendedor.Tel_Movil = args.Value?.ToString() ?? string.Empty;
+                break;
+            default:
+                break;
+        }
+        await ObtenerVendedor();
+    }
+
+    private async Task Pagina_Seleccionada(int pagina)
+    {
+        filtroVendedor.Pagina_ACtual = pagina;
+        filtroVendedor.Pagina = pagina;
+
+        await ObtenerVendedor();
     }
 }

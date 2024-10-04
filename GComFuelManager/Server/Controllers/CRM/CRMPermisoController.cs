@@ -32,7 +32,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 var permisosDeRol = await context.CRMRolPermisos.Where(x => x.RolId == id).ToListAsync();
 
-                var allPermisos = await context.Roles.Where(x => !string.IsNullOrEmpty(x.Name) && x.Show).OrderBy(x => x.Name).ToListAsync();
+                var allPermisos = await context.Roles.Where(x => !string.IsNullOrEmpty(x.Name)).OrderBy(x => x.Name).ToListAsync();
 
                 var permisosRol = allPermisos.IntersectBy(permisosDeRol.Select(x => x.PermisoId), x => x.Id)
                     .Select(x => new CRMPermisoDTO
@@ -73,7 +73,7 @@ namespace GComFuelManager.Server.Controllers.CRM
             try
             {
 
-                var allPermisos = await context.Roles.Where(x => !string.IsNullOrEmpty(x.Name) && x.Show).OrderBy(x => x.Name).ToListAsync();
+                var allPermisos = await context.Roles.Where(x => !string.IsNullOrEmpty(x.Name)).OrderBy(x => x.Name).ToListAsync();
 
                 var permisosDeRol = await context.CRMRolPermisos.Where(x => x.RolId == id).ToListAsync();
 

@@ -1,8 +1,9 @@
-﻿@page "/crm/vendedor/{Id:int}"
+@page "/crm/vendedor/{Id:int}"
 
 @inject IRepositorio http
 @inject SweetAlertService swal
 @inject NavigationManager navigation
+@inject IJSRuntime js
 @attribute [Authorize(Roles = "Admin, VER_DETALLE_VENDEDORES")]
 
 <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
@@ -57,7 +58,7 @@
                 </Card>
                 <Card HeaderText="Contactos">
                     <Body>
-                        <div class="ancho-tabla">
+                        <div class="container-fluid overflow-scroll">
                             <Tabla Datos="Contactos">
                                 <Cabeceras>
                                     <tr>
@@ -121,7 +122,7 @@
                 </div>
                 <Card HeaderText="Equipos">
                     <Body>
-                        <div class="ancho-tabla">
+                        <div class="container-fluid overflow-scroll">
                             <Tabla Datos="Equipos">
                                 <Cabeceras>
                                     <tr>
@@ -215,8 +216,18 @@
                                          Radio="5" PaginaSeleccionada="PaginaSeleccionadaActividad" />
                 </div>
                 <Card HeaderText="Oportunidades">
+                <Card HeaderClass="col-12 d-flex justify-content-between">
+                    <Header>
+                        <b>Oportunidades</b>
+                        <div class="col-md-2 col-6">
+                            <button class="btn col-12 gcom-bg-amarillo btn-sm g-1" @onclick="ExportarOportunidades">
+                                <i class="fa fa-solid fa-file-excel"></i>
+                                Exportar
+                            </button>
+                        </div>
+                    </Header>
                     <Body>
-                        <div class="ancho-tabla">
+                        <div class="container-fluid overflow-scroll">
                             <Tabla Datos="Oportunidades">
                                 <Cabeceras>
                                     <tr>
@@ -632,5 +643,38 @@
         filtroEquipo.Pagina = pagina;
         filtroEquipo.Pagina_ACtual = pagina;
         await ObtenerEquipos();
+    }
+
+    private async Task ExportarOportunidades()
+    {
+        try
+        {
+            loading_info = true;
+            var query = SetParametrosOportunidades();
+
+            query.Add(nameof(CRMVendedorDTO.Excel), true.ToString());
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<byte[]>($"api/crmoportunidad?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+
+                await js.GuardarComo($"Oportunidades_{DateTime.Now:g}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
     }
 }

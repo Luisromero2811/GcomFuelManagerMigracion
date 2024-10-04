@@ -67,7 +67,6 @@
     <Folder Include="Pages\CRM\Documentos\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Remove="Pages\Formularios\Pedidos\ViewComentariosComponent.razor" />
     <Content Remove="wwwroot\js\" />
     <Content Remove="wwwroot\img\Triptico_EnergasEDITABLE-03.png" />
   </ItemGroup>
@@ -75,12 +74,6 @@
     <None Include="Pages\CRM\Documentos\IndexDocumentosComponente.razor" />
     <None Include="wwwroot\img\Triptico_EnergasEDITABLE-03.png" />
     <None Include="wwwroot\js\Grafico.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <UpToDateCheckInput Remove="Pages\Formularios\Pedidos\ViewComentariosComponent.razor" />
-  </ItemGroup>
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="Pages\Formularios\Pedidos\ViewComentariosComponent.razor" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Shared\DropdownMenuComponents\DropDownMenuButton.razor.css" />

@@ -4,6 +4,7 @@ using GComFuelManager.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GComFuelManager.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241004185621_InitialMig")]
+    partial class InitialMig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,6 +94,26 @@ namespace GComFuelManager.Server.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Accion", b =>
+                {
+                    b.Property<short?>("Cod")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short?>("Cod"));
+
+                    b.Property<bool>("Estatus")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Cod");
+
+                    b.ToTable("Accion");
                 });
 
             modelBuilder.Entity("GComFuelManager.Shared.Modelos.ActividadRegistrada", b =>
@@ -905,6 +928,161 @@ namespace GComFuelManager.Server.Migrations
                     b.ToTable("CRMVendedorOriginadores");
                 });
 
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Catalogo_Fijo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Abreviacion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<short>("Catalogo")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Valor")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Catalogo_Fijo");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Cliente", b =>
+                {
+                    b.Property<int>("Cod")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Cod"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("CodCte")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Codforpag")
+                        .HasColumnType("int");
+
+                    b.Property<short?>("Codgru")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Codsyn")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<short?>("Codtad")
+                        .HasColumnType("smallint");
+
+                    b.Property<int?>("Codusu")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Con")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("Consecutivo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Den")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<bool?>("Esenergas")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Id_Originador")
+                        .HasColumnType("int");
+
+                    b.Property<short?>("Id_Tad")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("Id_Vendedor")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Identificador_Externo")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("MdVenta")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tem")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Tipven")
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<bool?>("precioSemanal")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Cod");
+
+                    b.HasIndex("Id_Originador");
+
+                    b.HasIndex("Id_Vendedor");
+
+                    b.ToTable("Cliente");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Cliente_Tad", b =>
+                {
+                    b.Property<int>("Id_Cliente")
+                        .HasColumnType("int");
+
+                    b.Property<short>("Id_Terminal")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id_Cliente", "Id_Terminal");
+
+                    b.HasIndex("Id_Terminal");
+
+                    b.ToTable("Cliente_Tad");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Contacto", b =>
+                {
+                    b.Property<int>("Cod")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Cod"));
+
+                    b.Property<int?>("CodCte")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Correo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Estado")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Cod");
+
+                    b.HasIndex("CodCte");
+
+                    b.ToTable("Contacto");
+                });
+
             modelBuilder.Entity("GComFuelManager.Shared.Modelos.Errors", b =>
                 {
                     b.Property<string>("Cod")
@@ -926,6 +1104,28 @@ namespace GComFuelManager.Server.Migrations
                     b.ToTable("Errors");
                 });
 
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.GrupoUsuario", b =>
+                {
+                    b.Property<int>("cod")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("cod"));
+
+                    b.Property<int>("codgru")
+                        .HasColumnType("int");
+
+                    b.Property<int>("codusu")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("fch")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("cod");
+
+                    b.ToTable("GrupoUsuario");
+                });
+
             modelBuilder.Entity("GComFuelManager.Shared.Modelos.Log", b =>
                 {
                     b.Property<int>("cod")
@@ -943,6 +1143,97 @@ namespace GComFuelManager.Server.Migrations
                     b.HasKey("cod");
 
                     b.ToTable("Log");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Metas_Vendedor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activa")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Mes")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double?>("Meta")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Referencia")
+                        .HasColumnType("float");
+
+                    b.Property<int>("VendedorId")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("Venta_Real")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VendedorId");
+
+                    b.ToTable("Metas_Vendedor");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Originador", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Originadores");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Tad", b =>
+                {
+                    b.Property<short>("Cod")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("Cod"));
+
+                    b.Property<bool?>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Codigo")
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<string>("CodigoOrdenes")
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<string>("Den")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<short?>("Nro")
+                        .HasColumnType("smallint");
+
+                    b.Property<int?>("Tipo_Vale")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("Ultima_Actualizacion_Catalogo")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Cod");
+
+                    b.ToTable("Tad");
                 });
 
             modelBuilder.Entity("GComFuelManager.Shared.Modelos.Usuario", b =>
@@ -993,6 +1284,55 @@ namespace GComFuelManager.Server.Migrations
                     b.HasKey("Cod");
 
                     b.ToTable("Usuario");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Usuario_Tad", b =>
+                {
+                    b.Property<string>("Id_Usuario")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<short>("Id_Terminal")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id_Usuario", "Id_Terminal");
+
+                    b.ToTable("Usuario_Tad");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Vendedor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Vendedores");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Vendedor_Originador", b =>
+                {
+                    b.Property<int>("VendedorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OriginadorId")
+                        .HasColumnType("int");
+
+                    b.HasKey("VendedorId", "OriginadorId");
+
+                    b.HasIndex("OriginadorId");
+
+                    b.ToTable("Vendedor_Originador");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1486,6 +1826,84 @@ namespace GComFuelManager.Server.Migrations
                     b.Navigation("Vendedor");
                 });
 
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Cliente", b =>
+                {
+                    b.HasOne("GComFuelManager.Shared.Modelos.Originador", "Originador")
+                        .WithMany("Clientes")
+                        .HasForeignKey("Id_Originador")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GComFuelManager.Shared.Modelos.Vendedor", "Vendedor")
+                        .WithMany("Clientes")
+                        .HasForeignKey("Id_Vendedor")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Originador");
+
+                    b.Navigation("Vendedor");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Cliente_Tad", b =>
+                {
+                    b.HasOne("GComFuelManager.Shared.Modelos.Cliente", "Cliente")
+                        .WithMany("Cliente_Tads")
+                        .HasForeignKey("Id_Cliente")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GComFuelManager.Shared.Modelos.Tad", "Terminal")
+                        .WithMany("Cliente_Tads")
+                        .HasForeignKey("Id_Terminal")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+
+                    b.Navigation("Terminal");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Contacto", b =>
+                {
+                    b.HasOne("GComFuelManager.Shared.Modelos.Cliente", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("CodCte")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Cliente");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Metas_Vendedor", b =>
+                {
+                    b.HasOne("GComFuelManager.Shared.Modelos.Vendedor", "Vendedor")
+                        .WithMany("Metas_Vendedor")
+                        .HasForeignKey("VendedorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Vendedor");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Vendedor_Originador", b =>
+                {
+                    b.HasOne("GComFuelManager.Shared.Modelos.Originador", "Originador")
+                        .WithMany("Vendedor_Originador")
+                        .HasForeignKey("OriginadorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GComFuelManager.Shared.Modelos.Vendedor", "Vendedor")
+                        .WithMany("Vendedor_Originador")
+                        .HasForeignKey("VendedorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Originador");
+
+                    b.Navigation("Vendedor");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -1591,6 +2009,32 @@ namespace GComFuelManager.Server.Migrations
                     b.Navigation("Oportunidades");
 
                     b.Navigation("VendedorOriginadores");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Cliente", b =>
+                {
+                    b.Navigation("Cliente_Tads");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Originador", b =>
+                {
+                    b.Navigation("Clientes");
+
+                    b.Navigation("Vendedor_Originador");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Tad", b =>
+                {
+                    b.Navigation("Cliente_Tads");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Vendedor", b =>
+                {
+                    b.Navigation("Clientes");
+
+                    b.Navigation("Metas_Vendedor");
+
+                    b.Navigation("Vendedor_Originador");
                 });
 #pragma warning restore 612, 618
         }

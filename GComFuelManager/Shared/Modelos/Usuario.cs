@@ -35,6 +35,5 @@ namespace GComFuelManager.Shared.Modelos
         public Int16? CodGru { get; set; }
         [JsonProperty("isClient")]
         public bool IsClient { get; set; } = false;
-        [NotMapped] public Cliente? Cliente { get; set; } = null!;
     }
 }
