@@ -261,7 +261,7 @@ namespace GComFuelManager.Server.Controllers
                     return NotFound();
                 }
 
-                var user = await manager.FindByNameAsync(HttpContext.User.Identity.Name);
+                var user = await manager.FindByNameAsync(HttpContext.User.Identity.Name ?? string.Empty);
                 if (user is null)
                 {
                     return NotFound();
@@ -335,8 +335,11 @@ namespace GComFuelManager.Server.Controllers
                 if (!string.IsNullOrEmpty(activo.Estatus) && !string.IsNullOrWhiteSpace(activo.Estatus))
                     activos = activos.Where(x => x.Estados != null && x.Estados.Valor.ToLower().Contains(activo.Estatus.ToLower()));
 
-                if (!string.IsNullOrEmpty(activo.Asignado) && !string.IsNullOrWhiteSpace(activo.Asignado))
-                    activos = activos.Where(x => x.vendedor != null && x.vendedor.Nombre.ToLower().Contains(activo.Asignado.ToLower()));
+                if (!string.IsNullOrEmpty(activo.VendedorId) && !string.IsNullOrWhiteSpace(activo.VendedorId))
+                    activos = activos.Where(x => x.vendedor != null && x.vendedor.Nombre.ToLower().Contains(activo.VendedorId.ToLower()));
+
+                if (!activo.Asignado.IsZero())
+                    activos = activos.Where(x => x.Asignado.Equals(activo.Asignado));
 
                 if (activo.Excel)
                 {

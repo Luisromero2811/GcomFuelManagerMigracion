@@ -50,7 +50,7 @@ namespace GComFuelManager.Server.Mappers
                 .ForMember(x => x.Prioridad, y => y.MapFrom(c => c.prioridades.Valor))
                 .ForMember(x => x.Contacto_Rel, y => y.MapFrom(c => $"{c.contacto.Nombre} {c.contacto.Apellidos}"))
                 .ForMember(x => x.Cuenta_Rel, y => y.MapFrom(c => c.contacto.Cliente.Nombre ?? "No Asignado"))
-                .ForMember(x => x.Asignado, y => y.MapFrom(c => c.vendedor.Nombre));
+                .ForMember(x => x.VendedorId, y => y.MapFrom(c => $"{c.vendedor.Nombre} {c.vendedor.Apellidos}"));
 
             CreateMap<CRMVendedor, CRMVendedor>()
                 .ForMember(x => x.UserId, o => o.Ignore());

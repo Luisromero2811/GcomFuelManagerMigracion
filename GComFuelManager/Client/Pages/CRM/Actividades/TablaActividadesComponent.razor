@@ -80,7 +80,7 @@
                                 <td></td>
                                 <td></td>
                                 <td>
-                                    <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asignado" @oninput="FiltrarVendedor" />
+                                    <input class="form-control form-control-sm" @bind-value="filtro_actividad.VendedorId" @oninput="FiltrarVendedor" />
                                 </td>
                                 <td></td>
                             </tr>
@@ -109,7 +109,7 @@
                                 <td>@item.Fch_Inicio.ToString()</td>
                                 <td>@(item.Fecha_Mod == null || item.Fecha_Mod == DateTime.MinValue ? "" : item.Fecha_Mod.Value.ToString())</td>
                                 <td>@item.Fecha_Ven.ToString()</td>
-                                <td>@item.Asignado</td>
+                                <td>@item.VendedorId</td>
                                 <AuthorizeView Roles="Admin, DESACTIVAR_ACTIVIDAD">
                                     <Authorized Context="DeshabilitarActividad">
                                         <td>
@@ -150,7 +150,7 @@
     {
         query[$"{nameof(filtro_actividad.Asunto)}"] = filtro_actividad.Asunto;
         query[$"{nameof(filtro_actividad.Prioridad)}"] = filtro_actividad.Prioridad;
-        query[$"{nameof(filtro_actividad.Asignado)}"] = filtro_actividad.Asignado;
+        query[$"{nameof(filtro_actividad.VendedorId)}"] = filtro_actividad.VendedorId;
         query[$"{nameof(filtro_actividad.Desccripcion)}"] = filtro_actividad.Desccripcion;
         query[$"{nameof(filtro_actividad.Estatus)}"] = filtro_actividad.Estatus;
         query[$"{nameof(filtro_actividad.Contacto_Rel)}"] = filtro_actividad.Contacto_Rel;
@@ -206,7 +206,7 @@
 
     private async Task FiltrarVendedor(ChangeEventArgs args)
     {
-        filtro_actividad.Asignado = args.Value?.ToString() ?? string.Empty;
+        filtro_actividad.VendedorId = args.Value?.ToString() ?? string.Empty;
         await Obtener_Actividades();
     }
 

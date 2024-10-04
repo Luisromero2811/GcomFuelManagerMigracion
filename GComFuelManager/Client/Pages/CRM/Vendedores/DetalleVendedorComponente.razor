@@ -166,6 +166,54 @@
                 <div class="col-12">
                     <PaginacionComponent PaginaActual="filtroEquipo.Pagina_ACtual" PaginasTotales="filtroEquipo.Total_paginas" Radio="5" PaginaSeleccionada="PaginaSeleccionadaEquipos" />
                 </div>
+                <Card HeaderText="Actividades">
+                    <Body>
+                        <div class="ancho-tabla">
+                            <Tabla Datos="Actividades">
+                                <Cabeceras>
+                                    <tr>
+                                        <td>Contacto</td>
+                                        <td>Cuenta</td>
+                                        <td>Asunto</td>
+                                        <td>Prioridad</td>
+                                        <td>Estado</td>
+                                        <td>Asignado A:</td>
+                                    </tr>
+                                </Cabeceras>
+                                <Filtros>
+                                    <tr>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroActividad.Contacto_Rel" placeholder="Filtrar contacto"
+                                                   @oninput="@((args) => FiltrarParametrosActividad(args, nameof(filtroActividad.Contacto_Rel)))" />
+                                        </td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroActividad.Estatus" placeholder="Filtrar estado"
+                                                   @oninput="@((args) => FiltrarParametrosActividad(args, nameof(filtroActividad.Estatus)))" />
+                                        </td>
+                                        <td></td>  
+                                    </tr>
+                                </Filtros>
+                                <Columnas Context="item">
+                                    <tr>
+                                        <td>@item.Contacto_Rel</td>
+                                        <td>@item.Cuenta_Rel</td>
+                                        <td>@item.Asunto</td>
+                                        <td>@item.Prioridad</td>
+                                        <td>@item.Estatus</td>
+                                        <td>@item.VendedorId</td>
+                                    </tr>
+                                </Columnas>
+                            </Tabla>
+                        </div>
+                    </Body>
+                </Card>
+                <div class="col-12">
+                    <PaginacionComponent PaginaActual="filtroActividad.Pagina_ACtual" PaginasTotales="filtroActividad.Total_paginas"
+                                         Radio="5" PaginaSeleccionada="PaginaSeleccionadaActividad" />
+                </div>
                 <Card HeaderText="Oportunidades">
                     <Body>
                         <div class="ancho-tabla">
@@ -254,6 +302,9 @@
     CRMOportunidadDTO filtroOportunidad = new();
     List<CRMOportunidadDTO> Oportunidades = new();
 
+    CRMActividadDTO filtroActividad = new();
+    List<CRMActividadDTO> Actividades = new();
+
     CRMEquipoDTO filtroEquipo = new();
     List<CRMEquipoDTO> Equipos = new();
 
@@ -263,6 +314,7 @@
         await Task.WhenAll(
         ObtenerEquipos(),
         ObtenerContactos(),
+        ObtenerActividades(),
         ObtenerOportunidades());
     }
 
@@ -361,6 +413,72 @@
         filtroContacto.Pagina = pagina;
         filtroContacto.Pagina_ACtual = pagina;
         await ObtenerContactos();
+    }
+
+    private Dictionary<string, string> SetParametrosActividades()
+    {
+        var param = new Dictionary<string, string>();
+        param[nameof(filtroActividad.Contacto_Rel)] = filtroActividad.Contacto_Rel;
+        param[nameof(filtroActividad.Estatus)] = filtroActividad.Estatus;
+        param[nameof(filtroActividad.Paginacion)] = true.ToString();
+        param[nameof(filtroActividad.Registros_por_pagina)] = filtroActividad.Registros_por_pagina.ToString();
+        param[nameof(filtroActividad.Pagina)] = filtroActividad.Pagina.ToString();
+        param[nameof(filtroActividad.Asignado)] = Id.ToString();
+        return param;
+    }
+
+    private async Task ObtenerActividades()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetParametrosActividades());
+            var responseHttp = await http.Get<List<CRMActividadDTO>>($"api/actividades?{uri}");
+            if (responseHttp.Error)
+            {
+                loading_info = false;
+                var message = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Actividades = responseHttp.Response;
+
+                filtroActividad.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(responseHttp.HttpResponseMessage);
+                filtroActividad.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(responseHttp.HttpResponseMessage);
+                filtroActividad.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(responseHttp.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task FiltrarParametrosActividad(ChangeEventArgs args, string campo)
+    {
+        switch (campo)
+        {
+            case nameof(filtroActividad.Contacto_Rel):
+                filtroActividad.Contacto_Rel = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(filtroActividad.Estatus):
+                filtroActividad.Estatus = args.Value?.ToString() ?? string.Empty;
+                break;
+            default:
+                break;
+
+        }
+        await ObtenerActividades();
+    }
+
+    private async Task PaginaSeleccionadaActividad(int pagina)
+    {
+        filtroActividad.Pagina = pagina;
+        filtroActividad.Pagina_ACtual = pagina;
+        await ObtenerActividades();
     }
 
     private Dictionary<string, string> SetParametrosOportunidades()
