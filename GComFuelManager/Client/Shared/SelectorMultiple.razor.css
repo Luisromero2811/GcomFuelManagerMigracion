@@ -4,6 +4,27 @@
     max-height: 50vh;
 }
 
+/* typical phone screen resolution */
+@media only screen and (max-width : 667px) {
+    .selector-multiple {
+        flex-direction: column;
+        max-height:none;
+    }
+}
+/* landscape orientation */
+@media only screen and (min-width : 375px) and (max-width : 667px) and (orientation : landscape) {
+    .selector-multiple {
+        flex-direction: row;
+    }
+}
+/* portrait orientation */
+@media only screen and (min-width : 375px) and (max-width : 667px) and (orientation : portrait) {
+    .selector-multiple {
+        flex-direction: column;
+        max-height: none;
+    }
+}
+
 .selectable-ui {
     overflow-y: auto;
     list-style-type: none;
@@ -23,6 +44,7 @@
 @media only screen and (max-width : 667px) {
     .selectable-ui {
         width: 100%;
+        max-height: 25vh;
     }
 }
 /* landscape orientation */
@@ -35,6 +57,7 @@
 @media only screen and (min-width : 375px) and (max-width : 667px) and (orientation : portrait) {
     .selectable-ui {
         width: 100%;
+        max-height: 25vh;
     }
 }
 

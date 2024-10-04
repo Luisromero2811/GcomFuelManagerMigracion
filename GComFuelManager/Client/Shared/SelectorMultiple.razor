@@ -22,7 +22,10 @@
             }   }
         else
         {
-            @CustomNoSeleccionado
+            @foreach (var item in NoSeleccionado)
+            {
+                @CustomNoSeleccionado(item)
+            }
         }
     </ul>
     <div class="selector-multiple-botones">
@@ -50,7 +53,10 @@
             }   }
         else
         {
-            @CustomSeleccionado
+            @foreach (var item in Seleccionados)
+            {
+                @CustomSeleccionado(item)
+            }
         }
     </ul>
 </div>
@@ -65,8 +71,8 @@
     [Parameter] public RenderFragment<T>? ItemNoSeleccionado { get; set; } = null!;
     [Parameter] public RenderFragment<T>? ItemSeleccionado { get; set; } = null!;
 
-    [Parameter] public RenderFragment? CustomNoSeleccionado { get; set; } = null!;
-    [Parameter] public RenderFragment? CustomSeleccionado { get; set; } = null!;
+    [Parameter] public RenderFragment<T>? CustomNoSeleccionado { get; set; } = null!;
+    [Parameter] public RenderFragment<T>? CustomSeleccionado { get; set; } = null!;
 
     [Parameter] public bool Filtrar { get; set; } = false;
 

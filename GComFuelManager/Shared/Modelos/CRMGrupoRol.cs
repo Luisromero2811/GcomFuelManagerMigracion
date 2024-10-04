@@ -4,5 +4,7 @@
     {
         public string RolId { get; set; } = string.Empty;
         public int GrupoId { get; set; }
+
+        public CRMGrupo? Grupo { get; set; } = null!;
     }
 }

@@ -44,71 +44,76 @@
                 <Card HeaderText="Integrantes de equipo" BodyClass="g-1">
                     <Body>
                         <label><b>Lider de equipo</b></label>
-                        <Tabla Datos="Lider">
-                            <Cabeceras>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Division</th>
-                                    <th>Correo</th>
-                                    <th>Telefono movil</th>
-                                    <AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
-                                        <Authorized Context="VERCOMERCIAL">
-                                            <th>Ver detalle</th>
-                                        </Authorized>
-                                    </AuthorizeView>
-                                </tr>
-                            </Cabeceras>
-                            <Columnas Context="item">
-                                <tr>
-                                    <td>@item.Nombre @item.Apellidos</td>
-                                    <td>@item.NombreDivision</td>
-                                    <td>@item.Correo</td>
-                                    <td>@item.Tel_Movil</td>
-                                    <AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
-                                        <Authorized Context="VERCOMERCIAL">
-                                            <td>
-                                                <NavLink class="btn gcom-bg-amarillo" href=@($"crm/originador/{item.Id}")>
-                                                    <i class="fa fa-solid fa-eye" />
-                                                </NavLink>
-                                            </td>
-                                        </Authorized>
-                                    </AuthorizeView>
-                                </tr>
-                            </Columnas>
-                        </Tabla>
+                        <div class="ancho-tabla">
+                            <Tabla Datos="Lider">
+                                <Cabeceras>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Division</th>
+                                        <th>Correo</th>
+                                        <th>Telefono movil</th>
+                                        <AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
+                                            <Authorized Context="VERCOMERCIAL">
+                                                <th>Ver detalle</th>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </tr>
+                                </Cabeceras>
+                                <Columnas Context="item">
+                                    <tr>
+                                        <td>@item.Nombre @item.Apellidos</td>
+                                        <td>@item.NombreDivision</td>
+                                        <td>@item.Correo</td>
+                                        <td>@item.Tel_Movil</td>
+                                        <AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
+                                            <Authorized Context="VERCOMERCIAL">
+                                                <td>
+                                                    <NavLink class="btn gcom-bg-amarillo" href=@($"crm/originador/{item.Id}")>
+                                                        <i class="fa fa-solid fa-eye" />
+                                                    </NavLink>
+                                                </td>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </tr>
+                                </Columnas>
+                            </Tabla>
+                        </div>
+
                         <label><b>Vendedores</b></label>
-                        <Tabla Datos="Equipo.Vendedores">
-                            <Cabeceras>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Division</th>
-                                    <th>Correo</th>
-                                    <th>Telefono movil</th>
-                                    <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
-                                        <Authorized Context="VERVENDEDOR">
-                                            <th>Ver detalle</th>
-                                        </Authorized>
-                                    </AuthorizeView>
-                                </tr>
-                            </Cabeceras>
-                            <Columnas Context="item">
-                                <tr>
-                                    <td>@item.Nombre @item.Apellidos</td>
-                                    <td>@item.NombreDivision</td>
-                                    <td>@item.Correo</td>
-                                    <td>@item.Tel_Movil</td>
-                                    <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
-                                        <Authorized Context="VERVENDEDOR">
-                                            <td>
-                                                <NavLink class="btn gcom-bg-amarillo" href=@($"crm/vendedor/{item.Id}")>
-                                                    <i class="fa fa-solid fa-eye" />
-                                                </NavLink>
-                                            </td>
-                                        </Authorized>
-                                    </AuthorizeView>
-                                </tr>
-                            </Columnas>
-                        </Tabla>
+                        <div class="ancho-tabla">
+                            <Tabla Datos="Equipo.Vendedores">
+                                <Cabeceras>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Division</th>
+                                        <th>Correo</th>
+                                        <th>Telefono movil</th>
+                                        <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
+                                            <Authorized Context="VERVENDEDOR">
+                                                <th>Ver detalle</th>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </tr>
+                                </Cabeceras>
+                                <Columnas Context="item">
+                                    <tr>
+                                        <td>@item.Nombre @item.Apellidos</td>
+                                        <td>@item.NombreDivision</td>
+                                        <td>@item.Correo</td>
+                                        <td>@item.Tel_Movil</td>
+                                        <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
+                                            <Authorized Context="VERVENDEDOR">
+                                                <td>
+                                                    <NavLink class="btn gcom-bg-amarillo" href=@($"crm/vendedor/{item.Id}")>
+                                                        <i class="fa fa-solid fa-eye" />
+                                                    </NavLink>
+                                                </td>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </tr>
+                                </Columnas>
+                            </Tabla>
+                        </div>
                     </Body>
                 </Card>
             </Body>

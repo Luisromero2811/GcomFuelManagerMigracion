@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using GComFuelManager.Client.Helpers;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs.CRM;
@@ -104,6 +105,9 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!string.IsNullOrEmpty(contacto.Vendedor) && !string.IsNullOrWhiteSpace(contacto.Vendedor))
                     contactos = contactos.Where(x => x.Vendedor != null && x.Vendedor.Nombre.ToLower().Contains(contacto.Vendedor.ToLower()));
 
+                if (!contacto.VendedorId.IsZero())
+                    contactos = contactos.Where(x => x.VendedorId.Equals(contacto.VendedorId));
+
                 if (!string.IsNullOrEmpty(contacto.Correo) && !string.IsNullOrWhiteSpace(contacto.Correo))
                     contactos = contactos.Where(x => x.Correo.ToLower().Contains(contacto.Correo.ToLower()));
 
@@ -117,7 +121,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     contactos = contactos.Where(x => x.Division != null && x.Division.Nombre.ToLower().Contains(contacto.Division.ToLower()));
 
                 if (contacto.CuentaId != 0)
-                    contactos = contactos.Where(x => x.CuentaId == contacto.CuentaId);
+                    contactos = contactos.Where(x => x.CuentaId.Equals(contacto.CuentaId));
 
                 if (contacto.Paginacion)
                 {
@@ -268,24 +272,6 @@ namespace GComFuelManager.Server.Controllers.CRM
                 return BadRequest(e.Message);
             }
         }
-
-        //[HttpGet("cuenta/{Id:int}")]
-        //public async Task<ActionResult> GetByCuenta([FromRoute] int Id)
-        //{
-        //    try
-        //    {
-        //        var contacto = await context.CRMContactos.AsNoTracking()
-        //            .Where(x => x.CuentaId == Id)
-        //            .Select(x => mapper.Map<CRMContactoDTO>(x))
-        //            .ToListAsync();
-
-        //        return Ok(contacto);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.Message);
-        //    }
-        //}
 
         [HttpGet("{Id:int}/detalle")]
         public async Task<ActionResult> GetByIdDetail([FromRoute] int Id)

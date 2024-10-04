@@ -47,7 +47,7 @@ namespace GComFuelManager.Server.Controllers.CRM
             {
                 var user = await userManager.FindByNameAsync(HttpContext.User.Identity?.Name ?? string.Empty);
                 if (user is null) return NotFound();
-                var vendedores = new List<CRMVendedor>().AsQueryable();
+                var vendedores = new List<CRMVendedor>().OrderBy(x => x.Nombre).AsQueryable();
                 if (await userManager.IsInRoleAsync(user, "Admin"))
                 {
                     vendedores = context.CRMVendedores.Where(x => x.Activo).AsNoTracking().Include(x => x.Equipos).AsQueryable();
@@ -149,21 +149,6 @@ namespace GComFuelManager.Server.Controllers.CRM
                     .AsNoTracking()
                     .Where(x => x.Id == Id)
                     .Include(x => x.Division)
-                    .Include(x => x.Originadores)
-                    .Include(x => x.Equipos)
-                    .ThenInclude(x => x.Originador)
-                    .Include(x => x.Equipos)
-                    .ThenInclude(x => x.Division)
-                    .Include(x => x.Contactos)
-                    .ThenInclude(x => x.Division)
-                    .Include(x => x.Contactos)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Oportunidades)
-                    .ThenInclude(x => x.CRMCliente)
-                    .Include(x => x.Oportunidades)
-                    .ThenInclude(x => x.Contacto)
-                    .Include(x => x.Oportunidades)
-                    .ThenInclude(x => x.EtapaVenta)
                     .Select(x => mapper.Map<CRMVendedor, CRMVendedorDetalleDTO>(x))
                     .SingleOrDefaultAsync();
                 if (vendedor is null) { return NotFound(); }

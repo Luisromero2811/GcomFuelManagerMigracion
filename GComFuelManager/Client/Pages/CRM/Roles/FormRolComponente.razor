@@ -30,13 +30,37 @@
                     </div>
                     <div class="col-12">
                         <label>Permisos de rol</label>
-                        <SelectorMultiple T="CRMPermisoDTO" NoSeleccionado="PermisosNoSeleccionados" Seleccionados="PermisosSeleccionados">
-                            <ItemNoSeleccionado Context="item">
-                                @item.Nombre
-                            </ItemNoSeleccionado>
-                            <ItemSeleccionado Context="item">
-                                @item.Nombre
-                            </ItemSeleccionado>
+                        <SelectorMultiple T="CRMGrupoPermisoDTO" NoSeleccionado="PermisosNoSeleccionados" Seleccionados="PermisosSeleccionados">
+                            <CustomNoSeleccionado Context="item">
+                                <div>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item" @onclick="@(()=>SeleccionarTodo(item))" id="@item.Grupo">
+                                            <b>@item.Grupo</b>
+                                        </li>
+                                        @foreach (var permiso in item.Permisos)
+                                        {
+                                            <li class="list-group-item ms-4" @onclick="@(()=>Seleccionar(item.Grupo, permiso))" id="@permiso.Nombre">
+                                                @permiso.Nombre
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </CustomNoSeleccionado>
+                            <CustomSeleccionado Context="item">
+                                <div>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item" @onclick="@(()=>NoSeleccionarTodo(item))" id="@item.Grupo">
+                                            <b>@item.Grupo</b>
+                                        </li>
+                                        @foreach (var permiso in item.Permisos)
+                                        {
+                                            <li class="list-group-item ms-4" @onclick="@(()=>NoSeleccionar(item.Grupo, permiso))" id="@permiso.Nombre">
+                                                @permiso.Nombre
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </CustomSeleccionado>
                         </SelectorMultiple>
                     </div>
                     <div class="col-12">
@@ -64,8 +88,8 @@
     [Parameter] public int Id { get; set; }
 
     CRMRolPostDTO Rol = new();
-    List<CRMPermisoDTO> PermisosNoSeleccionados = new();
-    List<CRMPermisoDTO> PermisosSeleccionados = new();
+    List<CRMGrupoPermisoDTO> PermisosNoSeleccionados = new();
+    List<CRMGrupoPermisoDTO> PermisosSeleccionados = new();
 
     bool loading_info = false;
     bool loading_save = false;
@@ -83,7 +107,7 @@
     {
         try
         {
-            var response = await http.Get<List<CRMPermisoDTO>>($"api/crmpermiso/no/{Id}");
+            var response = await http.Get<List<CRMGrupoPermisoDTO>>($"api/crmpermiso/no/{Id}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -105,7 +129,7 @@
     {
         try
         {
-            var response = await http.Get<List<CRMPermisoDTO>>($"api/crmpermiso/{Id}");
+            var response = await http.Get<List<CRMGrupoPermisoDTO>>($"api/crmpermiso/{Id}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -127,7 +151,10 @@
     {
         try
         {
-            Rol.Permisos = PermisosSeleccionados;
+            PermisosSeleccionados.ForEach(x =>
+            {
+                Rol.Permisos.AddRange(x.Permisos);
+            });
 
             loading_save = true;
             var response = await http.Post<CRMRolPostDTO>($"api/crmrol", Rol);
@@ -177,5 +204,57 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
 
+    }
+
+    private void SeleccionarTodo(CRMGrupoPermisoDTO grupo)
+    {
+        PermisosNoSeleccionados.Remove(grupo);
+        if (!PermisosSeleccionados.Any(x => x.Grupo.Equals(grupo.Grupo)))
+            PermisosSeleccionados.Add(grupo);
+        else
+            PermisosSeleccionados.First(x => x.Grupo.Equals(grupo.Grupo)).Permisos.AddRange(grupo.Permisos);
+    }
+
+    private void Seleccionar(string grupo, CRMPermisoDTO permiso)
+    {
+        PermisosNoSeleccionados.First(x => x.Grupo.Equals(grupo))
+        .Permisos.Remove(permiso);
+
+        if (!PermisosSeleccionados.Any(x => x.Grupo.Equals(grupo)))
+        {
+            PermisosSeleccionados.Add(new()
+                {
+                    Grupo = grupo,
+                    Permisos = new() { permiso }
+                });
+        }
+        else
+            PermisosSeleccionados.First(x => x.Grupo.Equals(grupo)).Permisos.Add(permiso);
+    }
+
+    private void NoSeleccionarTodo(CRMGrupoPermisoDTO grupo)
+    {
+        PermisosSeleccionados.Remove(grupo);
+        if (!PermisosNoSeleccionados.Any(x => x.Grupo.Equals(grupo.Grupo)))
+            PermisosNoSeleccionados.Add(grupo);
+        else
+            PermisosNoSeleccionados.First(x => x.Grupo.Equals(grupo.Grupo)).Permisos.AddRange(grupo.Permisos);
+    }
+
+    private void NoSeleccionar(string grupo, CRMPermisoDTO permiso)
+    {
+        PermisosSeleccionados.First(x => x.Grupo.Equals(grupo))
+        .Permisos.Remove(permiso);
+
+        if (!PermisosNoSeleccionados.Any(x => x.Grupo.Equals(grupo)))
+        {
+            PermisosNoSeleccionados.Add(new()
+                {
+                    Grupo = grupo,
+                    Permisos = new() { permiso }
+                });
+        }
+        else
+            PermisosNoSeleccionados.First(x => x.Grupo.Equals(grupo)).Permisos.Add(permiso);
     }
 }

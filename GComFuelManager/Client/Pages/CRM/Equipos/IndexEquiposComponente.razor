@@ -35,7 +35,7 @@
                             <tr>
                                 <AuthorizeView Roles="Admin, EDITAR_EQUIPO, ELIMINAR_EQUIPO, VER_dETALLE_EQUIPO">
                                     <Authorized Context="ACCIONES">
-                                        <th class="d-md-table-cell d-none" style="max-width:150px;"></th>
+                                        <th></th>
                                     </Authorized>
                                 </AuthorizeView>
                                 <th>Nombre</th>
@@ -47,7 +47,7 @@
                             <tr>
                                 <AuthorizeView Roles="Admin, EDITAR_EQUIPO, ELIMINAR_EQUIPO, VER_dETALLE_EQUIPO">
                                     <Authorized Context="ACCIONES">
-                                        <td class="d-md-table-cell d-none"></td>
+                                        <td></td>
                                     </Authorized>
                                 </AuthorizeView>
                                 <td><input class="form-control" @bind-value="@filtro.Nombre" @oninput="FiltrarNombre" /></td>
@@ -59,7 +59,7 @@
                             <tr>
                                 <AuthorizeView Roles="Admin, EDITAR_EQUIPO, ELIMINAR_EQUIPO, VER_dETALLE_EQUIPO">
                                     <Authorized Context="ACCIONES">
-                                        <td class="d-md-table-cell d-none">
+                                        <td>
                                             <div class="btn-group">
                                                 <AuthorizeView Roles="Admin, EDITAR_EQUIPO">
                                                     <Authorized Context="EDITAREQUIPO">
