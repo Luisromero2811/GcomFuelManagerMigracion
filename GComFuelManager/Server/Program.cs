@@ -52,6 +52,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAutoMapper(typeof(MapperProfile), typeof(MapperProfileReporte));
 
 builder.Services.AddScoped<IValidator<CRMContactoPostDTO>, CRMContactoPostValidator>();
+builder.Services.AddScoped<IValidator<CRMActividadPostDTO>, CRMActividadPostValidator>();
 builder.Services.AddScoped<IValidator<CRMOportunidadPostDTO>, CRMOportunidadPostValidator>();
 builder.Services.AddScoped<IValidator<CRMActividadPostDTO>, CRMActividadPostValidator>();
 builder.Services.AddScoped<IValidator<CRMVendedorPostDTO>, CRMVendedorPostValidator>();

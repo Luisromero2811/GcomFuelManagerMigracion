@@ -5,193 +5,197 @@
 @inject SweetAlertService Swal
 @inject IRepositorio repositorio
 @inject CRMUsuarioValidation validation
-<!--Formulario de registro-->
-<div class="card mt-2" style="height: 500px; overflow: scroll; ">
-    <div class="card-header">
-        <div class="d-flex justify-content-between">
-            <div>
-                <b>Creación de Usuarios</b>
-            </div>
-            <div>
-                <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/usuarios" Match="NavLinkMatch.All">
-                    <i class="fa fa-solid fa-arrow-left"></i> Volver
-                </NavLink>
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="col-12">
-            <EditForm Model="@info" class="form col-12" OnValidSubmit="@CreateUser">
-                <FluentValidationValidator Validator="validation" />
-                <ValidationSummary />
-                <div class="col-12 row g-1">
-                    <!--Nombre de Usuario, Password, Casilla de vendedor o comercial, rol, divisiones.-->
-                    <!--Nombre de Usuario-->
-                    <div class="col-4 my-1">
-                        <label>Nombre de Usuario:</label>
-                        <InputText @bind-Value="@info.UserName" class="form-control" MaxLenght="60" />
+@attribute [Authorize(Roles = "Admin, CREAR_USUARIO")]
+<AuthorizeView Roles="Admin, CREAR_USUARIO">
+    <Authorized Context="GestionUsuario">
+        <!--Formulario de registro-->
+        <div class="card mt-2" style="height: 500px; overflow: scroll; ">
+            <div class="card-header">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <b>Creación de Usuarios</b>
                     </div>
-                    <!--Password-->
-                    <div class="col-4 my-1">
-                        <label>Contraseña:</label>
-                        <div class="input-group">
-                            <RadzenPassword @bind-Value="info.Password" Visible="@info.passwordView" class="form-control" />
-                            <RadzenTextBox @bind-Value="info.Password" Visible="@(info.passwordView == false)" class="form-control" />
-                            <div class="d-flex align-items-center ms-1 mt-1">
-                                <RadzenCheckBox @bind-Value="@info.passwordView" />
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="col-4 my-1">
-                        <!--Divisiones-->
-                        <label>Divisiones:</label>
-                        <InputSelect @bind-Value="@info.IDDivision" class="form-control" disabled="@isDivisionDisabled">
-                            <option>-- Seleccione una Division --</option>
-                            @if (Divisiones == null)
-                            {
-                                <option>Cargando...</option>
-                            }
-                            else if (Divisiones.Count == 0)
-                            {
-                                <option>No hay Divisiones.</option>
-                            }
-                            else
-                            {
-                                @foreach (var item in Divisiones)
-                                {
-                                    <option value="@item.Id">@item.Nombre</option>
-                                }
-                            }
-                        </InputSelect>
-                    </div>
-                    <div class="row g-1 ms-3 align-items-center">
-                        <div class="col-auto my-1 d-flex align-items-center">
-                            @if (isVendedorDisabled == false)
-                            {
-                                <RadzenCheckBox @bind-Value="@info.IsComercial" Name="CheckBox1" class="mx-2" @onchange="@(e => BlockIfDisabled(e, isOriginadorDisabled || isVendedorDisabled))" />
-                                <RadzenLabel Text="Es Comercial" Component="CheckBox1" class="ms-2" />
-                            }
-                        </div>
-                        @if (info.IsComercial)
-                        {
-                            <div class="col-4 my-1">
-                                <InputSelect @bind-Value="@info.IDOriginador" class="form-control" disabled="@isOriginadorDisabled">
-                                    <option>-- Seleccione un Comercial--</option>
-                                    @if (Originadores == null)
-                                    {
-                                        <option>Cargando..</option>
-                                    }
-                                    else if (Originadores.Count == 0)
-                                    {
-                                        <option>No hay Comerciales</option>
-                                    }
-                                    else
-                                    {
-                                        @foreach (var item in Originadores)
-                                        {
-                                            <option value="@item.Id">@item.Nombre @item.Apellidos</option>
-                                        }
-                                    }
-                                </InputSelect>
-                            </div>
-                        }
-                        <div class="col-auto my-1 d-flex align-items-center">
-                            @if (isOriginadorDisabled == false)
-                            {
-                                <RadzenCheckBox @bind-Value="@info.IsVendedor" Name="CheckBox2" class="mx-2" @onchange="@(e => BlockIfDisabled(e, isVendedorDisabled || isOriginadorDisabled))" />
-                                <RadzenLabel Text="Es Vendedor" Component="CheckBox2" class="ms-2" />
-                            }
-                        </div>
-                        @if (info.IsVendedor)
-                        {
-                            <div class="col-4 my-1">
-                                <InputSelect @bind-Value="@info.IDVendedor" class="form-control" disabled="@isVendedorDisabled">
-                                    <option>-- Seleccione un Vendedor--</option>
-                                    @if (Vendedores == null)
-                                    {
-                                        <option>Cargando..</option>
-                                    }
-                                    else if (Vendedores.Count == 0)
-                                    {
-                                        <option>No hay Vendedores</option>
-                                    }
-                                    else
-                                    {
-                                        @foreach (var item in Vendedores)
-                                        {
-                                            <option value="@item.Id">@item.Nombre @item.Apellidos</option>
-                                        }
-                                    }
-                                </InputSelect>
-                            </div>
-                        }
-                    </div>
-                    <div class="col-12 my-1">
-                        <label>Roles:</label>
-                        <div class="dropdown">
-                            @*//Texto que simula el dropdown*@
-                            <div class="dropdown-toggle">
-                                Seleccionar Roles
-                            </div>
-                            @*//Menú con checkboxes*@
-                            <div class="dropdown-content">
-                                @if (Roles == null)
-                                {
-                                    <label>Cargando..</label>
-                                }
-                                else if (Roles.Count == 0)
-                                {
-                                    <label>No hay Roles</label>
-                                }
-                                else
-                                {
-                                    @foreach (var item in Roles)
-                                    {
-                                        <label for="@item.Id">
-                                            @*<input class="form-check-input" type="checkbox" id="@item.Id" checked="@item.Asignado" @onchange="e => ToggleRole(item, e.Value)" />
-                                                @item.Nombre*@
-                                            <input class="form-check-input" type="checkbox" value="@item.Id"
-                                                   checked="@item.Asignado"
-                                                   @onchange="(e) => ToggleRole(item, e)" />
-                                            @item.Nombre
-                                        </label>
-                                    }
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 mt-4 mb-4">
-                        <div class="col-12 mb-2">
-                            <!-- Fila centrada con justify-content-center -->
-                            <div class="row d-flex justify-content-center">
-                                <!-- Botón Agregar, ocupa col-4 -->
-                                @if (isEdit == false)
-                                {
-                                    <div class="col-4">
-                                        <button class="btn gcom-bg-amarillo col-12" type="submit">
-                                            <i class="fa-solid fa-user-plus"></i> <b>Agregar</b>
-                                        </button>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <!-- Botón Guardar Cambios, ocupa col-4 -->
-                                    <div class="col-4">
-                                        <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@EditUser">
-                                            <i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b>
-                                        </button>
-                                    </div>
-                                }
-                            </div>
-                        </div>
+                    <div>
+                        <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/usuarios" Match="NavLinkMatch.All">
+                            <i class="fa fa-solid fa-arrow-left"></i> Volver
+                        </NavLink>
                     </div>
                 </div>
-            </EditForm>
-        </div>
-    </div>
-</div>
+            </div>
+            <div class="card-body">
+                <div class="col-12">
+                    <EditForm Model="@info" class="form col-12" OnValidSubmit="@CreateUser">
+                        <FluentValidationValidator Validator="validation" />
+                        <ValidationSummary />
+                        <div class="col-12 row g-1">
+                            <!--Nombre de Usuario, Password, Casilla de vendedor o comercial, rol, divisiones.-->
+                            <!--Nombre de Usuario-->
+                            <div class="col-4 my-1">
+                                <label>Nombre de Usuario:</label>
+                                <InputText @bind-Value="@info.UserName" class="form-control" MaxLenght="60" />
+                            </div>
+                            <!--Password-->
+                            <div class="col-4 my-1">
+                                <label>Contraseña:</label>
+                                <div class="input-group">
+                                    <RadzenPassword @bind-Value="info.Password" Visible="@info.passwordView" class="form-control" />
+                                    <RadzenTextBox @bind-Value="info.Password" Visible="@(info.passwordView == false)" class="form-control" />
+                                    <div class="d-flex align-items-center ms-1 mt-1">
+                                        <RadzenCheckBox @bind-Value="@info.passwordView" />
+                                    </div>
+                                </div>
 
+                            </div>
+                            <div class="col-4 my-1">
+                                <!--Divisiones-->
+                                <label>Divisiones:</label>
+                                <InputSelect @bind-Value="@info.IDDivision" class="form-control" disabled="@isDivisionDisabled">
+                                    <option>-- Seleccione una Division --</option>
+                                    @if (Divisiones == null)
+                                    {
+                                        <option>Cargando...</option>
+                                    }
+                                    else if (Divisiones.Count == 0)
+                                    {
+                                        <option>No hay Divisiones.</option>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in Divisiones)
+                                        {
+                                            <option value="@item.Id">@item.Nombre</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="row g-1 ms-3 align-items-center">
+                                <div class="col-auto my-1 d-flex align-items-center">
+                                    @if (isVendedorDisabled == false)
+                                    {
+                                        <RadzenCheckBox @bind-Value="@info.IsComercial" Name="CheckBox1" class="mx-2" @onchange="@(e => BlockIfDisabled(e, isOriginadorDisabled || isVendedorDisabled))" />
+                                        <RadzenLabel Text="Es Comercial" Component="CheckBox1" class="ms-2" />
+                                    }
+                                </div>
+                                @if (info.IsComercial)
+                                {
+                                    <div class="col-4 my-1">
+                                        <InputSelect @bind-Value="@info.IDOriginador" class="form-control" disabled="@isOriginadorDisabled">
+                                            <option>-- Seleccione un Comercial--</option>
+                                            @if (Originadores == null)
+                                            {
+                                                <option>Cargando..</option>
+                                            }
+                                            else if (Originadores.Count == 0)
+                                            {
+                                                <option>No hay Comerciales</option>
+                                            }
+                                            else
+                                            {
+                                                @foreach (var item in Originadores)
+                                                {
+                                                    <option value="@item.Id">@item.Nombre @item.Apellidos</option>
+                                                }
+                                            }
+                                        </InputSelect>
+                                    </div>
+                                }
+                                <div class="col-auto my-1 d-flex align-items-center">
+                                    @if (isOriginadorDisabled == false)
+                                    {
+                                        <RadzenCheckBox @bind-Value="@info.IsVendedor" Name="CheckBox2" class="mx-2" @onchange="@(e => BlockIfDisabled(e, isVendedorDisabled || isOriginadorDisabled))" />
+                                        <RadzenLabel Text="Es Vendedor" Component="CheckBox2" class="ms-2" />
+                                    }
+                                </div>
+                                @if (info.IsVendedor)
+                                {
+                                    <div class="col-4 my-1">
+                                        <InputSelect @bind-Value="@info.IDVendedor" class="form-control" disabled="@isVendedorDisabled">
+                                            <option>-- Seleccione un Vendedor--</option>
+                                            @if (Vendedores == null)
+                                            {
+                                                <option>Cargando..</option>
+                                            }
+                                            else if (Vendedores.Count == 0)
+                                            {
+                                                <option>No hay Vendedores</option>
+                                            }
+                                            else
+                                            {
+                                                @foreach (var item in Vendedores)
+                                                {
+                                                    <option value="@item.Id">@item.Nombre @item.Apellidos</option>
+                                                }
+                                            }
+                                        </InputSelect>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-12 my-1">
+                                <label>Roles:</label>
+                                <div class="dropdown">
+                                    @*//Texto que simula el dropdown*@
+                                    <div class="dropdown-toggle">
+                                        Seleccionar Roles
+                                    </div>
+                                    @*//Menú con checkboxes*@
+                                    <div class="dropdown-content">
+                                        @if (Roles == null)
+                                        {
+                                            <label>Cargando..</label>
+                                        }
+                                        else if (Roles.Count == 0)
+                                        {
+                                            <label>No hay Roles</label>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var item in Roles)
+                                            {
+                                                <label for="@item.Id">
+                                                    @*<input class="form-check-input" type="checkbox" id="@item.Id" checked="@item.Asignado" @onchange="e => ToggleRole(item, e.Value)" />
+                                                        @item.Nombre*@
+                                                    <input class="form-check-input" type="checkbox" value="@item.Id"
+                                                           checked="@item.Asignado"
+                                                           @onchange="(e) => ToggleRole(item, e)" />
+                                                    @item.Nombre
+                                                </label>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-4 mb-4">
+                                <div class="col-12 mb-2">
+                                    <!-- Fila centrada con justify-content-center -->
+                                    <div class="row d-flex justify-content-center">
+                                        <!-- Botón Agregar, ocupa col-4 -->
+                                        @if (isEdit == false)
+                                        {
+                                            <div class="col-4">
+                                                <button class="btn gcom-bg-amarillo col-12" type="submit">
+                                                    <i class="fa-solid fa-user-plus"></i> <b>Agregar</b>
+                                                </button>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <!-- Botón Guardar Cambios, ocupa col-4 -->
+                                            <div class="col-4">
+                                                <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@EditUser">
+                                                    <i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b>
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
 <style>
     /* Estilo para el dropdown */
     .dropdown {
@@ -376,7 +380,7 @@
     private void ToggleRole(CRMRol role, ChangeEventArgs e)
     {
         bool isChecked = (bool)e.Value;  // Convertir el valor del evento a booleano
-        // Si está seleccionado, añadirlo a la lista de roles seleccionados
+                                         // Si está seleccionado, añadirlo a la lista de roles seleccionados
         if (isChecked)
         {
             if (!selectedRoles.Any(r => r.Id == role.Id))

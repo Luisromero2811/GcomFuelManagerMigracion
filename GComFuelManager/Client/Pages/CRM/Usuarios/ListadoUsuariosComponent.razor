@@ -2,74 +2,90 @@
 @inject SweetAlertService Swal
 @inject IRepositorio repositorio
 @inject NotificationService ns
+@attribute [Authorize(Roles = "Admin, VER_LISTADO_USUARIOS")]
 <!--Tabla de muestreo de datos de los usuarios CRM-->
-<div class="card">
-    <div class="card-header d-flex justify-content-between">
-        <b>Usuarios</b>
-        <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
-            <i class="fa fa-solid fa-arrow-left"></i>
-            Volver
-        </NavLink>
-    </div>
-</div>
-<div class="col-12 my-2">
-    <div class="col-md-2 col">
-        <NavLink class="btn btn-sm g-1 col-12 gcom-bg-amarillo" href="crm/gestion/usuarios">
-            <i class="fa fa-solid fa-plus"></i> Crear Nuevo Usuario
-        </NavLink>
-    </div>
-</div>
-<div class="ancho-tabla">
-    <Tabla Datos="CRMUsuariosList">
-        <Cabeceras>
-            <tr>
-                <th>Nombre de Usuario</th>
-                <th>Usuario</th>
-                <th>Tipo:</th>
-                <th>Habilitar / Deshabilitar</th>
-                <th>Editar</th>
-            </tr>
-        </Cabeceras>
-        <Filtros>
-            <tr>
-                <td>
-                    <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Nombre(args))" />
-                </td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </Filtros>
-        <Columnas Context="item">
-            <tr>
-                <td>@item.NombreUsuario</td>
-                <td>@item.UserName</td>
-                <td>@item.TipoUsuario</td>
-                <td>
-                    <div class="form-check form-switch m-2">
-                        <input class="form-check-input" type="checkbox" role="switch" id="@item?.Id_Asp" checked="@item?.Activo"
-                               @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))" />
-                    </div>
-                </td>
-                <td>
-                    <div class="col-12">
-                        <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/usuarios/{item?.Id_Asp}")>
-                            <i class="fa fa-solid fa-edit" />
+<AuthorizeView Roles="Admin, VER_LISTADO_USUARIOS">
+    <Authorized Context="ListadoUsers">
+        <Card HeaderClass="d-flex justify-content-between">
+            <Header>
+                <b>Usuarios</b>
+                <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
+                    <i class="fa fa-solid fa-arrow-left"></i>
+                    Volver
+                </NavLink>
+            </Header>
+        </Card>
+        <AuthorizeView Roles="Admin, CREAR_USUARIO">
+            <Authorized Context="CrearUsuario">
+                <div class="col-12 my-2">
+                    <div class="col-md-2 col">
+                        <NavLink class="btn btn-sm g-1 col-12 gcom-bg-amarillo" href="crm/gestion/usuarios">
+                            <i class="fa fa-solid fa-plus"></i> Crear Nuevo Usuario
                         </NavLink>
                     </div>
-                </td>
-            </tr>
-        </Columnas>
-    </Tabla>
-</div>
-<div class="col-12">
-    <PaginacionComponent PaginaActual="PaginaActual" PaginasTotales="PaginasTotales" PaginaSeleccionada="PaginasSeleccionadas" Radio="5" />
-    <div class="col-12">
-        <p>Total de registros: @filtro_usuario.Total_registros</p>
-    </div>
-</div>
-
+                </div>
+            </Authorized>
+        </AuthorizeView>
+        <div class="ancho-tabla">
+            <Tabla Datos="CRMUsuariosList">
+                <Cabeceras>
+                    <tr>
+                        <th>Nombre de Usuario</th>
+                        <th>Usuario</th>
+                        <th>Tipo:</th>
+                        <th>Habilitar / Deshabilitar</th>
+                        <th>Editar</th>
+                    </tr>
+                </Cabeceras>
+                <Filtros>
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Nombre(args))" />
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </Filtros>
+                <Columnas Context="item">
+                    <tr>
+                        <td>@item.NombreUsuario</td>
+                        <td>@item.UserName</td>
+                        <td>@item.TipoUsuario</td>
+                        <AuthorizeView Roles="Admin, DESACTIVAR_USUARIO">
+                            <Authorized Context="Desactivar">
+                                <td>
+                                    <div class="form-check form-switch m-2">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="@item?.Id_Asp" checked="@item?.Activo"
+                                               @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))" />
+                                    </div>
+                                </td>
+                            </Authorized>
+                        </AuthorizeView>
+                        <AuthorizeView Roles="Admin, EDITAR_USUARIO">
+                            <Authorized Context="EditarUsuario">
+                                <td>
+                                    <div class="col-12">
+                                        <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/usuarios/{item?.Id_Asp}")>
+                                            <i class="fa fa-solid fa-edit" />
+                                        </NavLink>
+                                    </div>
+                                </td>
+                            </Authorized>
+                        </AuthorizeView>
+                    </tr>
+                </Columnas>
+            </Tabla>
+        </div>
+        <div class="col-12">
+            <PaginacionComponent PaginaActual="PaginaActual" PaginasTotales="PaginasTotales" PaginaSeleccionada="PaginasSeleccionadas" Radio="5" />
+            <div class="col-12">
+                <p>Total de registros: @filtro_usuario.Total_registros</p>
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
 @code {
     CRMUsuarioDTO filtro_usuario = new();
     List<CRMUsuarioDTO> CRMUsuariosList = new();

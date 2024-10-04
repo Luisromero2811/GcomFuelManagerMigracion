@@ -3,208 +3,214 @@
 @inject IRepositorio repositorio
 @inject DialogService ds
 @page "/crm/historial/actividades"
-
-<div class="card mt-2" style="height: 500px; overflow: scroll; ">
-    <div class="card-header">
-        <div class="d-flex justify-content-between">
-            <div>
-                <b>Historial de Actividades</b>
-            </div>
-            <div>
-                <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
-                    <i class="fa fa-solid fa-arrow-left"></i> Volver
-                </NavLink>
-                <NavLink class="g1 btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
-                    Ir a Actividades
-                </NavLink>
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="col-12 row d-fle">
-            <!--Calendarios y boton para filtrar-->
-            <div class="col-3">
-                <label>De:</label>
-                <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Creacion" />
-            </div>
-            <div class="col-3">
-                <label>A:</label>
-                <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Ven" />
-            </div>
-            <div class="col-3 mt-auto">
-                <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Get_Activities"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
-            </div>
-            <div class="col-3 mt-auto">
-                <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Export_Activities"><i class="fa fa-solid fa-file-excel"></i>Exportar</button>
-            </div>
-        </div>
-        <!--Tabla de muestreo de datos para mostrar el historial de actividades-->
-        <div class="col-12 row my-2">
-            <div class="ancho-tabla">
-                <Tabla Datos="ListadoActividad">
-                    <Cabeceras>
-                        <tr>
-                            <th></th>
-                            <th>Contacto</th>
-                            <th>Asunto</th>
-                            <th>Prioridad</th>
-                            <th>Estatus</th>
-                            <th>Descripción</th>
-                            <th>Fecha de creación</th>
-                            <th>Fecha de Inicio</th>
-                            <th>Fecha de Vencimiento</th>
-                            <th>Fecha de Finalización</th>
-
-                        </tr>
-                    </Cabeceras>
-                    <Filtros>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Asunto" @oninput="FiltrarAsunto" />
-                            </td>
-                            <td>
-                                <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Prioridad" @oninput="FiltrarPrioridad" />
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </Filtros>
-                    <Columnas Context="item">
-                        <tr>
-                            <td>
-                                <div class="col-12">
-                                    <NavLink class="col-12 btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
-                                        <i class="fa fa-solid fa-folder-open" />
+    <AuthorizeView Roles="Admin, VER_HISTORIAL_ACTIVIDAD">
+        <Authorized Context="Historiales">
+            <div class="card mt-2" style="height: 500px; overflow: scroll; ">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <b>Historial de Actividades</b>
+                        </div>
+                        <div>
+                            <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
+                                <i class="fa fa-solid fa-arrow-left"></i> Volver
+                            </NavLink>
+                            <AuthorizeView Roles="Admin, VER_DETALLE_ACTIVIDAD">
+                                <Authorized Context="IrActividad">
+                                    <NavLink class="g1 btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                                        Ir a Actividades
                                     </NavLink>
-                                </div>
-                            </td>
-                            <td>@item.Contacto_Rel</td>
-                            <td>@item.Asunto</td>
-                            <td>@item.Prioridad</td>
-                            <td>@item.Estatus</td>
-                            <td>
-                                <div class="col-12">
-                                    <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>OpenModal(item.Desccripcion ?? string.Empty))">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </button>
-                                </div>
-                            </td>
-                            <td>@item.Fecha_Creacion</td>
-                            <td>@item.Fch_Inicio</td>
-                            <td>@item.Fecha_Ven</td>
-                            <td>@item.Fecha_Mod</td>
-                        </tr>
-                    </Columnas>
-                </Tabla>
+                                </Authorized>
+                            </AuthorizeView>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="col-12 row d-fle">
+                        <!--Calendarios y boton para filtrar-->
+                        <div class="col-3">
+                            <label>De:</label>
+                            <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Creacion" />
+                        </div>
+                        <div class="col-3">
+                            <label>A:</label>
+                            <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Ven" />
+                        </div>
+                        <div class="col-3 mt-auto">
+                            <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Get_Activities"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                        </div>
+                        <div class="col-3 mt-auto">
+                            <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Export_Activities"><i class="fa fa-solid fa-file-excel"></i>Exportar</button>
+                        </div>
+                    </div>
+                    <!--Tabla de muestreo de datos para mostrar el historial de actividades-->
+                    <div class="col-12 row my-2">
+                        <div class="ancho-tabla">
+                            <Tabla Datos="ListadoActividad">
+                                <Cabeceras>
+                                    <tr>
+                                        <th></th>
+                                        <th>Contacto</th>
+                                        <th>Asunto</th>
+                                        <th>Prioridad</th>
+                                        <th>Estatus</th>
+                                        <th>Descripción</th>
+                                        <th>Fecha de creación</th>
+                                        <th>Fecha de Inicio</th>
+                                        <th>Fecha de Vencimiento</th>
+                                        <th>Fecha de Finalización</th>
+
+                                    </tr>
+                                </Cabeceras>
+                                <Filtros>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td>
+                                            <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Asunto" @oninput="FiltrarAsunto" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Prioridad" @oninput="FiltrarPrioridad" />
+                                        </td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </Filtros>
+                                <Columnas Context="item">
+                                    <tr>
+                                        <td>
+                                            <div class="col-12">
+                                                <NavLink class="col-12 btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
+                                                    <i class="fa fa-solid fa-folder-open" />
+                                                </NavLink>
+                                            </div>
+                                        </td>
+                                        <td>@item.Contacto_Rel</td>
+                                        <td>@item.Asunto</td>
+                                        <td>@item.Prioridad</td>
+                                        <td>@item.Estatus</td>
+                                        <td>
+                                            <div class="col-12">
+                                                <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>OpenModal(item.Desccripcion ?? string.Empty))">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td>@item.Fecha_Creacion</td>
+                                        <td>@item.Fch_Inicio</td>
+                                        <td>@item.Fecha_Ven</td>
+                                        <td>@item.Fecha_Mod</td>
+                                    </tr>
+                                </Columnas>
+                            </Tabla>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-12">
+        </Authorized>
+    </AuthorizeView>
+    @code {
+        CRMActividadDTO Listado_Actividad = new();
+        List<CRMActividadDTO> ListadoActividad { get; set; } = new();
 
-    </div>
-</div>
+        Dictionary<string, string> keys = new();
+        Dictionary<string, string> query = new();
 
-@code {
-    CRMActividadDTO Listado_Actividad = new();
-    List<CRMActividadDTO> ListadoActividad { get; set; } = new();
-
-    Dictionary<string, string> keys = new();
-    Dictionary<string, string> query = new();
-
-    private Dictionary<string, string> SetFiltro()
-    {
-        keys = new();
-        keys["Fecha_Creacion"] = Listado_Actividad.Fecha_Creacion.ToString("MM-dd-yyyy");
-        keys["Fecha_Ven"] = Listado_Actividad.Fecha_Ven.ToString("MM-dd-yyyy");
-        keys["Asunto"] = Listado_Actividad.Asunto ?? string.Empty;
-        keys["Prioridad"] = Listado_Actividad.Prioridad ?? string.Empty;
-        return keys;
-    }
-
-    private Dictionary<string, string> SetParameter()
-    {
-        return query;
-    }
-
-    public async Task Get_Activities()
-    {
-        try
+        private Dictionary<string, string> SetFiltro()
         {
-            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            keys = new();
+            keys["Fecha_Creacion"] = Listado_Actividad.Fecha_Creacion.ToString("MM-dd-yyyy");
+            keys["Fecha_Ven"] = Listado_Actividad.Fecha_Ven.ToString("MM-dd-yyyy");
+            keys["Asunto"] = Listado_Actividad.Asunto ?? string.Empty;
+            keys["Prioridad"] = Listado_Actividad.Prioridad ?? string.Empty;
+            return keys;
+        }
 
-            var responseHttp = await repositorio.Get<List<CRMActividadDTO>>($"api/actividades/historial?{uri}");
-            if (responseHttp.Error)
+        private Dictionary<string, string> SetParameter()
+        {
+            return query;
+        }
+
+        public async Task Get_Activities()
+        {
+            try
             {
-                var message = await responseHttp.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+
+                var responseHttp = await repositorio.Get<List<CRMActividadDTO>>($"api/actividades/historial?{uri}");
+                if (responseHttp.Error)
+                {
+                    var message = await responseHttp.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    ListadoActividad = responseHttp.Response;
+
+                    Listado_Actividad.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(responseHttp.HttpResponseMessage);
+                    Listado_Actividad.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(responseHttp.HttpResponseMessage);
+                    Listado_Actividad.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(responseHttp.HttpResponseMessage);
+                }
             }
-            else
+            catch (Exception e)
             {
-                ListadoActividad = responseHttp.Response;
-
-                Listado_Actividad.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(responseHttp.HttpResponseMessage);
-                Listado_Actividad.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(responseHttp.HttpResponseMessage);
-                Listado_Actividad.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(responseHttp.HttpResponseMessage);
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    private async Task FiltrarAsunto(ChangeEventArgs args)
-    {
-        Listado_Actividad.Asunto = args.Value?.ToString() ?? string.Empty;
-        await Get_Activities();
-    }
-
-    private async Task FiltrarPrioridad(ChangeEventArgs args)
-    {
-        Listado_Actividad.Prioridad = args.Value?.ToString() ?? string.Empty;
-        await Get_Activities();
-    }
-
-    private async Task OpenModal(string Desccripcion)
-    {
-        try
-        {
-            await ds.OpenAsync<ModalDescriptionComponent>($"Descripción:",
-            new Dictionary<string, object>() { { "Desccripcion", Desccripcion } },
-                   new DialogOptions() { Height = "70px", Width = "85%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    private async Task Export_Activities()
-    {
-        try
-        {
-            var responseHttp = await repositorio.Post<CRMActividadDTO, byte[]>($"api/actividades/historialExcel", Listado_Actividad);
-            if (responseHttp.Error)
-            {
-                var message = await responseHttp.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                await js.GuardarComo($"Historial_Actividades_{DateTime.Today:g}.xlsx", responseHttp.Response);
+                await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             }
         }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
 
-}
+        private async Task FiltrarAsunto(ChangeEventArgs args)
+        {
+            Listado_Actividad.Asunto = args.Value?.ToString() ?? string.Empty;
+            await Get_Activities();
+        }
+
+        private async Task FiltrarPrioridad(ChangeEventArgs args)
+        {
+            Listado_Actividad.Prioridad = args.Value?.ToString() ?? string.Empty;
+            await Get_Activities();
+        }
+
+        private async Task OpenModal(string Desccripcion)
+        {
+            try
+            {
+                await ds.OpenAsync<ModalDescriptionComponent>($"Descripción:",
+                new Dictionary<string, object>() { { "Desccripcion", Desccripcion } },
+                       new DialogOptions() { Height = "70px", Width = "85%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+            }
+            catch (Exception e)
+            {
+                await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            }
+        }
+
+        private async Task Export_Activities()
+        {
+            try
+            {
+                var responseHttp = await repositorio.Post<CRMActividadDTO, byte[]>($"api/actividades/historialExcel", Listado_Actividad);
+                if (responseHttp.Error)
+                {
+                    var message = await responseHttp.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await js.GuardarComo($"Historial_Actividades_{DateTime.Today:g}.xlsx", responseHttp.Response);
+                }
+            }
+            catch (Exception e)
+            {
+                await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            }
+        }
+
+    }
 

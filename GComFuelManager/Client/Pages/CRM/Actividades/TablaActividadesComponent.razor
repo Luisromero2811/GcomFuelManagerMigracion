@@ -2,118 +2,138 @@
 @inject SweetAlertService Swal
 @inject IRepositorio repositorio
 @inject NotificationService ns
-@inject IJSRuntime Js 
+@inject IJSRuntime Js
 <!--Tabla de muestreo de datos de actividades-->
-<div class="card mt-2" style="height: 500px; overflow: scroll;">
-    <div class="card-header">
-        <div class="d-flex justify-content-between">
-            <div>
-                <b>Actividades</b>
-            </div>
-            <div>
-                <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
-                    <i class="fa fa-solid fa-arrow-left"></i> Volver
-                </NavLink>
-                <NavLink class="g-1 btn gcom-bg-rojo ms-1" href="crm/historial/actividades" Match="NavLinkMatch.All">
-                    Ir a Historial
-                </NavLink>
-            </div>
-        </div>
+<AuthorizeView Roles="Admin, VER_DETALLE_ACTIVIDAD">
+    <Authorized Context="Tabla">
+        <div class="card mt-2" style="height: 500px; overflow: scroll;">
+            <div class="card-header">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <b>Actividades</b>
+                    </div>
+                    <div>
+                        <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
+                            <i class="fa fa-solid fa-arrow-left"></i> Volver
+                        </NavLink>
+                        <AuthorizeView Roles="Admin, VER_HISTORIAL_ACTIVIDAD">
+                            <Authorized Context="IRHistorial">
+                                <NavLink class="g-1 btn gcom-bg-rojo ms-1" href="crm/historial/actividades" Match="NavLinkMatch.All">
+                                    Ir a Historial
+                                </NavLink>
+                            </Authorized>
+                        </AuthorizeView>
+                    </div>
+                </div>
 
-    </div>
-    <div class="card-body">
-        <div class="col-12 my-2 d-flex justify-content-between">
-            <div class="col-md-2 col">
-                <NavLink class="btn btn-sm g-1 col-12 gcom-bg-amarillo" href="crm/gestion/actividades">
-                    <i class="fa fa-solid fa-plus" /> Crear Nueva Actividad
-                </NavLink>
             </div>
-            <div class="col-md-2 col">
-                <button class="btn col-12 gcom-bg-amarillo btn-sm g-1" @onclick="ExportarActividades">
-                    <i class="fa fa-solid fa-file-excel"></i>
-                    Exportar
-                </button>
-            </div>
-        </div>
-        <div class="ancho-tabla">
-            <Tabla Datos="CRMActividades">
-                <Cabeceras>
-                    <tr>
-                        <th style="width:100px;"></th>
-                        <th>Contacto</th>
-                        <th>Cuenta</th>
-                        <th>Asunto</th>
-                        <th>Prioridad</th>
-                        <th>Estado</th>
-                        <th>Fecha de Inicio</th>
-                        <th>Fecha de Modificación</th>
-                        <th>Fecha de Vencimiento</th>
-                        <th>Asignado A:</th>
-                        <th>Habilitar / Deshabilitar</th>
-                    </tr>
-                </Cabeceras>
-                <Filtros>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asunto" @oninput="FiltrarAsunto" />
-                        </td>
-                        <td>
-                            <input class="form-control form-control-sm" @bind-value="filtro_actividad.Prioridad" @oninput="FiltrarPrioridad" />
-                        </td>
-                        <td>
-                            <input class="form-control form-control-sm" @bind-value="filtro_actividad.Estatus" @oninput="FiltrarEstados" />
-                        </td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asignado" @oninput="FiltrarVendedor" />
-                        </td>
-                        <td></td>
-                    </tr>
-                </Filtros>
-                <Columnas Context="item">
-                    <tr>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/actividades/{item?.Id}")>
-                                    <i class="fa fa-solid fa-edit" />
-                                </NavLink>
-                                <NavLink class="btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
-                                    <i class="fa fa-solid fa-folder-open"/>
+            <div class="card-body">
+                <div class="col-12 my-2 d-flex justify-content-between">
+                    <AuthorizeView Roles="Admin, CREAR_ACTIVIDAD">
+                        <Authorized Context="CrearActividad">
+                            <div class="col-md-2 col">
+                                <NavLink class="btn btn-sm g-1 col-12 gcom-bg-amarillo" href="crm/gestion/actividades">
+                                    <i class="fa fa-solid fa-plus" /> Crear Nueva Actividad
                                 </NavLink>
                             </div>
-                        </td>
-                        <td>@item.Contacto_Rel</td>
-                        <td>@item.Cuenta_Rel</td>
-                        <td>@item.Asunto</td>
-                        <td>@item.Prioridad</td>
-                        <td>@item.Estatus</td>
-                        <td>@item.Fch_Inicio.ToString()</td>
-                        <td>@(item.Fecha_Mod == null || item.Fecha_Mod == DateTime.MinValue ? "" : item.Fecha_Mod.Value.ToString())</td>
-                        <td>@item.Fecha_Ven.ToString()</td>
-                        <td>@item.Asignado</td>
-                        <td>
-                            <div class="form-check form-switch m-2">
-                                <input class="form-check-input" type="checkbox" role="switch" id="@item?.Id" checked="@item?.Activo"
-                                       @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))" />
-                            </div>
-                        </td>
-                    </tr>
-                </Columnas>
-            </Tabla>
+                        </Authorized>
+                    </AuthorizeView>
+                    <div class="col-md-2 col">
+                        <button class="btn col-12 gcom-bg-amarillo btn-sm g-1" @onclick="ExportarActividades">
+                            <i class="fa fa-solid fa-file-excel"></i>
+                            Exportar
+                        </button>
+                    </div>
+                </div>
+                <div class="ancho-tabla">
+                    <Tabla Datos="CRMActividades">
+                        <Cabeceras>
+                            <tr>
+                                <th style="width:100px;"></th>
+                                <th>Contacto</th>
+                                <th>Cuenta</th>
+                                <th>Asunto</th>
+                                <th>Prioridad</th>
+                                <th>Estado</th>
+                                <th>Fecha de Inicio</th>
+                                <th>Fecha de Modificación</th>
+                                <th>Fecha de Vencimiento</th>
+                                <th>Asignado A:</th>
+                                <th>Habilitar / Deshabilitar</th>
+                            </tr>
+                        </Cabeceras>
+                        <Filtros>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asunto" @oninput="FiltrarAsunto" />
+                                </td>
+                                <td>
+                                    <input class="form-control form-control-sm" @bind-value="filtro_actividad.Prioridad" @oninput="FiltrarPrioridad" />
+                                </td>
+                                <td>
+                                    <input class="form-control form-control-sm" @bind-value="filtro_actividad.Estatus" @oninput="FiltrarEstados" />
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asignado" @oninput="FiltrarVendedor" />
+                                </td>
+                                <td></td>
+                            </tr>
+                        </Filtros>
+                        <Columnas Context="item">
+                            <tr>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <AuthorizeView Roles="Admin, EDITAR_ACTIVIDAD">
+                                            <Authorized Context="EditActivity">
+                                                <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/actividades/{item?.Id}")>
+                                                    <i class="fa fa-solid fa-edit" />
+                                                </NavLink>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                        <NavLink class="btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
+                                            <i class="fa fa-solid fa-folder-open" />
+                                        </NavLink>
+                                    </div>
+                                </td>
+                                <td>@item.Contacto_Rel</td>
+                                <td>@item.Cuenta_Rel</td>
+                                <td>@item.Asunto</td>
+                                <td>@item.Prioridad</td>
+                                <td>@item.Estatus</td>
+                                <td>@item.Fch_Inicio.ToString()</td>
+                                <td>@(item.Fecha_Mod == null || item.Fecha_Mod == DateTime.MinValue ? "" : item.Fecha_Mod.Value.ToString())</td>
+                                <td>@item.Fecha_Ven.ToString()</td>
+                                <td>@item.Asignado</td>
+                                <AuthorizeView Roles="Admin, DESACTIVAR_ACTIVIDAD">
+                                    <Authorized Context="DeshabilitarActividad">
+                                        <td>
+                                            <div class="form-check form-switch m-2">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="@item?.Id" checked="@item?.Activo"
+                                                       @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))" />
+                                            </div>
+                                        </td>
+                                    </Authorized>
+                                </AuthorizeView>
+                            </tr>
+                        </Columnas>
+                    </Tabla>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-<div class="col-12">
-    <PaginacionComponent PaginaActual="filtro_actividad.Pagina_ACtual" PaginasTotales="filtro_actividad.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
-    <div class="col-12">
-        <p>Total de registros: @filtro_actividad.Total_registros</p>
-    </div>
-</div>
+        <div class="col-12">
+            <PaginacionComponent PaginaActual="filtro_actividad.Pagina_ACtual" PaginasTotales="filtro_actividad.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+            <div class="col-12">
+                <p>Total de registros: @filtro_actividad.Total_registros</p>
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
 @code {
     CRMActividadDTO filtro_actividad = new();
     List<CRMActividadDTO> CRMActividades = new();
