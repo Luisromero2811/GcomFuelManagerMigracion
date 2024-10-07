@@ -28,18 +28,18 @@
 
             </div>
             <div class="card-body">
-                <div class="col-12 my-2 d-flex justify-content-between">
+                <div class="col-12 my-2 d-flex flex-wrap justify-content-between align-items-center">
                     <AuthorizeView Roles="Admin, CREAR_ACTIVIDAD">
                         <Authorized Context="CrearActividad">
-                            <div class="col-md-2 col">
-                                <NavLink class="btn btn-sm g-1 col-12 gcom-bg-amarillo" href="crm/gestion/actividades">
+                            <div class="col-12 col-md-2 mb-2 mb-md-0">
+                                <NavLink class="btn btn-sm gcom-bg-amarillo w-100" href="crm/gestion/actividades">
                                     <i class="fa fa-solid fa-plus" /> Crear Nueva Actividad
                                 </NavLink>
                             </div>
                         </Authorized>
                     </AuthorizeView>
-                    <div class="col-md-2 col">
-                        <button class="btn col-12 gcom-bg-amarillo btn-sm g-1" @onclick="ExportarActividades">
+                    <div class="col-12 col-md-2 mb-2 mb-md-0">
+                        <button class="btn btn-sm gcom-bg-amarillo w-100" @onclick="ExportarActividades">
                             <i class="fa fa-solid fa-file-excel"></i>
                             Exportar
                         </button>

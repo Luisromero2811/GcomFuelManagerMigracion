@@ -30,12 +30,12 @@
                         <div class="col-12 row g-1">
                             <!--Nombre de Usuario, Password, Casilla de vendedor o comercial, rol, divisiones.-->
                             <!--Nombre de Usuario-->
-                            <div class="col-4 my-1">
+                            <div class="col-12 col-md-4 my-1">
                                 <label>Nombre de Usuario:</label>
                                 <InputText @bind-Value="@info.UserName" class="form-control" MaxLenght="60" />
                             </div>
                             <!--Password-->
-                            <div class="col-4 my-1">
+                            <div class="col-12 col-md-4 my-1">
                                 <label>Contraseña:</label>
                                 <div class="input-group">
                                     <RadzenPassword @bind-Value="info.Password" Visible="@info.passwordView" class="form-control" />
@@ -46,7 +46,7 @@
                                 </div>
 
                             </div>
-                            <div class="col-4 my-1">
+                            <div class="col-12 col-md-4 my-1">
                                 <!--Divisiones-->
                                 <label>Divisiones:</label>
                                 <InputSelect @bind-Value="@info.IDDivision" class="form-control" disabled="@isDivisionDisabled">
@@ -78,7 +78,7 @@
                                 </div>
                                 @if (info.IsComercial)
                                 {
-                                    <div class="col-4 my-1">
+                                    <div class="col-12 col-md-4 my-1">
                                         <InputSelect @bind-Value="@info.IDOriginador" class="form-control" disabled="@isOriginadorDisabled">
                                             <option>-- Seleccione un Comercial--</option>
                                             @if (Originadores == null)
@@ -108,7 +108,7 @@
                                 </div>
                                 @if (info.IsVendedor)
                                 {
-                                    <div class="col-4 my-1">
+                                    <div class="col-12 col-md-4 my-1">
                                         <InputSelect @bind-Value="@info.IDVendedor" class="form-control" disabled="@isVendedorDisabled">
                                             <option>-- Seleccione un Vendedor--</option>
                                             @if (Vendedores == null)
@@ -171,7 +171,7 @@
                                         <!-- Botón Agregar, ocupa col-4 -->
                                         @if (isEdit == false)
                                         {
-                                            <div class="col-4">
+                                            <div class="col-12 col-md-4">
                                                 <button class="btn gcom-bg-amarillo col-12" type="submit">
                                                     <i class="fa-solid fa-user-plus"></i> <b>Agregar</b>
                                                 </button>
@@ -180,7 +180,7 @@
                                         else
                                         {
                                             <!-- Botón Guardar Cambios, ocupa col-4 -->
-                                            <div class="col-4">
+                                            <div class="col-12 col-md-4">
                                                 <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@EditUser">
                                                     <i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b>
                                                 </button>

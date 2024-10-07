@@ -7,17 +7,17 @@
     <Authorized Context="Historiales">
         <div class="card mt-2" style="height: 500px; overflow: scroll; ">
             <div class="card-header">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <b>Historial de Actividades</b>
                     </div>
-                    <div>
-                        <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
+                    <div class="d-flex">
+                        <NavLink class="btn btn-sm gcom-bg-amarillo me-2" href="../" Match="NavLinkMatch.All">
                             <i class="fa fa-solid fa-arrow-left"></i> Volver
                         </NavLink>
                         <AuthorizeView Roles="Admin, VER_DETALLE_ACTIVIDAD">
                             <Authorized Context="IrActividad">
-                                <NavLink class="g1 btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                                <NavLink class="btn btn-sm gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
                                     Ir a Actividades
                                 </NavLink>
                             </Authorized>
@@ -26,21 +26,21 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="col-12 row d-fle">
+                <div class="row">
                     <!--Calendarios y boton para filtrar-->
-                    <div class="col-3">
+                    <div class="col-12 col-md-3 my-1">
                         <label>De:</label>
                         <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Creacion" />
                     </div>
-                    <div class="col-3">
+                    <div class="col-12 col-md-3 my-1">
                         <label>A:</label>
                         <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Ven" />
                     </div>
-                    <div class="col-3 mt-auto">
-                        <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Get_Activities"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                    <div class="col-12 col-md-3 my-1">
+                        <button class="btn btn-sm gcom-bg-amarillo w-100" @onclick="Get_Activities"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
                     </div>
-                    <div class="col-3 mt-auto">
-                        <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Export_Activities"><i class="fa fa-solid fa-file-excel"></i>Exportar</button>
+                    <div class="col-12 col-md-3 my-1">
+                        <button class="btn btn-sm gcom-bg-amarillo w-100" @onclick="Export_Activities"><i class="fa fa-solid fa-file-excel"></i>Exportar</button>
                     </div>
                 </div>
                 <!--Tabla de muestreo de datos para mostrar el historial de actividades-->
@@ -107,9 +107,6 @@
                         </Columnas>
                     </Tabla>
                 </div>
-            </div>
-            <div class="col-12">
-
             </div>
         </div>
     </Authorized>
