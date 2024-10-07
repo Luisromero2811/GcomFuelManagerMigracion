@@ -58,11 +58,9 @@
                                     <tr>
                                         <AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
                                             <Authorized Context="VERCOMERCIAL">
-                                                <td>
-                                                    <NavLink class="btn gcom-bg-amarillo" href=@($"crm/originador/{item.Id}")>
+                                                    <NavLink href=@($"crm/originador/{item.Id}")>
                                                         <td>@item.Nombre @item.Apellidos</td>
                                                     </NavLink>
-                                                </td>
                                             </Authorized>
                                             <NotAuthorized Context="VERCOMERCIAL">
                                                 <td>@item.Nombre @item.Apellidos</td>

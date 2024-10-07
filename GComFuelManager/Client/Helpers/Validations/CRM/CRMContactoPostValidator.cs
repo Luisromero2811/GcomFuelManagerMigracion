@@ -47,9 +47,12 @@ namespace GComFuelManager.Client.Helpers.Validations.CRM
                 .GreaterThan(0).WithMessage("Debe seleccionar un origen de contacto");
             RuleFor(x => x.Recomen)
                 .MaximumLength(250).WithMessage("La descripcion del estado no debe tener mas de 200 caracteres");
-            //RuleFor(x => x.Asignado)
-            //.NotEmpty().WithMessage("El encargado del contacto es obligatorio")
-            //.GreaterThan(0).WithMessage("Debe seleccionar un encargado del contacto");
+            RuleFor(x => x.VendedorId)
+                .NotEmpty().WithMessage("El encargado del contacto es obligatorio")
+                .GreaterThan(0).WithMessage("Debe seleccionar un encargado del contacto");
+            RuleFor(x => x.CuentaId)
+                .NotEmpty().WithMessage("La cuenta es obligatoria")
+                .GreaterThan(0).WithMessage("Debe seleccionar una cuenta de contacto");
         }
     }
 }
