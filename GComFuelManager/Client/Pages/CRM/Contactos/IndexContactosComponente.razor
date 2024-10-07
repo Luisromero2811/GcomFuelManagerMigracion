@@ -52,7 +52,7 @@
                             <tr>
                                 <AuthorizeView Roles="Admin, EDITAR_CONTACTO, ELIMINAR_CONTACTO, VER_DETALLE_CONTACTOS">
                                     <Authorized Context="ACCIONES">
-                                        <th class="d-md-table-cell d-none" style="max-width:150px;"></th>
+                                        <th class=" " style="max-width:150px;"></th>
                                     </Authorized>
                                 </AuthorizeView>
                                 <th>Contacto</th>
@@ -60,15 +60,15 @@
                                 <th>Tel. movil</th>
                                 <th>Correo</th>
                                 <th>Encargado</th>
-                                <th class="d-md-table-cell d-none">División</th>
-                                <th class="d-md-table-cell d-none">Estado</th>
+                                <th class=" ">División</th>
+                                <th class=" ">Estado</th>
                             </tr>
                         </Cabeceras>
                         <Filtros>
                             <tr>
                                 <AuthorizeView Roles="Admin, EDITAR_CONTACTO, ELIMINAR_CONTACTO, VER_DETALLE_CONTACTOS">
                                     <Authorized Context="ACCIONES">
-                                        <td class="d-md-table-cell d-none"></td>
+                                        <td class=" "></td>
                                     </Authorized>
                                 </AuthorizeView>
                                 <td>
@@ -86,10 +86,10 @@
                                 <td>
                                     <input class="form-control form-control-sm" @bind-value="filtro_contacto.Vendedor" @oninput="FiltrarVendedor" />
                                 </td>
-                                <td class="d-md-table-cell d-none">
+                                <td class=" ">
                                     <input class="form-control form-control-sm" @bind-value="filtro_contacto.Division" @oninput="FiltrarDivision" />
                                 </td>
-                                <td class="d-md-table-cell d-none">
+                                <td class=" ">
                                     <input class="form-control form-control-sm" @bind-value="filtro_contacto.Estatus" @oninput="FiltrarEstado" />
                                 </td>
                             </tr>
@@ -98,7 +98,7 @@
                             <tr>
                                 <AuthorizeView Roles="Admin, EDITAR_CONTACTO, ELIMINAR_CONTACTO, VER_DETALLE_CONTACTOS">
                                     <Authorized Context="ACCIONES">
-                                        <td class="d-md-table-cell d-none">
+                                        <td class=" ">
                                             <div class="btn-group" role="group">
                                                 <AuthorizeView Roles="Admin, EDITAR_CONTACTO">
                                                     <Authorized Context="EDITARCONTACTO">
@@ -130,8 +130,8 @@
                                 <td>@item.Tel_Movil</td>
                                 <td>@item.Correo</td>
                                 <td>@item.Vendedor</td>
-                                <td class="d-md-table-cell d-none">@item.Division</td>
-                                <td class="d-md-table-cell d-none">@item.Estatus</td>
+                                <td class=" ">@item.Division</td>
+                                <td class=" ">@item.Estatus</td>
                             </tr>
                         </Columnas>
                     </Tabla>

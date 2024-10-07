@@ -66,8 +66,8 @@
                                             @item.Nombre
                                         </Render>
                                     </DropDownFilter>
-                                    @* <InputSelect @bind-Value="CRMContacto.Cuenta" class="d-none" /> *@
-                                    @* <ValidationMessage For="@(()=>CRMContacto.CuentaId)" /> *@
+                                    <InputSelect @bind-Value="CRMContacto.CuentaId" class="d-none" />
+                                    <ValidationMessage For="@(()=>CRMContacto.CuentaId)" />
                                 </div>
                                 <div class="col-md-4 col-12">
                                     <label>Division</label>
@@ -179,8 +179,8 @@
                                             @item.Nombre @item.Apellidos - @item.NombreDivision - @item.Tel_Movil @item.Correo
                                         </Render>
                                     </DropDownFilter>
-                                    @* <InputSelect @bind-Value="CRMContacto.VendedorId" class="d-none" /> *@
-                                    @* <ValidationMessage For="@(()=>CRMContacto.VendedorId)" /> *@
+                                    <InputSelect @bind-Value="CRMContacto.VendedorId" class="d-none" />
+                                    <ValidationMessage For="@(()=>CRMContacto.VendedorId)" />
                                 </div>
                             </div>
                         </Body>
