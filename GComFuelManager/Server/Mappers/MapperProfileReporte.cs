@@ -42,7 +42,7 @@ namespace GComFuelManager.Server.Mappers
                 .ForMember(x => x.Fch_Inicio, o => o.MapFrom(x => x.Fch_Inicio))
                 .ForMember(x => x.Fecha_Ven, o => o.MapFrom(x => x.Fecha_Ven))
                 .ForMember(x => x.Estatus, o => o.MapFrom(x => x.Estados.Valor))
-                .ForMember(x => x.Asignado, o => o.MapFrom(x => x.vendedor.Nombre));
+                .ForMember(x => x.Asignado, o => o.MapFrom(x => $"{x.vendedor.Nombre} {x.vendedor.Apellidos}"));
         }
     }
 }

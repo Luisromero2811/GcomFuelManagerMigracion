@@ -58,6 +58,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<CRMUsuarioValidation>();
     services.AddScoped<CRMClientePostValidator>();
     services.AddScoped<CRMCatalgoValorPostValidator>();
+    services.AddScoped<CRMActividadValidation>();
 
     services.AddScoped<Constructor_De_URL_Parametros>();
 

@@ -3,210 +3,214 @@
 
 @inject SweetAlertService Swal
 @inject IRepositorio repositorio
+@inject CRMActividadValidation validation
 <!--Formulario de registro-->
-<div class="card mt-2" style="height: 680px; overflow: scroll; ">
-    <div class="card-header">
-        <div class="d-flex justify-content-between">
-            <div>
-                <b>Creación de Actividades</b>
+<AuthorizeView Roles="Admin, CREAR_ACTIVIDAD">
+    <Authorized Context="GestionActividad">
+        <div class="card mt-2" style="height: 680px; overflow: scroll; ">
+            <div class="card-header">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <b>Creación de Actividades</b>
+                    </div>
+                    <div>
+                        <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                            <i class="fa fa-solid fa-arrow-left" /> Volver
+                        </NavLink>
+                    </div>
+                </div>
+
             </div>
-            <div>
-                <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/listado/actividades" Match="NavLinkMatch.All">
-                    <i class="fa fa-solid fa-arrow-left" /> Volver
-                </NavLink>
+            <div class="card-body">
+                <div class="col-12">
+                    <EditForm Model="@CRMActividad" class="form col-12" OnValidSubmit="CreateActividad">
+                        <FluentValidationValidator Validator="validation" />
+                        <ValidationSummary />
+                        <div class="col-12 row g-1">
+                            <!--Asunto-->
+                            <div class="col-4 my-1">
+                                <label>Asunto:</label>
+                                <InputSelect @bind-Value="@CRMActividad.Asunto" class="form-select form-select-sm">
+                                    <option>-- Seleccione un Asunto --</option>
+                                    @foreach (var asunto in Cat_Asunto)
+                                    {
+                                        <option value="@asunto.Id">@asunto.Valor</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <!--Fecha de Inicio-->
+                            <div class="col-4 my-1">
+                                <label>Fecha de Inicio:</label>
+                                <InputDate @bind-Value="@CRMActividad.Fch_Inicio" class="form-control form-control-sm col-12" Type="InputDateType.DateTimeLocal" />
+                            </div>
+                            <!--Fecha de Vencimiento-->
+                            <div class="col-4 my-1">
+                                <label>Fecha de Vencimiento:</label>
+                                <InputDate @bind-Value="@CRMActividad.Fecha_Ven" class="form-control form-control-sm col-12" Type="InputDateType.DateTimeLocal" />
+                            </div>
+                            <!--Prioridad-->
+                            <div class="col-4 my-1">
+                                <label>Prioridad:</label>
+                                <InputSelect @bind-Value="@CRMActividad.Prioridad" class="form-select form-select-sm">
+                                    <option>-- Seleccione un Asunto --</option>
+                                    @foreach (var asunto in Cat_Prioridad)
+                                    {
+                                        <option value="@asunto.Id">@asunto.Valor</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <!--Asignado A-->
+                            <div class="col-4 my-1">
+                                <label>Asignado a:</label>
+                                <InputSelect @bind-Value="@CRMActividad.Asignado" class="form-select form-select-sm">
+                                    <option>-- Seleccione un Vendedor --</option>
+                                    @if (Vendedores == null)
+                                    {
+                                        <option>Cargando...</option>
+                                    }
+                                    else if (Vendedores.Count == 0)
+                                    {
+                                        <option>No hay vendedores.</option>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in Vendedores)
+                                        {
+                                            <option value="@item.Id">@item.Nombre @item.Apellidos</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <!--Descripción-->
+                            <div class="col-4 my-1">
+                                <label>Descripción:</label>
+                                <InputTextArea @bind-Value="@CRMActividad.Desccripcion" class="form-control" style=" height: 180px;" placeholder="Descripción de la Actividad" />
+                                <ValidationMessage For="@(()=>CRMActividad.Desccripcion)" />
+                            </div>
+                            <!--Estatus-->
+                            <div class="col-4 my-1">
+                                <label>Estatus:</label>
+                                <InputSelect @bind-Value="@CRMActividad.Estatus" class="form-select form-select-sm">
+                                    <option>-- Seleccione un Estatus --</option>
+                                    @foreach (var asunto in Cat_Estatus)
+                                    {
+                                        <option value="@asunto.Id">@asunto.Valor</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <!--Relacionada con:-->
+                            <div class="col-4 my-1">
+                                <label>Relacionada Con:</label>
+                                <InputSelect @bind-Value="@CRMActividad.Contacto_Rel" class="form-select form-select-sm">
+                                    <option>-- Seleccione un Contacto --</option>
+                                    @if (Contactos == null)
+                                    {
+                                        <option>Cargando...</option>
+                                    }
+                                    else if (Contactos.Count == 0)
+                                    {
+                                        <option>No hay Contactos.</option>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in Contactos)
+                                        {
+                                            <option value="@item.Id">@item.Nombre @item.Apellidos</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-4 my-1">
+                                <label>Equipo</label>
+                                <InputSelect @bind-Value="@CRMActividad.EquipoId" class="form-select form-select-sm">
+                                    <option>-- Seleccione un Equipo --</option>
+                                    @if (Equipos == null)
+                                    {
+                                        <option>Cargando...</option>
+                                    }
+                                    else if (Equipos.Count == 0)
+                                    {
+                                        <option>No hay Equipos.</option>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in Equipos)
+                                        {
+                                            <div class="my-auto" style="background-color:@item.Color;width:1rem;height:1rem;border-radius:1rem;margin-right:.2rem;"></div>
+                                            <option value="@item.Id">@item.Nombre @item.Lider</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <Card HeaderText="Documentos asociados" BodyClass="col-12 row">
+                                <Body>
+                                    <div class="col-4 my-1">
+                                        <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label="Documentos"
+                                                       MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubido" />
+                                    </div>
+                                    <div class="col-4 my-1">
+                                        <label>Nombre del Documento:</label>
+                                        <InputText @bind-Value="CRMActividad.NombreDocumento" class="form-control" />
+                                    </div>
+                                    <div class="col-4 my-1">
+                                        <label>Fecha de Caducidad:</label>
+                                        <InputDate Type="InputDateType.Date" @bind-Value="CRMActividad.FechaCaducidad" class="form-control" min="@DateTime.Today" />
+                                    </div>
+                                    <div class="col-4 my-1">
+                                        <label>Versión del Documento:</label>
+                                        <InputText @bind-Value="CRMActividad.Version" class="form-control" />
+                                    </div>
+                                    <div class="col-4 my-1">
+                                        <label>Descripción del Documento:</label>
+                                        <InputTextArea @bind-Value="CRMActividad.Descripcion" class="form-control" />
+                                    </div>
+                                    <div class="col-4 my-1">
+                                        <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documento relacionado"
+                                                       MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRelacionadoSubido" />
+                                    </div>
+                                    <div class="col-4 my-1">
+                                        <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documento de revisión"
+                                                       MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRevisionSubido" />
+                                    </div>
+                                </Body>
+                            </Card>
+                        </div>
+                        <!--Boton de creación y edición-->
+                        <div class="col-12 d-flex mt-3 justify-content-center">
+                            @if (!isEdit)
+                            {
+                                <div class="col-4 px-2">
+                                    <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit">
+                                        <i class="fa fa-solid fa-floppy-disk"></i> Crear Actividad
+                                        @if (loading_guardar)
+                                        {
+                                            <SpinnerLoading />
+                                        }
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-12 btn-group">
+                                    <button class="btn btn-sm gcom-bg-amarillo" type="submit">
+                                        <i class="fa fa-solid fa-floppy-disk"></i> Editar
+                                        @if (loading_guardar)
+                                        {
+                                            <SpinnerLoading />
+                                        }
+                                    </button>
+                                    <button class="btn btn-sm gcom-bg-rojo" type="button" @onclick="Cancel_Activity">
+                                        <i class="fa fa-solid fa-cancel"></i> Cancelar
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </EditForm>
+                </div>
             </div>
         </div>
-
-    </div>
-    <div class="card-body">
-        <div class="col-12">
-            <EditForm Model="@CRMActividad" class="form col-12" OnValidSubmit="CreateActividad">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                <div class="col-12 row g-1">
-                    <!--Asunto-->
-                    <div class="col-4 my-1">
-                        <label>Asunto:</label>
-                        <InputSelect @bind-Value="@CRMActividad.Asunto" class="form-select form-select-sm">
-                            <option>-- Seleccione un Asunto --</option>
-                            @foreach (var asunto in Cat_Asunto)
-                            {
-                                <option value="@asunto.Id">@asunto.Valor</option>
-                            }
-                        </InputSelect>
-                    </div>
-                    <!--Fecha de Inicio-->
-                    <div class="col-4 my-1">
-                        <label>Fecha de Inicio:</label>
-                        <InputDate @bind-Value="@CRMActividad.Fch_Inicio" class="form-control form-control-sm col-12" Type="InputDateType.DateTimeLocal" />
-                    </div>
-                    <!--Fecha de Vencimiento-->
-                    <div class="col-4 my-1">
-                        <label>Fecha de Vencimiento:</label>
-                        <InputDate @bind-Value="@CRMActividad.Fecha_Ven" class="form-control form-control-sm col-12" Type="InputDateType.DateTimeLocal" />
-                    </div>
-                    <!--Prioridad-->
-                    <div class="col-4 my-1">
-                        <label>Prioridad:</label>
-                        <InputSelect @bind-Value="@CRMActividad.Prioridad" class="form-select form-select-sm">
-                            <option>-- Seleccione un Asunto --</option>
-                            @foreach (var asunto in Cat_Prioridad)
-                            {
-                                <option value="@asunto.Id">@asunto.Valor</option>
-                            }
-                        </InputSelect>
-                    </div>
-                    <!--Asignado A-->
-                    <div class="col-4 my-1">
-                        <label>Asignado a:</label>
-                        <InputSelect @bind-Value="@CRMActividad.Asignado" class="form-select form-select-sm">
-                            <option>-- Seleccione un Vendedor --</option>
-                            @if (Vendedores == null)
-                            {
-                                <option>Cargando...</option>
-                            }
-                            else if (Vendedores.Count == 0)
-                            {
-                                <option>No hay vendedores.</option>
-                            }
-                            else
-                            {
-                                @foreach (var item in Vendedores)
-                                {
-                                    <option value="@item.Id">@item.Nombre @item.Apellidos</option>
-                                }
-                            }
-                        </InputSelect>
-                    </div>
-                    <!--Descripción-->
-                    <div class="col-4 my-1">
-                        <label>Descripción:</label>
-                        <InputTextArea @bind-Value="@CRMActividad.Desccripcion" class="form-control" style=" height: 180px;" placeholder="Descripción de la Actividad" />
-                        <ValidationMessage For="@(()=>CRMActividad.Desccripcion)" />
-                    </div>
-                    <!--Estatus-->
-                    <div class="col-4 my-1">
-                        <label>Estatus:</label>
-                        <InputSelect @bind-Value="@CRMActividad.Estatus" class="form-select form-select-sm">
-                            <option>-- Seleccione un Estatus --</option>
-                            @foreach (var asunto in Cat_Estatus)
-                            {
-                                <option value="@asunto.Id">@asunto.Valor</option>
-                            }
-                        </InputSelect>
-                    </div>
-                    <!--Relacionada con:-->
-                    <div class="col-4 my-1">
-                        <label>Relacionada Con:</label>
-                        <InputSelect @bind-Value="@CRMActividad.Contacto_Rel" class="form-select form-select-sm">
-                            <option>-- Seleccione un Contacto --</option>
-                            @if (Contactos == null)
-                            {
-                                <option>Cargando...</option>
-                            }
-                            else if (Contactos.Count == 0)
-                            {
-                                <option>No hay Contactos.</option>
-                            }
-                            else
-                            {
-                                @foreach (var item in Contactos)
-                                {
-                                    <option value="@item.Id">@item.Nombre @item.Apellidos</option>
-                                }
-                            }
-                        </InputSelect>
-                    </div>
-                    <div class="col-4 my-1">
-                        <label>Equipo</label>
-                        <InputSelect @bind-Value="@CRMActividad.EquipoId" class="form-select form-select-sm">
-                            <option>-- Seleccione un Equipo --</option>
-                            @if (Equipos == null)
-                            {
-                                <option>Cargando...</option>
-                            }
-                            else if (Equipos.Count == 0)
-                            {
-                                <option>No hay Equipos.</option>
-                            }
-                            else
-                            {
-                                @foreach (var item in Equipos)
-                                {
-                                    <div class="my-auto" style="background-color:@item.Color;width:1rem;height:1rem;border-radius:1rem;margin-right:.2rem;"></div>
-                                    <option value="@item.Id">@item.Nombre @item.Lider</option>
-                                }
-                            }
-                        </InputSelect>
-                    </div>
-                    <Card HeaderText="Documentos asociados" BodyClass="col-12 row">
-                        <Body>
-                            <div class="col-4 my-1">
-                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label="Documentos"
-                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubido" />
-                            </div>
-                            <div class="col-4 my-1">
-                                <label>Nombre del Documento:</label>
-                                <InputText @bind-Value="CRMActividad.NombreDocumento" class="form-control" />
-                            </div>
-                            <div class="col-4 my-1">
-                                <label>Fecha de Caducidad:</label>
-                                <InputDate Type="InputDateType.Date" @bind-Value="CRMActividad.FechaCaducidad" class="form-control" min="@DateTime.Today" />
-                            </div>
-                            <div class="col-4 my-1">
-                                <label>Versión del Documento:</label>
-                                <InputText @bind-Value="CRMActividad.Version" class="form-control" />
-                            </div>
-                            <div class="col-4 my-1">
-                                <label>Descripción del Documento:</label>
-                                <InputTextArea @bind-Value="CRMActividad.Descripcion" class="form-control" />
-                            </div>
-                            <div class="col-4 my-1">
-                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documento relacionado"
-                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRelacionadoSubido" />
-                            </div>
-                            <div class="col-4 my-1">
-                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documento de revisión"
-                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRevisionSubido" />
-                            </div>
-                        </Body>
-                    </Card>
-                </div>
-                <!--Boton de creación y edición-->
-                <div class="col-12 d-flex mt-3 justify-content-center">
-                    @if (!isEdit)
-                    {
-                        <div class="col-4 px-2">
-                            <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit">
-                                <i class="fa fa-solid fa-floppy-disk"></i> Crear Actividad
-                                @if (loading_guardar)
-                                {
-                                    <SpinnerLoading />
-                                }
-                            </button>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="col-12 btn-group">
-                            <button class="btn btn-sm gcom-bg-amarillo" type="submit">
-                                <i class="fa fa-solid fa-floppy-disk"></i> Editar
-                                @if (loading_guardar)
-                                {
-                                    <SpinnerLoading />
-                                }
-                            </button>
-                            <button class="btn btn-sm gcom-bg-rojo" type="button" @onclick="Cancel_Activity">
-                                <i class="fa fa-solid fa-cancel"></i> Cancelar
-                            </button>
-                        </div>
-                    }
-                </div>
-            </EditForm>
-        </div>
-    </div>
-</div>
-
+    </Authorized>
+</AuthorizeView>
 @code {
     [Parameter] public int Id { get; set; }
 

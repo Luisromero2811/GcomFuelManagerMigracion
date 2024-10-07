@@ -2,11 +2,11 @@
 using FluentValidation;
 using GComFuelManager.Shared.DTOs.CRM;
 
-namespace GComFuelManager.Server.Validations
+namespace GComFuelManager.Client.Helpers.Validations.CRM
 {
-	public class CRMActividadPostValidator : AbstractValidator<CRMActividadPostDTO>
+	public class CRMActividadValidation : AbstractValidator<CRMActividadPostDTO>
 	{
-		public CRMActividadPostValidator()
+		public CRMActividadValidation()
 		{
             RuleFor(x => x.Asunto).NotEmpty().WithName("Asunto");
             RuleFor(x => x.Prioridad).NotEmpty().WithName("Prioridad");
@@ -14,7 +14,8 @@ namespace GComFuelManager.Server.Validations
             RuleFor(x => x.Estatus).NotEmpty().WithName("Estado de la actividad");
             RuleFor(x => x.Contacto_Rel).NotEmpty().WithName("Contacto");
             RuleFor(x => x.EquipoId).NotEmpty().WithName("Equipo");
+
         }
-	}
+    }
 }
 

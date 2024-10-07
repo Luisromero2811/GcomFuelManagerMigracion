@@ -1,115 +1,119 @@
-﻿@inject SweetAlertService Swal
+@inject SweetAlertService Swal
 @inject IJSRuntime js
 @inject IRepositorio repositorio
 @inject DialogService ds
 @page "/crm/historial/actividades"
-
-<div class="card mt-2" style="height: 500px; overflow: scroll; ">
-    <div class="card-header">
-        <div class="d-flex justify-content-between">
-            <div>
-                <b>Historial de Actividades</b>
+<AuthorizeView Roles="Admin, VER_HISTORIAL_ACTIVIDAD">
+    <Authorized Context="Historiales">
+        <div class="card mt-2" style="height: 500px; overflow: scroll; ">
+            <div class="card-header">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <b>Historial de Actividades</b>
+                    </div>
+                    <div>
+                        <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
+                            <i class="fa fa-solid fa-arrow-left"></i> Volver
+                        </NavLink>
+                        <AuthorizeView Roles="Admin, VER_DETALLE_ACTIVIDAD">
+                            <Authorized Context="IrActividad">
+                                <NavLink class="g1 btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                                    Ir a Actividades
+                                </NavLink>
+                            </Authorized>
+                        </AuthorizeView>
+                    </div>
+                </div>
             </div>
-            <div>
-                <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
-                    <i class="fa fa-solid fa-arrow-left"></i> Volver
-                </NavLink>
-                <NavLink class="g1 btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
-                    Ir a Actividades
-                </NavLink>
+            <div class="card-body">
+                <div class="col-12 row d-fle">
+                    <!--Calendarios y boton para filtrar-->
+                    <div class="col-3">
+                        <label>De:</label>
+                        <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Creacion" />
+                    </div>
+                    <div class="col-3">
+                        <label>A:</label>
+                        <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Ven" />
+                    </div>
+                    <div class="col-3 mt-auto">
+                        <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Get_Activities"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                    </div>
+                    <div class="col-3 mt-auto">
+                        <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Export_Activities"><i class="fa fa-solid fa-file-excel"></i>Exportar</button>
+                    </div>
+                </div>
+                <!--Tabla de muestreo de datos para mostrar el historial de actividades-->
+                <div class="container-fluid overflow-scroll">
+                    <Tabla Datos="ListadoActividad">
+                        <Cabeceras>
+                            <tr>
+                                <th style="width:100px;"></th>
+                                <th>Contacto</th>
+                                <th>Asunto</th>
+                                <th>Prioridad</th>
+                                <th>Estatus</th>
+                                <th>Descripción</th>
+                                <th>Fecha de creación</th>
+                                <th>Fecha de Inicio</th>
+                                <th>Fecha de Vencimiento</th>
+                                <th>Fecha de Finalización</th>
+
+                            </tr>
+                        </Cabeceras>
+                        <Filtros>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Asunto" @oninput="FiltrarAsunto" />
+                                </td>
+                                <td>
+                                    <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Prioridad" @oninput="FiltrarPrioridad" />
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </Filtros>
+                        <Columnas Context="item">
+                            <tr>
+                                <td>
+                                    <div class="col-12">
+                                        <NavLink class="col-12 btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
+                                            <i class="fa fa-solid fa-folder-open" />
+                                        </NavLink>
+                                    </div>
+                                </td>
+                                <td>@item.Contacto_Rel</td>
+                                <td>@item.Asunto</td>
+                                <td>@item.Prioridad</td>
+                                <td>@item.Estatus</td>
+                                <td>
+                                    <div class="col-12">
+                                        <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>OpenModal(item.Desccripcion ?? string.Empty))">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>@item.Fecha_Creacion</td>
+                                <td>@item.Fch_Inicio</td>
+                                <td>@item.Fecha_Ven</td>
+                                <td>@item.Fecha_Mod</td>
+                            </tr>
+                        </Columnas>
+                    </Tabla>
+                </div>
+            </div>
+            <div class="col-12">
+
             </div>
         </div>
-    </div>
-    <div class="card-body">
-        <div class="col-12 row d-fle">
-            <!--Calendarios y boton para filtrar-->
-            <div class="col-3">
-                <label>De:</label>
-                <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Creacion" />
-            </div>
-            <div class="col-3">
-                <label>A:</label>
-                <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Ven" />
-            </div>
-            <div class="col-3 mt-auto">
-                <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Get_Activities"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
-            </div>
-            <div class="col-3 mt-auto">
-                <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Export_Activities"><i class="fa fa-solid fa-file-excel"></i>Exportar</button>
-            </div>
-        </div>
-        <!--Tabla de muestreo de datos para mostrar el historial de actividades-->
-        <div class="col-12 row my-2">
-            <div class="container-fluid overflow-scroll">
-                <Tabla Datos="ListadoActividad">
-                    <Cabeceras>
-                        <tr>
-                            <th></th>
-                            <th>Contacto</th>
-                            <th>Asunto</th>
-                            <th>Prioridad</th>
-                            <th>Estatus</th>
-                            <th>Descripción</th>
-                            <th>Fecha de creación</th>
-                            <th>Fecha de Inicio</th>
-                            <th>Fecha de Vencimiento</th>
-                            <th>Fecha de Finalización</th>
-
-                        </tr>
-                    </Cabeceras>
-                    <Filtros>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Asunto" @oninput="FiltrarAsunto" />
-                            </td>
-                            <td>
-                                <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Prioridad" @oninput="FiltrarPrioridad" />
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </Filtros>
-                    <Columnas Context="item">
-                        <tr>
-                            <td>
-                                <div class="col-12">
-                                    <NavLink class="col-12 btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
-                                        <i class="fa fa-solid fa-folder-open" />
-                                    </NavLink>
-                                </div>
-                            </td>
-                            <td>@item.Contacto_Rel</td>
-                            <td>@item.Asunto</td>
-                            <td>@item.Prioridad</td>
-                            <td>@item.Estatus</td>
-                            <td>
-                                <div class="col-12">
-                                    <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>OpenModal(item.Desccripcion ?? string.Empty))">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </button>
-                                </div>
-                            </td>
-                            <td>@item.Fecha_Creacion</td>
-                            <td>@item.Fch_Inicio</td>
-                            <td>@item.Fecha_Ven</td>
-                            <td>@item.Fecha_Mod</td>
-                        </tr>
-                    </Columnas>
-                </Tabla>
-            </div>
-        </div>
-    </div>
-    <div class="col-12">
-
-    </div>
-</div>
-
+    </Authorized>
+</AuthorizeView>
 @code {
     CRMActividadDTO Listado_Actividad = new();
     List<CRMActividadDTO> ListadoActividad { get; set; } = new();
