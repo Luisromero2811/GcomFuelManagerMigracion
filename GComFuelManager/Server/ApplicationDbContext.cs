@@ -249,11 +249,11 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<CRMRolPermiso>().HasKey(x => new { x.RolId, x.PermisoId });
             modelBuilder.Entity<CRMRolUsuario>().HasKey(x => new { x.RolId, x.UserId });
 
-            modelBuilder.Entity<CRMRol>()
-                .HasOne(x => x.Division)
-                .WithMany()
-                .HasForeignKey(x => x.DivisionId)
-                .OnDelete(DeleteBehavior.Restrict);
+            //modelBuilder.Entity<CRMRol>()
+            //    .HasOne(x => x.Division)
+            //    .WithMany()
+            //    .HasForeignKey(x => x.DivisionId)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CRMEquipo>()
                 .HasOne(x => x.Originador)
