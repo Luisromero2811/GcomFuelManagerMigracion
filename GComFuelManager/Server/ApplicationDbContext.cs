@@ -326,6 +326,18 @@ namespace GComFuelManager.Server
                 .WithOne(x => x.Grupo)
                 .HasForeignKey(x => x.GrupoId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasMany(x => x.HistorialEstados)
+                .WithOne(x => x.Oportunidad)
+                .HasForeignKey(x => x.OportunidadId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CRMOportunidadEstadoHistorial>()
+                .HasOne(x => x.EtapaVenta)
+                .WithMany()
+                .HasForeignKey(x => x.EtapaVentaId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
         public DbSet<Log> Log { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
@@ -354,5 +366,6 @@ namespace GComFuelManager.Server
         public DbSet<CRMCatalogoValor> CRMCatalogoValores { get; set; }
         public DbSet<CRMGrupo> CRMGrupos { get; set; }
         public DbSet<CRMGrupoRol> CRMGrupoRoles { get; set; }
+        public DbSet<CRMOportunidadEstadoHistorial> CRMOportunidadEstadoHistoriales { get; set; }
     }
 }

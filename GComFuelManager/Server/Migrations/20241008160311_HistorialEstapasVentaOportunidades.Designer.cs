@@ -4,6 +4,7 @@ using GComFuelManager.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GComFuelManager.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241008160311_HistorialEstapasVentaOportunidades")]
+    partial class HistorialEstapasVentaOportunidades
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -732,9 +735,6 @@ namespace GComFuelManager.Server.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("EtapaVentaId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("FechaCambio")
                         .HasColumnType("datetime2");
 
@@ -746,8 +746,6 @@ namespace GComFuelManager.Server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EtapaVentaId");
 
                     b.HasIndex("OportunidadId");
 
@@ -1458,19 +1456,11 @@ namespace GComFuelManager.Server.Migrations
 
             modelBuilder.Entity("GComFuelManager.Shared.Modelos.CRMOportunidadEstadoHistorial", b =>
                 {
-                    b.HasOne("GComFuelManager.Shared.Modelos.CRMCatalogoValor", "EtapaVenta")
-                        .WithMany()
-                        .HasForeignKey("EtapaVentaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("GComFuelManager.Shared.Modelos.CRMOportunidad", "Oportunidad")
                         .WithMany("HistorialEstados")
                         .HasForeignKey("OportunidadId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("EtapaVenta");
 
                     b.Navigation("Oportunidad");
                 });
