@@ -5,7 +5,7 @@
 @page "/crm/historial/actividades"
 <AuthorizeView Roles="Admin, VER_HISTORIAL_ACTIVIDAD">
     <Authorized Context="Historiales">
-        <div class="card mt-2" style="height: 500px; overflow: scroll; ">
+        <div class="card mt-2">
             <div class="card-header">
                 <div class="d-flex justify-content-between">
                     <div>
@@ -44,73 +44,72 @@
                     </div>
                 </div>
                 <!--Tabla de muestreo de datos para mostrar el historial de actividades-->
-                <div class="container-fluid overflow-scroll">
-                    <Tabla Datos="ListadoActividad">
-                        <Cabeceras>
-                            <tr>
-                                <th style="width:100px;"></th>
-                                <th>Contacto</th>
-                                <th>Asunto</th>
-                                <th>Prioridad</th>
-                                <th>Estatus</th>
-                                <th>Descripción</th>
-                                <th>Fecha de creación</th>
-                                <th>Fecha de Inicio</th>
-                                <th>Fecha de Vencimiento</th>
-                                <th>Fecha de Finalización</th>
-
-                            </tr>
-                        </Cabeceras>
-                        <Filtros>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td>
-                                    <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Asunto" @oninput="FiltrarAsunto" />
-                                </td>
-                                <td>
-                                    <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Prioridad" @oninput="FiltrarPrioridad" />
-                                </td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </Filtros>
-                        <Columnas Context="item">
-                            <tr>
-                                <td>
-                                    <div class="col-12">
-                                        <NavLink class="col-12 btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
-                                            <i class="fa fa-solid fa-folder-open" />
-                                        </NavLink>
-                                    </div>
-                                </td>
-                                <td>@item.Contacto_Rel</td>
-                                <td>@item.Asunto</td>
-                                <td>@item.Prioridad</td>
-                                <td>@item.Estatus</td>
-                                <td>
-                                    <div class="col-12">
-                                        <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>OpenModal(item.Desccripcion ?? string.Empty))">
-                                            <i class="fa-solid fa-eye"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                                <td>@item.Fecha_Creacion</td>
-                                <td>@item.Fch_Inicio</td>
-                                <td>@item.Fecha_Ven</td>
-                                <td>@item.Fecha_Mod</td>
-                            </tr>
-                        </Columnas>
-                    </Tabla>
-                </div>
             </div>
             <div class="col-12">
-
             </div>
+        </div>
+        <div class="container-fluid overflow-scroll">
+            <Tabla Datos="ListadoActividad">
+                <Cabeceras>
+                    <tr>
+                        <th style="width:100px;"></th>
+                        <th>Contacto</th>
+                        <th>Asunto</th>
+                        <th>Prioridad</th>
+                        <th>Estatus</th>
+                        <th>Descripción</th>
+                        <th>Fecha de creación</th>
+                        <th>Fecha de Inicio</th>
+                        <th>Fecha de Vencimiento</th>
+                        <th>Fecha de Finalización</th>
+
+                    </tr>
+                </Cabeceras>
+                <Filtros>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Asunto" @oninput="FiltrarAsunto" />
+                        </td>
+                        <td>
+                            <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Prioridad" @oninput="FiltrarPrioridad" />
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </Filtros>
+                <Columnas Context="item">
+                    <tr>
+                        <td>
+                            <div class="col-12">
+                                <NavLink class="col-12 btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
+                                    <i class="fa fa-solid fa-folder-open" />
+                                </NavLink>
+                            </div>
+                        </td>
+                        <td>@item.Contacto_Rel</td>
+                        <td>@item.Asunto</td>
+                        <td>@item.Prioridad</td>
+                        <td>@item.Estatus</td>
+                        <td>
+                            <div class="col-12">
+                                <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>OpenModal(item.Desccripcion ?? string.Empty))">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td>@item.Fecha_Creacion</td>
+                        <td>@item.Fch_Inicio</td>
+                        <td>@item.Fecha_Ven</td>
+                        <td>@item.Fecha_Mod</td>
+                    </tr>
+                </Columnas>
+            </Tabla>
         </div>
     </Authorized>
 </AuthorizeView>

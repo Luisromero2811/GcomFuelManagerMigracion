@@ -44,5 +44,6 @@
         public CRMEquipo Equipo { get; set; } = null!;
         public List<CRMDocumento> Documentos { get; set; } = new();
         public List<CRMOportunidadDocumento> OportunidadDocumentos { get; set; } = new();
+        public List<CRMOportunidadEstadoHistorial> HistorialEstados { get; set; } = new();
     }
 }

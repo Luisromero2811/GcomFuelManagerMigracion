@@ -79,6 +79,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Include(x => x.Contacto)
                         .Include(x => x.Equipo)
                         .ThenInclude(x => x.Division)
+                        .OrderByDescending(x => x.FechaCreacion)
                         .AsQueryable();
                 }
                 else
@@ -95,6 +96,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Include(x => x.Contacto)
                         .Include(x => x.Equipo)
                         .ThenInclude(x => x.Division)
+                        .OrderByDescending(x => x.FechaCreacion)
                         .AsQueryable();
                 }
 
@@ -235,6 +237,9 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
+                var user = await userManager.FindByNameAsync(HttpContext.User.Identity?.Name ?? string.Empty);
+                if (user is null) return NotFound();
+
                 var result = validator.Validate(dto);
                 if (!result.IsValid) { return BadRequest(result.Errors); }
 
@@ -272,11 +277,34 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (oportunidad.Id != 0)
                 {
+                    var oportunidaddb = await context.CRMOportunidades.AsNoTracking().FirstOrDefaultAsync(x => x.Id == oportunidad.Id);
+                    if (oportunidaddb is not null)
+                    {
+                        if (oportunidaddb.EtapaVentaId != oportunidad.EtapaVentaId)
+                        {
+                            var historial = new CRMOportunidadEstadoHistorial
+                            {
+                                UserId = user.Id,
+                                Oportunidad = oportunidad,
+                                EtapaVentaId = oportunidad.EtapaVentaId
+                            };
+                            await context.AddAsync(historial);
+                        }
+                    }
+
                     context.Update(oportunidad);
                 }
                 else
                 {
+                    var historial = new CRMOportunidadEstadoHistorial
+                    {
+                        UserId = user.Id,
+                        Oportunidad = oportunidad,
+                        EtapaVentaId = oportunidad.EtapaVentaId
+                    };
+
                     await context.AddAsync(oportunidad);
+                    await context.AddAsync(historial);
                 }
 
                 if (!dto.DocumentoId.IsZero())
