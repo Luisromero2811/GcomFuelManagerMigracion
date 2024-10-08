@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="row">
+                <div class="row mb-2">
                     <!--Calendarios y boton para filtrar-->
                     <div class="col-12 col-md-3 my-1">
                         <label>De:</label>
@@ -36,10 +36,10 @@
                         <label>A:</label>
                         <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Ven" />
                     </div>
-                    <div class="col-12 col-md-3 my-1">
+                    <div class="col-12 col-md-3 my-1 mt-auto">
                         <button class="btn btn-sm gcom-bg-amarillo w-100" @onclick="Get_Activities"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
                     </div>
-                    <div class="col-12 col-md-3 my-1">
+                    <div class="col-12 col-md-3 my-1 mt-auto">
                         <button class="btn btn-sm gcom-bg-amarillo w-100" @onclick="Export_Activities"><i class="fa fa-solid fa-file-excel"></i>Exportar</button>
                     </div>
                 </div>
