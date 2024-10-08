@@ -10,8 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using OfficeOpenXml;
 
-using ServiceReference7; //prod 
+//using ServiceReference7; //prod 
 //using ServiceReference2; //qa
+using BillOfLandingServiceProd;
 using System;
 using System.Diagnostics;
 using System.Transactions;

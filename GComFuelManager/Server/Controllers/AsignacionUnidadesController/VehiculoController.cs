@@ -8,7 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 //using ServiceReference1;//qa
-using ServiceReference9;//prod
+//using ServiceReference9;//prod
+using VehicleServiceProd;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
