@@ -10,8 +10,10 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 //using ServiceReference6;
 //using ServiceReference3;
-using ServiceReference10;
-using ServiceReference8;
+//using ServiceReference10;
+//using ServiceReference8;
+using BusinessEntityServiceProd;
+using TruckCarrierServiceProd;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -560,7 +562,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     return BadRequest("No esta permitida esta accion en esta terminal");
 
 
-                ServiceReference8.BusinessEntityServiceClient client = new(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
+                BusinessEntityServiceProd.BusinessEntityServiceClient client = new(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
@@ -581,17 +583,17 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     //Conexión a WebService para obtener el transportista
                     WsGetBusinessEntityAssociationsRequest getReq = new();
 
-                    getReq.IncludeChildObjects = new ServiceReference8.NBool();
+                    getReq.IncludeChildObjects = new BusinessEntityServiceProd.NBool();
                     getReq.IncludeChildObjects.Value = true;
 
-                    getReq.BusinessEntityType = new ServiceReference8.NInt();
+                    getReq.BusinessEntityType = new BusinessEntityServiceProd.NInt();
                     getReq.BusinessEntityType.Value = 8;//truck carrier
 
-                    getReq.AssociatedBusinessEntityId = new ServiceReference8.Identifier();
-                    getReq.AssociatedBusinessEntityId.Id = new ServiceReference8.NLong();
+                    getReq.AssociatedBusinessEntityId = new BusinessEntityServiceProd.Identifier();
+                    getReq.AssociatedBusinessEntityId.Id = new BusinessEntityServiceProd.NLong();
                     getReq.AssociatedBusinessEntityId.Id.Value = 51004;//energas
 
-                    getReq.AssociatedBusinessEntityType = new ServiceReference8.NInt();
+                    getReq.AssociatedBusinessEntityType = new BusinessEntityServiceProd.NInt();
                     getReq.AssociatedBusinessEntityType.Value = 1;
 
                     //toFile.GenerateFile(JsonConvert.SerializeObject(getReq), $"Request_Transportistas_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
@@ -620,7 +622,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                             {
                                 Den = item.BusinessEntity.BusinessEntityName,
                                 Busentid = item.BusinessEntity.BusinessEntityId.Id.Value.ToString(),
-                                Activo = item.BusinessEntity.ActiveIndicator.Value == ServiceReference8.ActiveIndicatorEnum.ACTIVE ? true : false,
+                                Activo = item.BusinessEntity.ActiveIndicator.Value == BusinessEntityServiceProd.ActiveIndicatorEnum.ACTIVE ? true : false,
                                 CarrId = carrid == null ? string.Empty : carrid.CarrierId.Id.Value.ToString(),
                                 Id_Tad = 1
                             };

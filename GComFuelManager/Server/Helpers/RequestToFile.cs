@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 //using ServiceReference2; //qa
-using ServiceReference7; //prods
+//using ServiceReference7; //prods
+using BillOfLandingServiceProd;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Xml;
@@ -49,7 +50,7 @@ namespace GComFuelManager.Server.Helpers
 
             using (StreamWriter file = new StreamWriter($"Files/{path}/{name}"))
             {
-                serializer.Serialize(file,type);
+                serializer.Serialize(file, type);
             }
         }
 

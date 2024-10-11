@@ -8,9 +8,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using ServiceReference8;//prod
+//using ServiceReference8;//prod
 //using ServiceReference6;//qa
 using System.Diagnostics;
+using BusinessEntityServiceProd;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
