@@ -62,6 +62,7 @@
     <Content Include="imgs\gcom_unilogo.png" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Connected Services\" />
     <Folder Include="Controllers\UsuarioController\" />
     <Folder Include="Files\" />
     <Folder Include="wwwroot\PDF-BOL\" />
