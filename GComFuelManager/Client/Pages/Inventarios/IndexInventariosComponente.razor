@@ -1,0 +1,296 @@
+﻿@page "/inventarios"
+@inject IRepositorio http
+@inject IJSRuntime js
+@inject InventarioValidator validator
+@inject SweetAlertService Swal
+
+<Card HeaderText="Inventarios" LoadingContent="loading">
+    <Body>
+        <EditForm Model="Inventario" class="col-12 row">
+            <DataAnnotationsValidator />
+            <FluentValidationValidator Validator="validator" />
+            <div class="col-4">
+                <label>Producto</label>
+                <InputSelect @bind-Value="Inventario.ProductoId" class="form-select form-select-sm">
+                    <option>-- Productos --</option>
+                    @foreach (var item in Productos)
+                    {
+                        <option value="@item.Cod">@item.Nombre_Producto</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Inventario.ProductoId)" />
+            </div>
+            <div class="col-4">
+                <label>Sitio</label>
+                <InputSelect @bind-Value="Inventario.SitioId" class="form-select form-select-sm">
+                    <option>-- Sitios --</option>
+                    @foreach (var item in Sitios)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Inventario.SitioId)" />
+            </div>
+            <div class="col-4">
+                <label>Almacen</label>
+                <InputSelect @bind-Value="Inventario.AlmacenId" class="form-select form-select-sm">
+                    <option>-- Almacenes --</option>
+                    @foreach (var item in Almacenes)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Inventario.AlmacenId)" />
+            </div>
+            <div class="col-4">
+                <label>Localidad</label>
+                <InputSelect @bind-Value="Inventario.LocalidadId" class="form-select form-select-sm">
+                    <option>-- Localidades --</option>
+                    @foreach (var item in Localidades)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Inventario.LocalidadId)" />
+            </div>
+            <div class="col-4">
+                <label>Tipo de movimiento</label>
+                <InputSelect @bind-Value="Inventario.TipoMovimientoId" class="form-select form-select-sm">
+                    <option>-- Tipo de movimiento --</option>
+                    @foreach (var item in TiposMovimientos)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
+            </div>
+            <div class="col-4">
+                <label>Referencia</label>
+                <InputTextArea @bind-Value="Inventario.Referencia" class="form-control form-control-sm" />
+                <ValidationMessage For="@(()=>Inventario.Referencia)" />
+            </div>
+            <div class="col-4">
+                <label>Numero</label>
+                <InputText @bind-Value="Inventario.Numero" class="form-control form-control-sm" />
+                <ValidationMessage For="@(()=>Inventario.Numero)" />
+            </div>
+            <div class="col-4">
+                <label>Cantidad</label>
+                <InputNumber @bind-Value="Inventario.Cantidad" class="form-control form-control-sm" />
+                <ValidationMessage For="@(()=>Inventario.Cantidad)" />
+            </div>
+            <div class="col-4">
+                <label>Unidad de medida</label>
+                <InputSelect @bind-Value="Inventario.UnidadMedidaId" class="form-select form-select-sm">
+                    <option>-- Unidades de medida --</option>
+                    @foreach (var item in UnidadesMedida)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Inventario.UnidadMedidaId)" />
+            </div>
+            <div class="col-4">
+                <label>Cantidad</label>
+                <InputDate Type="InputDateType.Date" @bind-Value="Inventario.FechaCierre" class="form-control form-control-sm" />
+                <ValidationMessage For="@(()=>Inventario.FechaCierre)" />
+            </div>
+        </EditForm>
+    </Body>
+</Card>
+
+@code {
+    InventarioPostDTO Inventario = new();
+    InventarioDTO Filtro = new();
+    bool loading = false;
+    Dictionary<string, string> query = new();
+
+    IEnumerable<InventarioDTO> Inventarios = new List<InventarioDTO>();
+
+    IEnumerable<Producto> Productos = new List<Producto>();
+    IEnumerable<Catalogo_Fijo> Sitios = new List<Catalogo_Fijo>();
+    IEnumerable<Catalogo_Fijo> Almacenes = new List<Catalogo_Fijo>();
+    IEnumerable<Catalogo_Fijo> Localidades = new List<Catalogo_Fijo>();
+    IEnumerable<Catalogo_Fijo> UnidadesMedida = new List<Catalogo_Fijo>();
+    IEnumerable<Catalogo_Fijo> TiposMovimientos = new List<Catalogo_Fijo>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(
+        GetProductos(),
+        CatalogoSitio(),
+        CatalogoAlmacen(),
+        CatalogoLocalidad(),
+        CatalogoTipoMovimiento(),
+        CatalogoUnidadMedida()
+        );
+    }
+
+    private Dictionary<string, string> SetFiltro()
+    {
+        query[$"{nameof(Filtro.Producto)}"] = Filtro.Producto;
+        query[$"{nameof(Filtro.Sitio)}"] = Filtro.Sitio;
+        query[$"{nameof(Filtro.Almacen)}"] = Filtro.Almacen;
+        query[$"{nameof(Filtro.Localidad)}"] = Filtro.Localidad;
+        query[$"{nameof(Filtro.TipoMovimiento)}"] = Filtro.TipoMovimiento;
+        query[$"{nameof(Filtro.UnidadMedida)}"] = Filtro.UnidadMedida;
+        query[$"{nameof(Filtro.Pagina)}"] = Filtro.Pagina.ToString();
+        query[$"{nameof(Filtro.Registros_por_pagina)}"] = Filtro.Registros_por_pagina.ToString();
+        return query;
+    }
+
+    private async Task CargarInventario()
+    {
+        try
+        {
+            loading = true;
+            var url = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            var response = await http.Get<IEnumerable<InventarioDTO>>($"api/inventario?{url}");
+            if (response.Error)
+            {
+                loading = false;
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                loading = false;
+                Inventarios = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    private async Task SeleccionarPagina(int pagina)
+    {
+        Filtro.Pagina = pagina;
+        Filtro.Pagina_ACtual = pagina;
+        await CargarInventario();
+    }
+
+    private async Task GetProductos()
+    {
+
+        try
+        {
+            var response = await http.Get<IEnumerable<Producto>>("api/producto");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Productos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    private async Task CatalogoSitio()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<Catalogo_Fijo>>("api/inventario/catalogo/sitio");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Sitios = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CatalogoAlmacen()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<Catalogo_Fijo>>("api/inventario/catalogo/almacen");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Almacenes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CatalogoLocalidad()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<Catalogo_Fijo>>("api/inventario/catalogo/localidad");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Localidades = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CatalogoUnidadMedida()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<Catalogo_Fijo>>("api/inventario/catalogo/unidadmedida");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                UnidadesMedida = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CatalogoTipoMovimiento()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<Catalogo_Fijo>>("api/inventario/catalogo/tipomovimiento");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                TiposMovimientos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

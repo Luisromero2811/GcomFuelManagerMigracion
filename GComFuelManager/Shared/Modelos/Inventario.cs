@@ -10,21 +10,25 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Inventario
     {
-        [JsonProperty("cod"), Key]
-        public int Cod { get; set; }
-        [JsonProperty("invini")]
-        public float? Invini { get; set; } = float.NaN;
-        [JsonProperty("codprd")]
-        public int? Codprd { get; set; } = 0;
-        [JsonProperty("com")]
-        public float? Com { get; set; } = float.NaN;
-        [JsonProperty("fch")]
-        public DateTime? Fch { get; set; } = DateTime.MinValue;
-        [JsonProperty("pro")]
-        public string? Pro { get; set; } = string.Empty;
-        [JsonProperty("fchcom")]
-        public DateTime? Fchcom { get; set; } = DateTime.MinValue;
-        [JsonProperty("ful")]
-        public float? Ful { get; set; } = float.NaN;
+        public int Id { get; set; }
+        public int ProductoId { get; set; }
+        public int SitioId { get; set; }
+        public int AlmacenId { get; set; }
+        public int LocalidadId { get; set; }
+        public int TipoMovimientoId { get; set; }
+        public string Referencia { get; set; } = string.Empty;
+        public string Numero { get; set; } = string.Empty;
+        public double Cantidad { get; set; }
+        public int UnidadMedidaId { get; set; }
+        public DateTime FechaCierre { get; set; } = DateTime.Today;
+        public DateTime FechaRegistro { get; set; } = DateTime.Now;
+        public bool Activo { get; set; } = true;
+
+        public Producto Producto { get; set; } = new();
+        public Catalogo_Fijo Sitio { get; set; } = new();
+        public Catalogo_Fijo Almacen { get; set; } = new();
+        public Catalogo_Fijo Localidad { get; set; } = new();
+        public Catalogo_Fijo TipoMovimiento { get; set; } = new();
+        public Catalogo_Fijo UnidadMedida { get; set; } = new();
     }
 }

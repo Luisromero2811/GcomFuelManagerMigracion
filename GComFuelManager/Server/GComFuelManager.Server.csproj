@@ -12,7 +12,9 @@
     <Content Remove="wwwroot\img\ENERGAS_Icon.png" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="EPPlus" Version="6.2.0" />
+    <PackageReference Include="FluentValidation" Version="11.10.0" />
     <PackageReference Include="itext" Version="8.0.2" />
     <PackageReference Include="MailKit" Version="4.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.4" />
