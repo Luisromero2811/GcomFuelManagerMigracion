@@ -82,7 +82,7 @@
                             <td></td>
                             <td></td>
                             <td>
-                                <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asignado" @oninput="FiltrarVendedor" />
+                                <input class="form-control form-control-sm" @bind-value="filtro_actividad.VendedorId" @oninput="FiltrarVendedor" />
                             </td>
                             <td></td>
                         </tr>
@@ -111,7 +111,7 @@
                             <td>@item.Fch_Inicio.ToString()</td>
                             <td>@(item.Fecha_Mod == null || item.Fecha_Mod == DateTime.MinValue ? "" : item.Fecha_Mod.Value.ToString())</td>
                             <td>@item.Fecha_Ven.ToString()</td>
-                            <td>@item.Asignado</td>
+                            <td>@item.VendedorId</td>
                             <AuthorizeView Roles="Admin, DESACTIVAR_ACTIVIDAD">
                                 <Authorized Context="DeshabilitarActividad">
                                     <td>
