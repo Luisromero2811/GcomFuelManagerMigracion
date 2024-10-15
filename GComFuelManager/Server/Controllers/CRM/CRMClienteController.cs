@@ -36,7 +36,7 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var clientes = context.CRMClientes.AsNoTracking().Where(x => x.Activo).AsQueryable();
+                var clientes = context.CRMClientes.AsNoTracking().Where(x => x.Activo).OrderBy(x => x.Nombre).AsQueryable();
 
                 if (!string.IsNullOrEmpty(cliente.Nombre))
                     clientes = clientes.Where(x => x.Nombre.ToLower().Contains(cliente.Nombre.ToLower()));
@@ -66,6 +66,20 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!validate.IsValid) return BadRequest(validate.Errors);
 
                 var cliente = mapper.Map<CRMClientePostDTO, CRMCliente>(dto);
+
+                cliente.ContactoPrincipalId = cliente.ContactoPrincipalId == 0 ? null : cliente.ContactoPrincipalId;
+
+                if (await context.CRMClientes.AnyAsync(x => x.Nombre.ToLower().Equals(cliente.Nombre.ToLower()) && x.Id != cliente.Id))
+                {
+                    var clientedb = await context.CRMClientes.AsNoTracking().FirstOrDefaultAsync(x => x.Id != cliente.Id && x.Nombre.ToLower().Equals(cliente.Nombre.ToLower()));
+                    if (clientedb is not null)
+                    {
+                        if (clientedb.Activo) { return BadRequest("Ya existe una cuenta activa con el mismo nombre."); }
+
+                        cliente.Id = clientedb.Id;
+                        cliente.Activo = true;
+                    }
+                }
 
                 if (cliente.Id != 0)
                 {
