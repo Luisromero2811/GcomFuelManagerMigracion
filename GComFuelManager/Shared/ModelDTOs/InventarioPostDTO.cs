@@ -12,6 +12,5 @@
         public string Numero { get; set; } = string.Empty;
         public double Cantidad { get; set; }
         public int UnidadMedidaId { get; set; }
-        public DateTime FechaCierre { get; set; } = DateTime.Today;
     }
 }

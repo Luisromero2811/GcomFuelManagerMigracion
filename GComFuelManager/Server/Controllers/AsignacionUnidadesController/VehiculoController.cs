@@ -356,11 +356,11 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     //Si la respuesta no es nula, si existe respuesta
                     if (respuesta.Vehicles != null)
                     {
-                        foreach (var item in respuesta.Vehicles)
+                        foreach (var item in respuesta.Vehicles.Where(x => x.CarrierId.Id.Value == carrId))
                         {
                             //carrId = item.CarrierId.Id.Value;
-                            if (carrId == item.CarrierId.Id.Value)
-                            {
+                            //if (carrId == item.CarrierId.Id.Value)
+                            //{
                                 //Creamos el objeto del Tonel
                                 Tonel tonel = new()
                                 {
@@ -473,7 +473,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                                     context.Add(unidad_);
                                 }
-                            }
+                            //}
 
                         }
 

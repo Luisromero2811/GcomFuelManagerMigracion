@@ -53,6 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAutoMapper(typeof(MapperProfileModel));
 
 builder.Services.AddScoped<IValidator<InventarioPostDTO>, InventarioValidator>();
+builder.Services.AddScoped<IValidator<TerminalPostDTO>, TerminalValidator>();
 
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();

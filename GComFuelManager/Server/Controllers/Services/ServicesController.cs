@@ -1227,8 +1227,18 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var transportistas = await context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.CarrId)).ToListAsync();
-                var toneles = await context.Tonel.IgnoreAutoIncludes().Where(x => x.Id_Tad == terminal && x.Codsyn != null).ToListAsync();
+                var transportistas = await context.Transportista
+                    .AsNoTracking()
+                    .IgnoreAutoIncludes()
+                    .Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.CarrId))
+                    .Select(x => new { x.Identificacion, x.CarrId })
+                    .ToListAsync();
+
+                var toneles = await context.Tonel
+                    .AsNoTracking()
+                    .IgnoreAutoIncludes()
+                    .Where(x => x.Id_Tad == terminal && x.Codsyn != null)
+                    .ToListAsync();
 
                 List<Unidad_Tad> unidad_Tads = new();
                 List<Tonel> unidad_editada = new();
@@ -1237,7 +1247,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 {
                     if (context.Transportista.Any(x => x.Identificacion != null && x.Identificacion == transportistas[i].Identificacion && x.Id_Tad == terminal_destino))
                     {
-                        var transportista = await context.Transportista.IgnoreAutoIncludes()
+                        var transportista = await context.Transportista.AsNoTracking()
                             .Where(x => x.Identificacion != null && x.Identificacion == transportistas[i].Identificacion && x.Id_Tad == terminal_destino)
                             .Select(x => x.CarrId)
                             .FirstOrDefaultAsync();

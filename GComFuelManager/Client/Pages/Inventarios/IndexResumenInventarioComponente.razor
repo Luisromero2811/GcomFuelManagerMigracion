@@ -1,0 +1,110 @@
+﻿@page "/inventarios/resumen"
+@inject IRepositorio http
+@inject IJSRuntime js
+@inject InventarioValidator validator
+@inject SweetAlertService Swal
+@attribute [Authorize]
+
+<Card HeaderText="Cierres de inventario">
+
+</Card>
+@foreach (var item in Cierres)
+{
+    <Card HeaderText="Inventario actual">
+        <Body>
+            <div class="col-12 row">
+                <div class="col">
+                    <label><b>Producto:</b></label>
+                    @item.Nuevo.Producto
+                </div>
+                <div class="col">
+                    <label><b>Sitio:</b></label>
+                    @item.Nuevo.Sitio
+                </div>
+                <div class="col">
+                    <label><b>Almacen:</b></label>
+                    @item.Nuevo.Almacen
+                </div>
+                <div class="col">
+                    <label><b>Localidad:</b></label>
+                    @item.Nuevo.Localidad
+                </div>
+                <div class="col">
+                    <label><b>Inventario fisico:</b></label>
+                    @item.Nuevo.Fisico
+                </div>
+                <div class="col">
+                    <label><b>Fisica reservada:</b></label>
+                    @item.Nuevo.Reservado
+                </div>
+                <div class="col">
+                    <label><b>Fisico disponible:</b></label>
+                    @item.Nuevo.Disponible
+                </div>
+                <div class="col">
+                    <label><b>Pedido total:</b></label>
+                    @item.Nuevo.PedidoTotal
+                </div>
+                <div class="col">
+                    <label><b>Ordenada reservada:</b></label>
+                    @item.Nuevo.OrdenReservado
+                </div>
+                <div class="col">
+                    <label><b>En orden:</b></label>
+                    @item.Nuevo.EnOrden
+                </div>
+                <div class="col">
+                    <label><b>Total disponible:</b></label>
+                    @item.Nuevo.TotalDisponible
+                </div>
+                <div class="col">
+                    <label><b>Total disponible en full:</b></label>
+                    @(item.Nuevo.TotalDisponible / 62000)
+                </div>
+            </div>
+            <div class="col-12 row">
+                <div class="col-3">
+                    <button class="btn btn-sm gcom-bg-amarillo">
+                        Cerrar inventario
+                    </button>
+                </div>
+            </div>
+        </Body>
+    </Card>
+}
+@code {
+    List<InventarioAnteriorNuevoCierreDTO> Cierres = new();
+
+    bool loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCierres();
+    }
+
+    private async Task CargarCierres()
+    {
+        try
+        {
+            loading = true;
+            var response = await http.Get<List<InventarioAnteriorNuevoCierreDTO>>($"api/inventario/cierre");
+            if (response.Error)
+            {
+                loading = false;
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                loading = false;
+                Cierres = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+}

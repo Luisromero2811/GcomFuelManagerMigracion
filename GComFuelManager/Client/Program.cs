@@ -4,6 +4,7 @@ using GComFuelManager.Client.Auth;
 using GComFuelManager.Client.Helpers;
 using GComFuelManager.Client.Helpers.Validations;
 using GComFuelManager.Client.Repositorios;
+using GComFuelManager.Client.Validators;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -70,6 +71,9 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<GestionChoferesValidation>();
     services.AddScoped<GestionUnidadValidation>();
     services.AddScoped<AutorizadoresValidation>();
+    
+    services.AddScoped<InventarioValidator>();
+    services.AddScoped<TerminalValidator>();
 
     services.AddScoped<Constructor_De_URL_Parametros>();
 

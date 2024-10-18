@@ -14,6 +14,7 @@ namespace GComFuelManager.Shared.ModelDTOs
         public string Numero { get; set; } = string.Empty;
         public double Cantidad { get; set; }
         public string UnidadMedida { get; set; } = string.Empty;
-        public DateTime FechaCierre { get; set; } = DateTime.Today;
+        public DateTime? FechaCierre { get; set; } = null;
+        public DateTime FechaRegistro { get; set; } = DateTime.Today;
     }
 }

@@ -16,15 +16,15 @@
                 }
                 return "";
             }
-            catch (FormatException e)
+            catch (FormatException)
             {
                 return "";
             }
-            catch (ArgumentNullException e)
+            catch (ArgumentNullException)
             {
                 return "";
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return "";
             }

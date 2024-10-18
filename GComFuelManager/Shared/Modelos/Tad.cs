@@ -24,7 +24,9 @@ namespace GComFuelManager.Shared.Modelos
         public string? CodigoOrdenes { get; set; } = string.Empty;
         public DateTime? Ultima_Actualizacion_Catalogo { get; set; }
         public int? Tipo_Vale { get; set; } = 0;
-        //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
+        public int? TipoTerminalId { get; set; } = 0;
+
+        public Catalogo_Fijo? TipoTerminal { get; set; } = null!;
         [NotMapped, JsonIgnore] public List<Cliente> Clientes { get; set; } = new();
         [NotMapped, JsonIgnore] public List<Cliente_Tad> Cliente_Tads { get; set; } = new();
         [NotMapped, JsonIgnore] public List<Destino> Destinos { get; set; } = new();
@@ -40,6 +42,11 @@ namespace GComFuelManager.Shared.Modelos
 
         [NotMapped] public List<GrupoTransportista> GruposTransportes { get; set; } = new();
         [NotMapped] public List<GrupoTransportista_Tad> GrupoTransportista_Tads { get; set; } = new();
+
+        public override string ToString()
+        {
+            return Den ?? string.Empty;
+        }
     }
 }
 

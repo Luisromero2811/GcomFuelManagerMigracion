@@ -15,5 +15,10 @@ namespace GComFuelManager.Shared.Modelos
         public short Catalogo { get; set; }
         public bool Activo { get; set; } = true;
         public string? Abreviacion { get; set; } = string.Empty;
+
+        public override string ToString()
+        {
+            return Valor;
+        }
     }
 }

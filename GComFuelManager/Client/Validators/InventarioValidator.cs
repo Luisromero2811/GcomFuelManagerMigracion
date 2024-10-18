@@ -38,6 +38,9 @@ namespace GComFuelManager.Client.Validators
                 .NotNull().WithMessage("La cantidad es obligatoria")
                 .GreaterThanOrEqualTo(0).WithMessage("La cantidad no puede ser menor a 0");
 
+            RuleFor(x => x.Numero)
+                .NotNull().WithMessage("El numero es obligatoria")
+                .NotEmpty().WithMessage("El numero no puede estar vacio");
         }
     }
 }

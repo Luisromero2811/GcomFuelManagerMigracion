@@ -62,8 +62,8 @@
 @code {
     List<AccionesCatalogo> Acciones = new();
     List<AccionesCatalogo> Acciones_Seleccionadas = new();
-    List<Tad> Terminales { get; set; } = new();
-    Tad Terminal { get; set; } = new();
+    List<TerminalDTO> Terminales { get; set; } = new();
+    TerminalDTO Terminal { get; set; } = new();
 
     [Parameter] public short Terminal_Destino { get; set; } = 0;
 
@@ -88,7 +88,7 @@
     {
         try
         {
-            var response = await http.Get<List<Tad>>("api/terminal/all");
+            var response = await http.Get<List<TerminalDTO>>("api/terminal/all");
             if (response.Error)
             {
                 await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
