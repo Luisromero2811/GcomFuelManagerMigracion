@@ -15,6 +15,7 @@
         public double OrdenReservado { get; set; }
         public double EnOrden { get; set; }
         public double TotalDisponible { get; set; }
+        public double TotalDisponibleFull { get; set; }
         public DateTime? FechaCierre { get; set; } = DateTime.Now;
         public short TadId { get; set; }
         public bool Activo { get; set; } = true;
@@ -23,8 +24,8 @@
         public Tad Terminal { get; set; } = null!;
         public Producto Producto { get; set; } = null!;
         public Catalogo_Fijo UnidadMedida { get; set; } = null!;
-        public Catalogo_Fijo Sitio { get; set; } = null!;
-        public Catalogo_Fijo Almacen { get; set; } = null!;
-        public Catalogo_Fijo Localidad { get; set; } = null!;
+        public CatalogoValor Sitio { get; set; } = null!;
+        public CatalogoValor Almacen { get; set; } = null!;
+        public CatalogoValor Localidad { get; set; } = null!;
     }
 }

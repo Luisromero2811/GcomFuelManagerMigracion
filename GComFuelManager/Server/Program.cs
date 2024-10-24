@@ -21,6 +21,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(optionsAction =>
 {
+    optionsAction.EnableSensitiveDataLogging();
     optionsAction.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
@@ -54,6 +55,7 @@ builder.Services.AddAutoMapper(typeof(MapperProfileModel));
 
 builder.Services.AddScoped<IValidator<InventarioPostDTO>, InventarioValidator>();
 builder.Services.AddScoped<IValidator<TerminalPostDTO>, TerminalValidator>();
+builder.Services.AddScoped<IValidator<CatalogoValorPostDTO>, CatalogoValorValidator>();
 
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();

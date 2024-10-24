@@ -74,6 +74,7 @@ void ConfigureServices(IServiceCollection services)
     
     services.AddScoped<InventarioValidator>();
     services.AddScoped<TerminalValidator>();
+    services.AddScoped<CatalogoValorValidator>();
 
     services.AddScoped<Constructor_De_URL_Parametros>();
 

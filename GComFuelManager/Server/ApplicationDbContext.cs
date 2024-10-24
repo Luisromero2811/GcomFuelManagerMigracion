@@ -611,11 +611,11 @@ namespace GComFuelManager.Server
                 .HasForeignKey(x => x.ProductoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Inventario>()
-                .HasOne(x => x.Terminal)
-                .WithMany()
-                .HasForeignKey(x => x.TadId)
-                .OnDelete(DeleteBehavior.Restrict);
+            //modelBuilder.Entity<Inventario>()
+            //    .HasOne(x => x.Terminal)
+            //    .WithMany()
+            //    .HasForeignKey(x => x.TadId)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Tad>()
                 .HasOne(x => x.TipoTerminal)
@@ -662,9 +662,21 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Inventario>()
                 .HasOne(x => x.Cierre)
                 .WithMany(x => x.Inventarios)
-                .HasForeignKey(x => x.FechaCierre)
-                .HasPrincipalKey(x => x.FechaCierre)
+                .HasForeignKey(x => x.CierreId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Catalogo>()
+                .HasMany(x => x.Valores)
+                .WithOne()
+                .HasForeignKey(x => x.CatalogoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Catalogo>()
+                .HasMany(x => x.ValoresFijos)
+                .WithOne()
+                .HasForeignKey(x => x.Catalogo)
+                .OnDelete(DeleteBehavior.Restrict);
+
         }
 
 
@@ -679,7 +691,7 @@ namespace GComFuelManager.Server
         public DbSet<FormaPago> FormaPago { get; set; }
         public DbSet<Grupo> Grupo { get; set; }
         public DbSet<GrupoUsuario> GrupoUsuario { get; set; }
-        public DbSet<Inventario> Inventario { get; set; }
+        public DbSet<Inventario> Inventarios { get; set; }
         public DbSet<Log> Log { get; set; }
         public DbSet<OrdEmbDet> OrdEmbDet { get; set; }
         public DbSet<Orden> Orden { get; set; }
@@ -736,5 +748,7 @@ namespace GComFuelManager.Server
         public DbSet<Activo_Fijo> Activo_Fijo { get; set; }
         public DbSet<Archivo> Archivos { get; set; }
         public DbSet<InventarioCierre> InventarioCierres { get; set; }
+        public DbSet<Catalogo> Catalogos { get; set; }
+        public DbSet<CatalogoValor> CatalogoValores { get; set; }
     }
 }

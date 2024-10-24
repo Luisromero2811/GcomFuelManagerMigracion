@@ -36,7 +36,13 @@ namespace GComFuelManager.Server.Validators
 
             RuleFor(x => x.Cantidad)
                 .NotNull().WithMessage("La cantidad es obligatoria")
-                .GreaterThanOrEqualTo(0).WithMessage("La cantidad no puede ser menor a 0");
+                .GreaterThan(0)
+                .When(x => new List<int>() { 58, 59, 60, 61, 64 }.Contains(x.TipoMovimientoId))
+                .WithMessage("La cantidad no puede ser menor a 0")
+                .LessThan(0)
+                .When(x => new List<int>() { 66, 67, 68 }.Contains(x.TipoMovimientoId))
+                .WithMessage("La cantidad no puede ser mayor a 0");
+            //.GreaterThanOrEqualTo(0).WithMessage("La cantidad no puede ser menor a 0");
 
             RuleFor(x => x.Numero)
                 .NotNull().WithMessage("El numero es obligatoria")

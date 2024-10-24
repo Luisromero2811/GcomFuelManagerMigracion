@@ -1,0 +1,207 @@
+﻿@page "/inventarios/cierres"
+@inject IRepositorio http
+@inject IJSRuntime js
+@inject InventarioValidator validator
+@inject SweetAlertService Swal
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Inventarios")]
+
+<Card HeaderText="Inventarios cerrados" BodyClass="col-12 row">
+    <Body>
+        <div class="col-6 row">
+            <div class="col-4">
+                <label>De:</label>
+                <InputDate @bind-Value="Filtro.Fecha_Inicio" Type="InputDateType.Date" class="form-control form-control-sm" />
+            </div>
+            <div class="col-4">
+                <label>A:</label>
+                <InputDate @bind-Value="Filtro.Fecha_Fin" Type="InputDateType.Date" class="form-control form-control-sm" />
+            </div>
+            <div class="col-2 d-flex">
+                <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="CargarCierres">
+                    <i class="fa fa-solid fa-magnifying-glass" />
+                </button>
+            </div>
+        </div>
+        <div class="col-6 d-flex justify-content-end">
+            <button class="btn bt-sm col-3 gcom-bg-amarillo mt-auto" @onclick="Exportar">
+                <i class="fa fa-solid fa-file-excel" />
+                Exportar
+            </button>
+        </div>
+    </Body>
+</Card>
+<div style="width:100%; overflow-x:scroll;">
+    <Tabla Datos="Cierres">
+        <Cabeceras>
+            <tr>
+                <th>Fecha de cierre</th>
+                <th>Producto</th>
+                <th>Sitio</th>
+                <th>Almacen</th>
+                <th>Localidad</th>
+                <th>Inventario fisico</th>
+                <th>Fisica reservada</th>
+                <th>Fisico disponible</th>
+                <th>Pedido total</th>
+                <th>Ordenada reservada</th>
+                <th>En orden</th>
+                <th>Total disponible</th>
+                <th>Total disponible en full</th>
+            </tr>
+        </Cabeceras>
+        <Filtros>
+            <tr>
+                <td></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.Producto" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Producto)))" /></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.Sitio" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Sitio)))" /></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.Almacen" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Almacen)))" /></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.Localidad" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Localidad)))" /></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </Filtros>
+        <Columnas Context="inv">
+            <tr>
+                <td>@inv.FechaCierre.ToShortDateString()</td>
+                <td>@inv.Producto</td>
+                <td>@inv.Sitio</td>
+                <td>@inv.Almacen</td>
+                <td>@inv.Localidad</td>
+                <td>@inv.Fisico.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.Reservado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.Disponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.PedidoTotal.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.OrdenReservado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.EnOrden.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.TotalDisponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.TotalDisponibleFull.ToString("N2", CultureInfo.InvariantCulture)</td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+<div class="col-12">
+    <PaginacionComponent PaginaActual="Filtro.Pagina_ACtual" PaginasTotales="Filtro.Total_paginas" PaginaSeleccionada="SeleccionarPagina" />
+    <div class="col-12">
+        <p>Total de registros: @Filtro.Total_registros</p>
+    </div>
+</div>
+@code {
+    InventarioCierreDTO Filtro = new();
+    List<InventarioCierreDTO> Cierres = new();
+    bool loading = false;
+    Dictionary<string, string> query = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Filtro.Fecha_Fin = Filtro.Fecha_Fin.AddDays(1);
+        await CargarCierres();
+    }
+
+    private Dictionary<string, string> SetFiltro()
+    {
+        query[nameof(Filtro.Producto)] = Filtro.Producto;
+        query[nameof(Filtro.Sitio)] = Filtro.Sitio;
+        query[nameof(Filtro.Almacen)] = Filtro.Almacen;
+        query[nameof(Filtro.Localidad)] = Filtro.Localidad;
+        query[nameof(Filtro.Pagina)] = Filtro.Pagina.ToString();
+        query[nameof(Filtro.Registros_por_pagina)] = Filtro.Registros_por_pagina.ToString();
+        query[nameof(Filtro.Fecha_Inicio)] = Filtro.Fecha_Inicio.ToString("MM-dd-yyyy");
+        query[nameof(Filtro.Fecha_Fin)] = Filtro.Fecha_Fin.ToString("MM-dd-yyyy");
+        query[nameof(Filtro.PorFecha)] = true.ToString();
+
+        return query;
+    }
+
+    private async Task CargarCierres()
+    {
+        try
+        {
+            loading = true;
+            query[nameof(Filtro.Excel)] = false.ToString();
+            var url = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            var response = await http.Get<List<InventarioCierreDTO>>($"api/inventario/cierre?{url}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                Cierres = response.Response;
+                Filtro.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+                Filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                Filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    private async Task SeleccionarPagina(int pagina)
+    {
+        Filtro.Pagina = pagina;
+        Filtro.Pagina_ACtual = pagina;
+        await CargarCierres();
+    }
+
+    private async Task Filtrar(ChangeEventArgs args, string pro)
+    {
+        switch (pro)
+        {
+            case nameof(Filtro.Producto):
+                Filtro.Producto = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(Filtro.Sitio):
+                Filtro.Sitio = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(Filtro.Almacen):
+                Filtro.Almacen = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(Filtro.Localidad):
+                Filtro.Localidad = args.Value?.ToString() ?? string.Empty;
+                break;
+            default:
+                break;
+        }
+        await CargarCierres();
+    }
+
+    private async Task Exportar()
+    {
+        try
+        {
+            loading = true;
+            query[nameof(Filtro.Excel)] = true.ToString();
+            var url = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            var response = await http.Get<byte[]>($"api/inventario/cierre?{url}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                await js.GuardarComo($"CierresDeInventario_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+}
+

@@ -3,7 +3,7 @@
 @inject IJSRuntime js
 @inject InventarioValidator validator
 @inject SweetAlertService Swal
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Inventarios")]
 
 <Card HeaderText="Inventarios" LoadingContent="loading" />
 <Card HeaderText="Registrar inventario">
@@ -107,11 +107,11 @@
     <div class="col-6 d-flex justify-content-start gap-2">
         <div>
             <label>De:</label>
-            <InputDate class="form-control form-control-sm" @bind-Value="Filtro.Fecha_Inicio" Type="InputDateType.Date" />
+            <input type="date" class="form-control form-control-sm" @bind="Filtro.Fecha_Inicio" />
         </div>
         <div>
             <label>A:</label>
-            <InputDate class="form-control form-control-sm" @bind-Value="Filtro.Fecha_Fin" Type="InputDateType.Date" />
+            <input type="date" class="form-control form-control-sm" @bind="Filtro.Fecha_Fin" />
         </div>
         <button class="col-2 btn btn-sm gcom-bg-amarillo mt-auto" type="button" @onclick="CargarInventario">
             <i class="fa fa-solid fa-magnifying-glass" />
@@ -126,6 +126,7 @@
     <Tabla Datos="Inventarios">
         <Cabeceras>
             <tr>
+                <th style="width: 80px;"></th>
                 <th style="width: 100px;" class="resizable-column">Producto</th>
                 <th style="width: 100px;" class="resizable-column">Sitio</th>
                 <th style="width: 100px;" class="resizable-column">Almacen</th>
@@ -141,21 +142,89 @@
         </Cabeceras>
         <Filtros>
             <tr>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Producto" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Producto)))" /></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Sitio" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Sitio)))" /></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Almacen" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Almacen)))" /></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Localidad" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Localidad)))" /></td>
                 <td></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.TipoMovimiento" @oninput="@((args)=>Filtrar(args,nameof(Filtro.TipoMovimiento)))" /></td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.ProductoId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Productos)
+                        {
+                            <option value="@item.Cod">@item.Den</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.SitioId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Sitios)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.AlmacenId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Almacenes)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.LocalidadId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Localidades)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td></td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.TipoMovimientoId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in TiposMovimientos)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
                 <td></td>
                 <td></td>
                 <td></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.UnidadMedida" @oninput="@((args)=>Filtrar(args,nameof(Filtro.UnidadMedida)))" /></td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.UnidadMedidaId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in UnidadesMedida)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
                 <td></td>
             </tr>
         </Filtros>
         <Columnas Context="item">
             <tr>
+                <td>
+                    @if (item.FechaCierre is null)
+                    {
+                        <div class="btn-group">
+                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>EditarInventario(item.Id))">
+                                <i class="fa fa-solid fa-edit" />
+                            </button>
+                            <button class="btn btn-sm btn-danger" @onclick="@(()=>EliminarInventario(item.Id))">
+                                <i class="fa fa-solid fa-trash" />
+                            </button>
+                        </div>
+                    }
+                </td>
                 <td>@item.Producto</td>
                 <td>@item.Sitio</td>
                 <td>@item.Almacen</td>
@@ -186,15 +255,15 @@
     List<InventarioDTO> Inventarios = new List<InventarioDTO>();
 
     IEnumerable<Producto> Productos = new List<Producto>();
-    IEnumerable<Catalogo_Fijo> Sitios = new List<Catalogo_Fijo>();
-    IEnumerable<Catalogo_Fijo> Almacenes = new List<Catalogo_Fijo>();
-    IEnumerable<Catalogo_Fijo> Localidades = new List<Catalogo_Fijo>();
-    IEnumerable<Catalogo_Fijo> UnidadesMedida = new List<Catalogo_Fijo>();
-    IEnumerable<Catalogo_Fijo> TiposMovimientos = new List<Catalogo_Fijo>();
+    IEnumerable<CatalogoValorDTO> Sitios = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> Almacenes = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> Localidades = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> UnidadesMedida = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> TiposMovimientos = new List<CatalogoValorDTO>();
 
     protected override async Task OnInitializedAsync()
     {
-        Filtro.Fecha_Fin.AddDays(1);
+        Filtro.Fecha_Fin = Filtro.Fecha_Fin.AddDays(1);
 
         await Task.WhenAll(
             CargarInventario(),
@@ -209,16 +278,17 @@
 
     private Dictionary<string, string> SetFiltro()
     {
-        query[nameof(Filtro.Producto)] = Filtro.Producto;
-        query[nameof(Filtro.Sitio)] = Filtro.Sitio;
-        query[nameof(Filtro.Almacen)] = Filtro.Almacen;
-        query[nameof(Filtro.Localidad)] = Filtro.Localidad;
-        query[nameof(Filtro.TipoMovimiento)] = Filtro.TipoMovimiento;
-        query[nameof(Filtro.UnidadMedida)] = Filtro.UnidadMedida;
+        query[nameof(Filtro.ProductoId)] = Filtro.ProductoId.ToString();
+        query[nameof(Filtro.SitioId)] = Filtro.SitioId.ToString();
+        query[nameof(Filtro.AlmacenId)] = Filtro.AlmacenId.ToString();
+        query[nameof(Filtro.LocalidadId)] = Filtro.LocalidadId.ToString();
+        query[nameof(Filtro.TipoMovimientoId)] = Filtro.TipoMovimientoId.ToString();
+        query[nameof(Filtro.UnidadMedidaId)] = Filtro.UnidadMedidaId.ToString();
         query[nameof(Filtro.Pagina)] = Filtro.Pagina.ToString();
         query[nameof(Filtro.Registros_por_pagina)] = Filtro.Registros_por_pagina.ToString();
         query[nameof(Filtro.Fecha_Inicio)] = Filtro.Fecha_Inicio.ToString("MM-dd-yyyy");
         query[nameof(Filtro.Fecha_Fin)] = Filtro.Fecha_Fin.ToString("MM-dd-yyyy");
+        query[nameof(Filtro.PorFecha)] = true.ToString();
 
         return query;
     }
@@ -234,7 +304,7 @@
             if (response.Error)
             {
                 loading = false;
-                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
             }
             else
             {
@@ -268,7 +338,7 @@
             var response = await http.Get<IEnumerable<Producto>>("api/producto");
             if (response.Error)
             {
-                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
             }
             else
             {
@@ -286,7 +356,7 @@
     {
         try
         {
-            var response = await http.Get<IEnumerable<Catalogo_Fijo>>("api/inventario/catalogo/sitio");
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/sitio");
             if (response.Error)
             {
                 await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
@@ -306,7 +376,7 @@
     {
         try
         {
-            var response = await http.Get<IEnumerable<Catalogo_Fijo>>("api/inventario/catalogo/almacen");
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/almacen");
             if (response.Error)
             {
                 await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
@@ -326,7 +396,7 @@
     {
         try
         {
-            var response = await http.Get<IEnumerable<Catalogo_Fijo>>("api/inventario/catalogo/localidad");
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/localidad");
             if (response.Error)
             {
                 await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
@@ -346,7 +416,7 @@
     {
         try
         {
-            var response = await http.Get<IEnumerable<Catalogo_Fijo>>("api/inventario/catalogo/unidadmedida");
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/unidadmedida");
             if (response.Error)
             {
                 await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
@@ -366,7 +436,7 @@
     {
         try
         {
-            var response = await http.Get<IEnumerable<Catalogo_Fijo>>("api/inventario/catalogo/tipomovimiento");
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/tipomovimiento");
             if (response.Error)
             {
                 await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
@@ -406,23 +476,23 @@
     {
         switch (pro)
         {
-            case nameof(Filtro.Producto):
-                Filtro.Producto = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.ProductoId):
+                Filtro.ProductoId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.Sitio):
-                Filtro.Sitio = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.SitioId):
+                Filtro.SitioId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.Almacen):
-                Filtro.Almacen = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.AlmacenId):
+                Filtro.AlmacenId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.Localidad):
-                Filtro.Localidad = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.LocalidadId):
+                Filtro.LocalidadId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.TipoMovimiento):
-                Filtro.TipoMovimiento = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.TipoMovimientoId):
+                Filtro.TipoMovimientoId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.UnidadMedida):
-                Filtro.UnidadMedida = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.UnidadMedidaId):
+                Filtro.UnidadMedidaId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
             default:
                 break;
@@ -441,12 +511,12 @@
             if (response.Error)
             {
                 loading = false;
-                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
             }
             else
             {
                 loading = false;
-                await js.GuardarComo($"Inventarios_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", response.Response);
+                await js.GuardarComo($"Inventarios_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xlsx", response.Response);
             }
         }
         catch (Exception e)
@@ -468,7 +538,7 @@
             if (response.Error)
             {
                 loading = false;
-                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
             }
             else
             {
@@ -487,4 +557,51 @@
         }
     }
 
+    private async Task EditarInventario(int id)
+    {
+        try
+        {
+            loading = true;
+            var response = await http.Get<InventarioPostDTO>($"api/inventario/{id}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                Inventario = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task EliminarInventario(int id)
+    {
+        try
+        {
+            loading = true;
+            var response = await http.Delete($"api/inventario/{id}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                await CargarInventario();
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 }
