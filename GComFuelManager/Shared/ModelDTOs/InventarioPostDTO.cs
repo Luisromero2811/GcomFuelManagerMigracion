@@ -12,5 +12,10 @@
         public string Numero { get; set; } = string.Empty;
         public double Cantidad { get; set; }
         public int UnidadMedidaId { get; set; }
+        public int TransportistaId { get; set; }
+        public int TonelId { get; set; }
+        public short GrupoId { get; set; }
+        public int ClienteId { get; set; }
+        public int CierreId { get; set; }
     }
 }

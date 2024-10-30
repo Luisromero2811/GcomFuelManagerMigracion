@@ -54,6 +54,11 @@ namespace GComFuelManager.Shared.Modelos
                 Identificacion = Identificacion,
             };
         }
+
+        public override string ToString()
+        {
+            return Den ?? string.Empty;
+        }
     }
 }
 

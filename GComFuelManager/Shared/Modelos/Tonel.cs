@@ -164,6 +164,11 @@ namespace GComFuelManager.Shared.Modelos
                 Certificado_Calibracion = Certificado_Calibracion
             };
         }
+
+        public override string ToString()
+        {
+            return Nombre_Placas;
+        }
     }
 
     public class CapTonel

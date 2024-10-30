@@ -1,6 +1,7 @@
 ﻿@page "/inventarios/cierres"
 @inject IRepositorio http
 @inject IJSRuntime js
+@inject NotificationService ns
 @inject InventarioValidator validator
 @inject SweetAlertService Swal
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Inventarios")]
@@ -30,32 +31,70 @@
         </div>
     </Body>
 </Card>
-<div style="width:100%; overflow-x:scroll;">
+<div class="ancho-tabla mt-2">
     <Tabla Datos="Cierres">
         <Cabeceras>
             <tr>
-                <th>Fecha de cierre</th>
-                <th>Producto</th>
-                <th>Sitio</th>
-                <th>Almacen</th>
-                <th>Localidad</th>
-                <th>Inventario fisico</th>
-                <th>Fisica reservada</th>
-                <th>Fisico disponible</th>
-                <th>Pedido total</th>
-                <th>Ordenada reservada</th>
-                <th>En orden</th>
-                <th>Total disponible</th>
-                <th>Total disponible en full</th>
+                <th style="width:120px;" class="resizable-column">Acciones</th>
+                <th style="width:150px;" class="resizable-column">Fecha de cierre</th>
+                <th style="width:150px;" class="resizable-column">Producto</th>
+                <th style="width:150px;" class="resizable-column">Sitio</th>
+                <th style="width:150px;" class="resizable-column">Almacen</th>
+                <th style="width:150px;" class="resizable-column">Localidad</th>
+                <th style="width:150px;" class="resizable-column">Inventario fisico</th>
+                <th style="width:150px;" class="resizable-column">Fisica reservada</th>
+                <th style="width:150px;" class="resizable-column">Fisico disponible</th>
+                <th style="width:150px;" class="resizable-column">Pedido total</th>
+                <th style="width:150px;" class="resizable-column">Ordenada reservada</th>
+                <th style="width:150px;" class="resizable-column">En orden</th>
+                <th style="width:150px;" class="resizable-column">Total disponible</th>
+                <th style="width:150px;" class="resizable-column">Total disponible en full</th>
             </tr>
         </Cabeceras>
         <Filtros>
             <tr>
                 <td></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Producto" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Producto)))" /></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Sitio" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Sitio)))" /></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Almacen" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Almacen)))" /></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Localidad" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Localidad)))" /></td>
+                <td></td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.ProductoId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Productos)
+                        {
+                            <option value="@item.Cod">@item.Den</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.SitioId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Sitios)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.AlmacenId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Almacenes)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.LocalidadId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Localidades)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -68,6 +107,26 @@
         </Filtros>
         <Columnas Context="inv">
             <tr>
+                <td>
+                    <div class="btn-group col-12">
+                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>AbrirDetalleCierre(inv))">
+                            <i class="fa fa-solid fa-eye" />
+                        </button>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Abrir Cierres Inventario">
+                            <Authorized>
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>AbrirCierres(inv))">
+                                    <i class=@($"fa fa-solid {(inv.Abierto ? "fa-lock" : "fa-unlock")}") />
+                                </button>
+                            </Authorized>
+                        </AuthorizeView>
+                        @if (inv.Abierto)
+                        {
+                            <NavLink class="btn btn-sm gcom-bg-amarillo" href="@($"inventarios/{inv.Id}")">
+                                <i class="fa fa-solid fa-edit" />
+                            </NavLink>
+                        }
+                    </div>
+                </td>
                 <td>@inv.FechaCierre.ToShortDateString()</td>
                 <td>@inv.Producto</td>
                 <td>@inv.Sitio</td>
@@ -91,11 +150,20 @@
         <p>Total de registros: @Filtro.Total_registros</p>
     </div>
 </div>
+
+<Modal_Custom @ref="modal_" />
+
 @code {
+    Modal_Custom modal_ = new();
     InventarioCierreDTO Filtro = new();
     List<InventarioCierreDTO> Cierres = new();
     bool loading = false;
     Dictionary<string, string> query = new();
+
+    IEnumerable<Producto> Productos = new List<Producto>();
+    IEnumerable<CatalogoValorDTO> Sitios = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> Almacenes = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> Localidades = new List<CatalogoValorDTO>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -105,10 +173,10 @@
 
     private Dictionary<string, string> SetFiltro()
     {
-        query[nameof(Filtro.Producto)] = Filtro.Producto;
-        query[nameof(Filtro.Sitio)] = Filtro.Sitio;
-        query[nameof(Filtro.Almacen)] = Filtro.Almacen;
-        query[nameof(Filtro.Localidad)] = Filtro.Localidad;
+        query[nameof(Filtro.ProductoId)] = Filtro.ProductoId.ToString();
+        query[nameof(Filtro.SitioId)] = Filtro.SitioId.ToString();
+        query[nameof(Filtro.AlmacenId)] = Filtro.AlmacenId.ToString();
+        query[nameof(Filtro.LocalidadId)] = Filtro.LocalidadId.ToString();
         query[nameof(Filtro.Pagina)] = Filtro.Pagina.ToString();
         query[nameof(Filtro.Registros_por_pagina)] = Filtro.Registros_por_pagina.ToString();
         query[nameof(Filtro.Fecha_Inicio)] = Filtro.Fecha_Inicio.ToString("MM-dd-yyyy");
@@ -159,17 +227,17 @@
     {
         switch (pro)
         {
-            case nameof(Filtro.Producto):
-                Filtro.Producto = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.ProductoId):
+                Filtro.ProductoId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.Sitio):
-                Filtro.Sitio = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.SitioId):
+                Filtro.SitioId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.Almacen):
-                Filtro.Almacen = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.AlmacenId):
+                Filtro.AlmacenId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.Localidad):
-                Filtro.Localidad = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.LocalidadId):
+                Filtro.LocalidadId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
             default:
                 break;
@@ -194,6 +262,39 @@
             {
                 loading = false;
                 await js.GuardarComo($"CierresDeInventario_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    private void AbrirDetalleCierre(InventarioCierreDTO inv)
+    {
+        modal_.OpenModal<DetalleCierreInventarioComponente>("Detalle de cierre", new Dictionary<string, object> { { "Cierre", inv } });
+    }
+
+    private async Task AbrirCierres(InventarioCierreDTO cierre)
+    {
+        try
+        {
+            cierre.Abierto = !cierre.Abierto;
+            var response = await http.Post<InventarioCierreDTO>($"api/inventario/cierre", cierre);
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                ns.Notify(new()
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = $"Cierre {(cierre.Abierto ? "abierto" : "cerrado")}",
+                    });
+                await CargarCierres();
             }
         }
         catch (Exception e)

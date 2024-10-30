@@ -21,6 +21,10 @@ namespace GComFuelManager.Shared.ModelDTOs
         public string Numero { get; set; } = string.Empty;
         public double Cantidad { get; set; }
         public int CierreId { get; set; }
+        public string Transportista { get; set; } = string.Empty;
+        public string Tonel { get; set; } = string.Empty;
+        public string Grupo { get; set; } = string.Empty;
+        public string Cliente { get; set; } = string.Empty;
         [EpplusIgnore] public bool FechaNULL { get; set; } = false;
 
         public string UnidadMedida { get; set; } = string.Empty;

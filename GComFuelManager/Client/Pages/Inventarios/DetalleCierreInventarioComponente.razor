@@ -20,10 +20,14 @@
                 <th style="width: 100px;" class="resizable-column">Fecha Fisica</th>
                 <th style="width: 100px;" class="resizable-column">Tipo de movimiento</th>
                 <th style="width: 100px;" class="resizable-column">Referencia</th>
-                <th style="width: 100px;" class="resizable-column">Numero</th>
+                <th style="width: 100px;" class="resizable-column">ID Documento</th>
                 <th style="width: 100px;" class="resizable-column">Cantidad</th>
                 <th style="width: 100px;" class="resizable-column">Unidad de medida</th>
                 <th style="width: 100px;" class="resizable-column">Fecha de ejecucion de cierre</th>
+                <th style="width: 150px;" class="resizable-column">Transportista</th>
+                <th style="width: 150px;" class="resizable-column">Tonel</th>
+                <th style="width: 150px;" class="resizable-column">Grupo</th>
+                <th style="width: 150px;" class="resizable-column">Cliente</th>
             </tr>
         </Cabeceras>
         <Filtros>
@@ -38,6 +42,9 @@
                 <td></td>
                 <td></td>
                 <td><input class="form-control form-control-sm" @bind-value="Filtro.UnidadMedida" @oninput="@((args)=>Filtrar(args,nameof(Filtro.UnidadMedida)))" /></td>
+                <td></td>
+                <td></td>
+                <td></td>
                 <td></td>
             </tr>
         </Filtros>
@@ -54,6 +61,10 @@
                 <td>@item.Cantidad.ToString("N2", CultureInfo.InvariantCulture)</td>
                 <td>@item.UnidadMedida</td>
                 <td>@(item.FechaCierre?.ToShortDateString() ?? "----")</td>
+                <td>@item.Transportista</td>
+                <td>@item.Tonel</td>
+                <td>@item.Grupo</td>
+                <td>@item.Cliente</td>
             </tr>
         </Columnas>
     </Tabla>

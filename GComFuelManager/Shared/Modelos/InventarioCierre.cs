@@ -18,6 +18,7 @@
         public double TotalDisponibleFull { get; set; }
         public DateTime? FechaCierre { get; set; } = DateTime.Now;
         public short TadId { get; set; }
+        public bool Abierto { get; set; } = true;
         public bool Activo { get; set; } = true;
 
         public List<Inventario> Inventarios { get; set; } = new();

@@ -1,29 +1,28 @@
-﻿using GComFuelManager.Shared.Filtro;
-using OfficeOpenXml.Attributes;
+﻿using System.ComponentModel;
 
-namespace GComFuelManager.Shared.ModelDTOs
+namespace GComFuelManager.Shared.ReportesDTO
 {
-    public class InventarioCierreDTO : Parametros_Busqueda_Gen
+    public class InventarioActualExcelDTO
     {
-        public int Id { get; set; }
         public string Producto { get; set; } = string.Empty;
-        public int ProductoId { get; set; }
         public string Sitio { get; set; } = string.Empty;
-        public int SitioId { get; set; }
         public string Almacen { get; set; } = string.Empty;
-        public int AlmacenId { get; set; }
         public string Localidad { get; set; } = string.Empty;
-        public int LocalidadId { get; set; }
+        [DisplayName("Inventario físico")]
         public double Fisico { get; set; }
+        [DisplayName("Física reservada")]
         public double Reservado { get; set; }
+        [DisplayName("Física disponible")]
         public double Disponible { get; set; }
+        [DisplayName("Pedido en total")]
         public double PedidoTotal { get; set; }
+        [DisplayName("Ordenada reservada")]
         public double OrdenReservado { get; set; }
+        [DisplayName("En orden")]
         public double EnOrden { get; set; }
+        [DisplayName("Total dispobible")]
         public double TotalDisponible { get; set; }
+        [DisplayName("Total dispoble en full")]
         public double TotalDisponibleFull { get; set; }
-        public DateTime FechaCierre { get; set; } = DateTime.Now;
-        public bool Abierto { get; set; } = true;
-        //public string Terminal { get; set; } = string.Empty;
     }
 }

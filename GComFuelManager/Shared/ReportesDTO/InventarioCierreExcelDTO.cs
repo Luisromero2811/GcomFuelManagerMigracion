@@ -5,7 +5,7 @@ namespace GComFuelManager.Shared.ReportesDTO
     public class InventarioCierreExcelDTO
     {
         [DisplayName("Fecha de cierre")]
-        public DateTime FechaCierre { get; set; } = DateTime.Now;
+        public DateTime? FechaCierre { get; set; } = null;
         public string Producto { get; set; } = string.Empty;
         public string Sitio { get; set; } = string.Empty;
         public string Almacen { get; set; } = string.Empty;

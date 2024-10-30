@@ -1,0 +1,25 @@
+﻿.tooltip-c {
+    position: relative;
+    display: inline-block;
+}
+
+    .tooltip-c .tooltiptext-c {
+        visibility: hidden;
+        width: 10rem;
+        background-color: #0e0e0e;
+        color: #fff;
+        text-align: center;
+        border-radius: .5rem;
+        padding: .5rem 0;
+        position: absolute;
+        z-index: 1;
+        bottom: 100%;
+        left: 100%;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .tooltip-c:hover .tooltiptext-c {
+        visibility: visible;
+        opacity: 1;
+    }
