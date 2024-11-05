@@ -282,7 +282,7 @@
         try
         {
             cierre.Abierto = !cierre.Abierto;
-            var response = await http.Post<InventarioCierreDTO>($"api/inventario/cierre", cierre);
+            var response = await http.Get<bool>($"api/inventario/cierre/changestatus/{cierre.Id}");
             if (response.Error)
             {
                 await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);

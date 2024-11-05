@@ -1,4 +1,6 @@
-﻿namespace GComFuelManager.Shared.Modelos
+﻿using GComFuelManager.Shared.Enums;
+
+namespace GComFuelManager.Shared.Modelos
 {
     public class Inventario
     {
@@ -17,10 +19,10 @@
         public DateTime FechaRegistro { get; set; } = DateTime.Now;
         public short TadId { get; set; }
         public int? CierreId { get; set; } = 0;
-        public int TransportistaId { get; set; }
-        public int TonelId { get; set; }
-        public short GrupoId { get; set; }
-        public int ClienteId { get; set; }
+        public int? TransportistaId { get; set; }
+        public int? TonelId { get; set; }
+        public int OrigenDestinoId { get; set; }
+        public TipoInventario? TipoInventario { get; set; } = null!;
         public bool Activo { get; set; } = true;
 
         public Producto Producto { get; set; } = null!;
@@ -29,11 +31,10 @@
         public CatalogoValor Localidad { get; set; } = null!;
         public CatalogoValor TipoMovimiento { get; set; } = null!;
         public CatalogoValor UnidadMedida { get; set; } = null!;
+        public CatalogoValor OrigenDestino { get; set; } = null!;
         public Tad Terminal { get; set; } = null!;
         public InventarioCierre Cierre { get; set; } = null!;
-        public Transportista Transportista { get; set; } = null!;
-        public Tonel Tonel { get; set; } = null!;
-        public Grupo Grupo { get; set; } = null!;
-        public Cliente Cliente { get; set; } = null!;
+        public Transportista? Transportista { get; set; } = null!;
+        public Tonel? Tonel { get; set; } = null!;
     }
 }

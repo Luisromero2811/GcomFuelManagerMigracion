@@ -26,8 +26,7 @@
                 <th style="width: 100px;" class="resizable-column">Fecha de ejecucion de cierre</th>
                 <th style="width: 150px;" class="resizable-column">Transportista</th>
                 <th style="width: 150px;" class="resizable-column">Tonel</th>
-                <th style="width: 150px;" class="resizable-column">Grupo</th>
-                <th style="width: 150px;" class="resizable-column">Cliente</th>
+                <th style="width: 150px;" class="resizable-column">Origen / Destino</th>
             </tr>
         </Cabeceras>
         <Filtros>
@@ -63,8 +62,7 @@
                 <td>@(item.FechaCierre?.ToShortDateString() ?? "----")</td>
                 <td>@item.Transportista</td>
                 <td>@item.Tonel</td>
-                <td>@item.Grupo</td>
-                <td>@item.Cliente</td>
+                <td>@item.OrigenDestino</td>
             </tr>
         </Columnas>
     </Tabla>

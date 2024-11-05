@@ -11,8 +11,7 @@ namespace GComFuelManager.Server.Automapper
         {
             CreateMap<Inventario, Inventario>()
                 .ForMember(x => x.Activo, op => op.Ignore())
-                .ForMember(x => x.FechaRegistro, op => op.Ignore())
-                .ForMember(x => x.CierreId, op => op.NullSubstitute(0));
+                .ForMember(x => x.FechaRegistro, op => op.Ignore());
             CreateMap<Inventario, InventarioDTO>()
                 .ForMember(x => x.ProductoId, op => op.Ignore())
                 .ForMember(x => x.SitioId, op => op.Ignore())
@@ -23,7 +22,7 @@ namespace GComFuelManager.Server.Automapper
             CreateMap<Inventario, InventarioExcelDTO>();
             CreateMap<Inventario, InventarioPostDTO>();
             CreateMap<InventarioPostDTO, Inventario>()
-                .ForMember(x => x.CierreId, op => op.Ignore())
+                //.ForMember(x => x.CierreId, op => op.Ignore())
                 .ForMember(x => x.FechaRegistro, op => op.Ignore())
                 .ForMember(x => x.FechaCierre, op => op.Ignore())
                 .ForMember(x => x.Activo, op => op.Ignore());

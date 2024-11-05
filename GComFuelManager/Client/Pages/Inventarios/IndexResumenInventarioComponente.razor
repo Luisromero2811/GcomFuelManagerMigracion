@@ -7,30 +7,34 @@
 
 <Card HeaderText="Resumen de inventario actual" CardClass="mb-2" LoadingContent="loading" />
 
-<div class="col-12 d-flex justify-content-end mb-2">
+<div class="col-12 d-flex justify-content-between mb-2">
+    <button class="btn bt-sm col-3 gcom-bg-amarillo mt-auto" @onclick="CargarCierres">
+        <i class="fa fa-solid fa-rotate-right" />
+        Actualizar
+    </button>
     <button class="btn bt-sm col-3 gcom-bg-amarillo mt-auto" @onclick="Exportar">
         <i class="fa fa-solid fa-file-excel" />
         Exportar
     </button>
 </div>
 
-<div style="width:100%;overflow-x:scroll;">
+<div class="ancho-tabla">
     <Tabla Datos="Cierres">
         <Cabeceras>
             <tr>
-                <th></th>
-                <th>Producto</th>
-                <th>Sitio</th>
-                <th>Almacen</th>
-                <th>Localidad</th>
-                <th>Inventario fisico</th>
-                <th>Fisica reservada</th>
-                <th>Fisico disponible</th>
-                <th>Pedido total</th>
-                <th>Ordenada reservada</th>
-                <th>En orden</th>
-                <th>Total disponible</th>
-                <th>Total disponible en full</th>
+                <th style="width: 150px;" class="resizable-column"></th>
+                <th style="width: 150px;" class="resizable-column">Producto</th>
+                <th style="width: 150px;" class="resizable-column">Sitio</th>
+                <th style="width: 150px;" class="resizable-column">Almacen</th>
+                <th style="width: 150px;" class="resizable-column">Localidad</th>
+                <th style="width: 150px;" class="resizable-column">Inventario fisico</th>
+                <th style="width: 150px;" class="resizable-column">Fisica reservada</th>
+                <th style="width: 150px;" class="resizable-column">Fisico disponible</th>
+                <th style="width: 150px;" class="resizable-column">Pedido total</th>
+                <th style="width: 150px;" class="resizable-column">Ordenada reservada</th>
+                <th style="width: 150px;" class="resizable-column">En orden</th>
+                <th style="width: 150px;" class="resizable-column">Total disponible</th>
+                <th style="width: 150px;" class="resizable-column">Total disponible en full</th>
             </tr>
         </Cabeceras>
         <Filtros>
@@ -173,7 +177,7 @@
         try
         {
             loading = true;
-            var response = await http.Post<InventarioCierreDTO>($"api/inventario/cierre", inv);
+            var response = await http.Get<bool>($"api/inventario/cierre/cerrar/{inv.Id}");
             if (response.Error)
             {
                 loading = false;

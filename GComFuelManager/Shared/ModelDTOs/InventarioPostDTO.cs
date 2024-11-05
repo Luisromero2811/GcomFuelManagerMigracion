@@ -1,4 +1,6 @@
-﻿namespace GComFuelManager.Shared.ModelDTOs
+﻿using GComFuelManager.Shared.Enums;
+
+namespace GComFuelManager.Shared.ModelDTOs
 {
     public class InventarioPostDTO
     {
@@ -14,8 +16,10 @@
         public int UnidadMedidaId { get; set; }
         public int TransportistaId { get; set; }
         public int TonelId { get; set; }
-        public short GrupoId { get; set; }
-        public int ClienteId { get; set; }
         public int CierreId { get; set; }
+        public TipoInventario TipoInventario { get; set; }
+        public int OrigenDestinoID { get; set; }
+        public bool EsVenta { get; set; } = false;
+        public bool EsDevolucion { get; set; } = false;
     }
 }

@@ -31,38 +31,20 @@ namespace GComFuelManager.Server.Validators
                 .NotNull().WithMessage("La unidad de medida es obligatoria")
                 .GreaterThan(0).WithMessage("Debe seleccionar una unidad de medida");
 
-            //RuleFor(x => x.TransportistaId)
-            //    .NotNull().WithMessage("El transportista es obligatorio")
-            //    .GreaterThan(0).WithMessage("Debe seleccionar un transportista");
-
-            RuleFor(x => x.TonelId)
-                .NotNull().WithMessage("El vehiculo es obligatorio")
-                .GreaterThan(0).WithMessage("Debe seleccionar un vehiculo");
-
-            //RuleFor(x => x.GrupoId)
-            //    .NotNull().WithMessage("El grupo es obligatorio")
-            //    .GreaterThan((short)0).WithMessage("Debe seleccionar un grupo");
-
-            RuleFor(x => x.ClienteId)
-                .NotNull().WithMessage("El cliente es obligatorio")
-                .GreaterThan(0).WithMessage("Debe seleccionar un cliente");
+            RuleFor(x => x.OrigenDestinoID)
+                .NotNull().WithMessage("El destino/origen es obligatorio")
+                .GreaterThan(0).WithMessage("Debe seleccionar un destino/origen");
 
             RuleFor(x => x.Numero)
                 .MaximumLength(50).WithMessage("El numero no puede tener mas de 50 caracteres");
 
             RuleFor(x => x.Cantidad)
-                .NotNull().WithMessage("La cantidad es obligatoria");
-                //.GreaterThan(0)
-                //.When(x => new List<int>() { 58, 59, 60, 61, 64 }.Contains(x.TipoMovimientoId))
-                //.WithMessage("La cantidad no puede ser menor a 0")
-                //.LessThan(0)
-                //.When(x => new List<int>() { 66, 67, 68 }.Contains(x.TipoMovimientoId))
-                //.WithMessage("La cantidad no puede ser mayor a 0");
-            //.GreaterThanOrEqualTo(0).WithMessage("La cantidad no puede ser menor a 0");
+                .NotNull().WithMessage("La cantidad es obligatoria")
+                .GreaterThanOrEqualTo(0).WithMessage("La cantidad no puede ser menor a 0");
 
-            RuleFor(x => x.Numero)
-                .NotNull().WithMessage("El numero es obligatoria")
-                .NotEmpty().WithMessage("El numero no puede estar vacio");
+            //RuleFor(x => x.Numero)
+            //    .NotNull().WithMessage("El numero es obligatoria")
+            //    .NotEmpty().WithMessage("El numero no puede estar vacio");
         }
     }
 }

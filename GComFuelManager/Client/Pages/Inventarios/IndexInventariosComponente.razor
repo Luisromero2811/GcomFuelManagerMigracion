@@ -61,7 +61,7 @@
                 </div>
                 <div class="col-4">
                     <label>Tipo de movimiento</label>
-                    <InputSelect @bind-Value="Inventario.TipoMovimientoId" class="form-select form-select-sm">
+                    <InputSelect @bind-Value="Inventario.TipoMovimientoId" class="form-select form-select-sm" @bind-Value:after="CargarMenuInventario">
                         <option>-- Tipo de movimiento --</option>
                         @foreach (var item in TiposMovimientos)
                         {
@@ -70,6 +70,45 @@
                     </InputSelect>
                     <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
                 </div>
+                @if (Menu.MostrarMenuInventarios)
+                {
+
+                    <div class="col-4">
+                        <label>Inventario</label>
+                        <InputSelect @bind-Value="Inventario.TipoInventario" class="form-select form-select-sm">
+                            <option>-- Tipo de movimiento --</option>
+                            @foreach (var item in Enum.GetValues(typeof(TipoInventario)))
+                            {
+                                <option value="@item">@(((TipoInventario)item).Description())</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
+                    </div>
+                }
+                @if (!Inventario.TipoMovimientoId.IsZero())
+                {
+                    <div class="col-4">
+                        <label>@Menu.LabelMenu</label>
+                        <InputSelect @bind-Value="Inventario.OrigenDestinoID" class="form-select form-select-sm">
+                            <option>-- @Menu.LabelMenu.ToLower() --</option>
+                            @if (Menu.Destinos.Count > 0)
+                            {
+                                @foreach (var item in Menu.Destinos)
+                                {
+                                    <option value="@item.Id">@item.Valor</option>
+                                }
+                            }
+                            else if (Menu.Origenes.Count > 0)
+                            {
+                                @foreach (var item in Menu.Origenes)
+                                {
+                                    <option value="@item.Id">@item.Valor</option>
+                                }
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
+                    </div>
+                }
                 <div class="col-4">
                     <label>Referencia</label>
                     <InputTextArea @bind-Value="Inventario.Referencia" class="form-control form-control-sm" />
@@ -100,7 +139,7 @@
                     <label>Transportista</label>
                     <DropDownFilter TValue="Transportista" TListado="Transportista" @bind-Valor="@Transportista" Default_Placeholder="-- Transportista --"
                                     Default_Placeholder_Filter="Buscar transportista" Listado="Transportistas" On_Change_Method="@(()=>GetToneles())"
-                                    FiltrarValor="GetTransportista">
+                                    FiltrarValor="GetTransportista" On_Cancel_Method="@(()=>{Inventario.TransportistaId = 0;})">
                         <RenderValue Context="tra">
                             @tra.Den
                         </RenderValue>
@@ -115,7 +154,7 @@
                     <label>Vehiculo</label>
                     <DropDownFilter TValue="int" TListado="Tonel" @bind-Valor="@Inventario.TonelId" Default_Placeholder="-- Tonel --"
                                     Default_Placeholder_Filter="Buscar tracto" Propiedad_Valor="Cod" Listado="Toneles"
-                                    FiltrarValor="GetToneles">
+                                    FiltrarValor="GetToneles" On_Cancel_Method="@(()=>{Inventario.TonelId = 0;})">
                         <RenderValue Context="tra">
                             @tra.Nombre_Placas
                         </RenderValue>
@@ -125,35 +164,6 @@
                     </DropDownFilter>
                     <InputSelect @bind-Value="Inventario.TonelId" class="d-none" />
                     <ValidationMessage For="@(()=>Inventario.TonelId)" />
-                </div>
-                <div class="col-4">
-                    <label>Grupo de cliente</label>
-                    <DropDownFilter TValue="short" TListado="Grupo" @bind-Valor="@Inventario.GrupoId" Default_Placeholder="-- Grupo --"
-                                    Default_Placeholder_Filter="Buscar grupo" Propiedad_Valor="Cod" Listado="Grupos" On_Change_Method="@(()=>GetClientes())"
-                                    FiltrarValor="GetGrupos">
-                        <RenderValue Context="tra">
-                            @tra.Den
-                        </RenderValue>
-                        <Render Context="tra">
-                            @tra.Den
-                        </Render>
-                    </DropDownFilter>
-                    <InputSelect @bind-Value="Inventario.GrupoId" class="d-none" />
-                    <ValidationMessage For="@(()=>Inventario.GrupoId)" />
-                </div>
-                <div class="col-4">
-                    <label>Cliente</label>
-                    <DropDownFilter TValue="int" TListado="Cliente" @bind-Valor="@Inventario.ClienteId" Default_Placeholder="-- cliente --"
-                                    Default_Placeholder_Filter="Buscar cliente" Propiedad_Valor="Cod" Listado="Clientes" FiltrarValor="GetClientes">
-                        <RenderValue Context="tra">
-                            @tra.Den
-                        </RenderValue>
-                        <Render Context="tra">
-                            @tra.Den
-                        </Render>
-                    </DropDownFilter>
-                    <InputSelect @bind-Value="Inventario.ClienteId" class="d-none" />
-                    <ValidationMessage For="@(()=>Inventario.ClienteId)" />
                 </div>
             </div>
             <div class="col-12 row mt-2 g-2">
@@ -166,7 +176,7 @@
                 @if (Cierre.Abierto && !Cierre.Id.IsZero())
                 {
                     <div class="col-2">
-                        <button class="btn btn-sm gcom-bg-amarillo col-12" type="button">
+                        <button class="btn btn-sm gcom-bg-amarillo col-12" type="button" @onclick="CerrarCierreInventario">
                             <i class="fa fa-solid fa-lock" />
                             Cerrar Cierre
                         </button>
@@ -213,8 +223,7 @@
                 <th style="width: 150px;" class="resizable-column">Fecha de ejecucion de cierre</th>
                 <th style="width: 150px;" class="resizable-column">Transportista</th>
                 <th style="width: 150px;" class="resizable-column">Tonel</th>
-                <th style="width: 150px;" class="resizable-column">Grupo</th>
-                <th style="width: 150px;" class="resizable-column">Cliente</th>
+                <th style="width: 150px;" class="resizable-column">Origen / Destino</th>
             </tr>
         </Cabeceras>
         <Filtros>
@@ -287,8 +296,7 @@
                 <td></td>
                 <td><input class="form-control form-control-sm" @bind-value="Filtro.Transportista" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Transportista)))" /></td>
                 <td><input class="form-control form-control-sm" @bind-value="Filtro.Tonel" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Tonel)))" /></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Grupo" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Grupo)))" /></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Cliente" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Cliente)))" /></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.OrigenDestino" @oninput="@((args)=>Filtrar(args, nameof(Filtro.OrigenDestino)))" /></td>
             </tr>
         </Filtros>
         <Columnas Context="item">
@@ -319,8 +327,7 @@
                 <td>@(item.FechaCierre?.ToShortDateString() ?? "----")</td>
                 <td>@item.Transportista</td>
                 <td>@item.Tonel</td>
-                <td>@item.Grupo</td>
-                <td>@item.Cliente</td>
+                <td>@item.OrigenDestino</td>
             </tr>
         </Columnas>
     </Tabla>
@@ -351,12 +358,14 @@
     IEnumerable<CatalogoValorDTO> Localidades = new List<CatalogoValorDTO>();
     IEnumerable<CatalogoValorDTO> UnidadesMedida = new List<CatalogoValorDTO>();
     IEnumerable<CatalogoValorDTO> TiposMovimientos = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> Origenes = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> Destinos = new List<CatalogoValorDTO>();
 
     List<Transportista> Transportistas = new();
     Transportista Transportista = new();
     List<Tonel> Toneles = new();
-    List<Grupo> Grupos = new();
-    List<Cliente> Clientes = new();
+
+    MenuInventarioDTO Menu = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -370,8 +379,7 @@
             CatalogoLocalidad(),
             CatalogoTipoMovimiento(),
             CatalogoUnidadMedida(),
-            GetTransportista(),
-            GetGrupos()
+            GetTransportista()
         );
     }
 
@@ -391,8 +399,7 @@
         query[nameof(Filtro.UnidadMedidaId)] = Filtro.UnidadMedidaId.ToString();
         query[nameof(Filtro.Transportista)] = Filtro.Transportista;
         query[nameof(Filtro.Tonel)] = Filtro.Tonel;
-        query[nameof(Filtro.Grupo)] = Filtro.Grupo;
-        query[nameof(Filtro.Cliente)] = Filtro.Cliente;
+        query[nameof(Filtro.OrigenDestino)] = Filtro.OrigenDestino;
         query[nameof(Filtro.CierreId)] = Filtro.CierreId.ToString();
         query[nameof(Filtro.Pagina)] = Filtro.Pagina.ToString();
         query[nameof(Filtro.Registros_por_pagina)] = Filtro.Registros_por_pagina.ToString();
@@ -579,6 +586,7 @@
                 {
                     IsEdit = false;
                     Inventario = new();
+                    // Inventario.Id = 0;
                 }
 
                 if (!Id.IsZero())
@@ -628,11 +636,8 @@
             case nameof(Filtro.Tonel):
                 Filtro.Tonel = args.Value?.ToString() ?? string.Empty;
                 break;
-            case nameof(Filtro.Grupo):
-                Filtro.Grupo = args.Value?.ToString() ?? string.Empty;
-                break;
-            case nameof(Filtro.Cliente):
-                Filtro.Cliente = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.OrigenDestino):
+                Filtro.OrigenDestino = args.Value?.ToString() ?? string.Empty;
                 break;
             default:
                 break;
@@ -713,6 +718,7 @@
                 loading = false;
                 IsEdit = true;
                 Inventario = response.Response;
+                await CargarMenuInventario();
             }
         }
         catch (Exception e)
@@ -798,57 +804,6 @@
         }
     }
 
-    public async Task GetGrupos(string valor = "")
-    {
-        try
-        {
-            Dictionary<string, string> query = new();
-            query[nameof(Grupo.Den)] = valor;
-            var url = Constructor_De_URL_Parametros.Generar_URL(query);
-
-            var response = await http.Get<List<Grupo>>($"api/grupo?{url}");
-            if (response.Error)
-            {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Grupos = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    public async Task GetClientes(string valor = "")
-    {
-        try
-        {
-            Dictionary<string, string> query = new();
-            query[nameof(Folio_Activo_Vigente.ID_Grupo)] = Inventario.GrupoId.ToString() ?? string.Empty;
-            query[nameof(Folio_Activo_Vigente.Cliente_Filtrado)] = valor;
-            var url = Constructor_De_URL_Parametros.Generar_URL(query);
-
-            var response = await http.Get<List<Cliente>>($"api/clientes?{url}");
-            if (response.Error)
-            {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Clientes = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
     private async Task CargarCierreInventario()
     {
         try
@@ -887,7 +842,7 @@
         {
             loading = true;
             Cierre.Abierto = false;
-            var response = await http.Post<InventarioCierreDTO>($"api/inventario/cierre/{Id}", Cierre);
+            var response = await http.Get<bool>($"api/inventario/cierre/cerrar/{Id}");
             if (response.Error)
             {
                 loading = false;
@@ -903,6 +858,30 @@
                         Detail = "Cierre guarado exitosamente"
                     });
                 navigation.NavigateTo("inventarios/cierres", false);
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CargarMenuInventario()
+    {
+        try
+        {
+            loading = true;
+            var response = await http.Get<MenuInventarioDTO>($"api/inventario/tipomovimiento/{Inventario.TipoMovimientoId}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                Menu = response.Response;
             }
         }
         catch (Exception e)

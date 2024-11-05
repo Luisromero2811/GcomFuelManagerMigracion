@@ -24,6 +24,6 @@ namespace GComFuelManager.Shared.ModelDTOs
         public double TotalDisponibleFull { get; set; }
         public DateTime FechaCierre { get; set; } = DateTime.Now;
         public bool Abierto { get; set; } = true;
-        //public string Terminal { get; set; } = string.Empty;
+        public bool Cerrado { get; set; } = false;
     }
 }

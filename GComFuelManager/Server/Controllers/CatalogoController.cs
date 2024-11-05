@@ -70,7 +70,9 @@ namespace GComFuelManager.Server.Controllers
 
                 var valores = context.CatalogoValores
                     .AsNoTracking()
-                    .Where(x => x.Activo && x.EsEditable && x.TadId.Equals(id_terminal))
+                    .Where(x => x.Activo && x.TadId.Equals(id_terminal))
+                    .OrderBy(x => x.Abreviacion)
+                    .ThenBy(x => x.Valor)
                     .AsQueryable();
 
                 if (!dTO.CatalogoId.IsZero())
@@ -134,6 +136,8 @@ namespace GComFuelManager.Server.Controllers
                 {
                     var valordb = await context.CatalogoValores.AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(valor.Id));
                     if (valordb is null) { return NotFound(); }
+
+                    if (!valordb.EsEditable) { return BadRequest("Este valor no se puede editar"); }
 
                     valor = mapper.Map(valor, valordb);
 
