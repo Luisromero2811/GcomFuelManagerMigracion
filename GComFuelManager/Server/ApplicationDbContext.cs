@@ -255,11 +255,14 @@ namespace GComFuelManager.Server
             //    .HasForeignKey(x => x.DivisionId)
             //    .OnDelete(DeleteBehavior.Restrict);
 
+
+            modelBuilder.Entity<CRMEquipoOriginadores>().HasKey(x => new { x.EquipoId, x.OriginadorId });
             modelBuilder.Entity<CRMEquipo>()
-                .HasOne(x => x.Originador)
+                .HasMany(x => x.Originadores)
                 .WithMany(x => x.Equipos)
-                .HasForeignKey(x => x.LiderId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .UsingEntity<CRMEquipoOriginadores>(
+                l => l.HasOne(x => x.Originador).WithMany(x => x.EquipoOriginadores).HasForeignKey(x => x.OriginadorId).OnDelete(DeleteBehavior.Restrict),
+                s => s.HasOne(x => x.Equipo).WithMany(x => x.EquipoOriginadores).HasForeignKey(x => x.EquipoId).OnDelete(DeleteBehavior.Restrict));
 
             modelBuilder.Entity<CRMEquipoVendedor>().HasKey(x => new { x.EquipoId, x.VendedorId });
             modelBuilder.Entity<CRMEquipo>()
@@ -356,6 +359,7 @@ namespace GComFuelManager.Server
         public DbSet<CRMRolUsuario> CRMRolUsuarios { get; set; }
         public DbSet<CRMEquipo> CRMEquipos { get; set; }
         public DbSet<CRMEquipoVendedor> CRMEquipoVendedores { get; set; }
+        public DbSet<CRMEquipoOriginadores> CRMEquipoOriginadores { get; set; }
         public DbSet<CRMUsuarioDivision> CRMUsuarioDivisiones { get; set; }
         public DbSet<CRMDocumento> CRMDocumentos { get; set; }
         public DbSet<CRMOportunidadDocumento> CRMOportunidadDocumentos { get; set; }

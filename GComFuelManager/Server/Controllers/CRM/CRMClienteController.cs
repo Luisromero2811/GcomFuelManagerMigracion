@@ -120,17 +120,38 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var cliente = await context.CRMClientes.AsNoTracking().Include(x => x.Contacto).FirstOrDefaultAsync(x => x.Id == Id);
+                // Obtiene el cliente con la propiedad Contacto usando Include
+                var cliente = await context.CRMClientes
+                    .AsNoTracking()
+                    .Include(x => x.Contacto)
+                    .FirstOrDefaultAsync(x => x.Id == Id);
+
                 if (cliente is null) return NotFound();
 
-                var clientedto = mapper.Map<CRMCliente, CRMClienteDetalleDTO>(cliente);
+                var clientedto = new CRMClienteDetalleDTO
+                {
+                    Nombre = cliente.Nombre,
+                    Contacto = cliente.Contacto != null
+                        ? new CRMContactoDTO
+                        {
+                            Id = cliente.Contacto.Id,
+                            Nombre = cliente.Contacto.Nombre,
+                            Tel_Movil = cliente.Contacto.Tel_Movil,
+                            Tel_Oficina = cliente.Contacto.Tel_Oficina,
+                            Correo = cliente.Contacto.Correo
+                        }
+                        : null
+                };
+
                 return Ok(clientedto);
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                // Mensaje detallado de error
+                return BadRequest(e.ToString());
             }
         }
+
 
         [HttpDelete("{Id:int}")]
         public async Task<ActionResult> Delete([FromRoute] int Id)
@@ -173,7 +194,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null) return NotFound();
 
-                    var equipos = await context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+                    var equipos = await context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == comercial.Id)).Select(x => x.Id).ToListAsync();
                     var relacion = await context.CRMEquipoVendedores.AsNoTracking().Where(x => equipos.Contains(x.EquipoId))
                         .GroupBy(x => x.VendedorId)
                         .Select(x => (int?)x.Key).ToListAsync();
@@ -189,8 +210,8 @@ namespace GComFuelManager.Server.Controllers.CRM
                     clientes = context.CRMClientes.AsNoTracking().Where(x => contactos.Contains(x.Id));
                 }
 
-                if (!string.IsNullOrEmpty(cliente.Nombre))
-                    clientes = clientes.Where(x => x.Nombre.Equals(cliente.Nombre));
+                if (!string.IsNullOrEmpty(cliente.Nombre) && !string.IsNullOrWhiteSpace(cliente.Nombre))
+                    clientes = clientes.Where(x => x.Nombre != null && x.Nombre.ToLower().Contains(cliente.Nombre.ToLower()));
 
                 return Ok(clientes);
             }

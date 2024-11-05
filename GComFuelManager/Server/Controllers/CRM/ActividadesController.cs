@@ -218,7 +218,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null) return NotFound();
-                    var equipos = await context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+                    var equipos = await context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == comercial.Id)).Select(x => x.Id).ToListAsync();
                     var relaciones = await context.CRMEquipoVendedores.AsNoTracking().Where(x => equipos.Contains(x.EquipoId))
                         .GroupBy(x => x.VendedorId)
                         .Select(x => x.Key).ToListAsync();
@@ -280,6 +280,7 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.Estados)
                        .Include(x => x.prioridades)
                        .OrderByDescending(x => x.Fecha_Creacion)
+                       .OrderBy(x => x.vendedor)
                        .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
@@ -291,7 +292,7 @@ namespace GComFuelManager.Server.Controllers
                     }
 
                     var equipos = await context.CRMEquipos.AsNoTracking()
-                        .Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+                        .Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == comercial.Id)).Select(x => x.Id).ToListAsync();
 
                     var relacion = await context.CRMEquipoVendedores.AsNoTracking()
                        .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => x.Key).ToListAsync();
@@ -306,6 +307,7 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Estados)
                         .Include(x => x.prioridades)
                         .OrderByDescending(x => x.Fecha_Creacion)
+                        .OrderBy(x => x.vendedor)
                         .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "VER_DETALLE_ACTIVIDAD"))
@@ -323,6 +325,7 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Estados)
                         .Include(x => x.prioridades)
                         .OrderByDescending(x => x.Fecha_Creacion)
+                        .OrderBy(x => x.vendedor)
                         .AsQueryable();
                 }
 
@@ -334,6 +337,12 @@ namespace GComFuelManager.Server.Controllers
 
                 if (!string.IsNullOrEmpty(activo.Estatus) && !string.IsNullOrWhiteSpace(activo.Estatus))
                     activos = activos.Where(x => x.Estados != null && x.Estados.Valor.ToLower().Contains(activo.Estatus.ToLower()));
+
+                if (!string.IsNullOrEmpty(activo.Cuenta_Rel) && !string.IsNullOrWhiteSpace(activo.Cuenta_Rel))
+                    activos = activos.Where(x => x.contacto.Cliente != null && x.contacto.Cliente.Nombre.ToLower().Contains(activo.Cuenta_Rel.ToLower()));
+
+                if (!string.IsNullOrEmpty(activo.Contacto_Rel) && !string.IsNullOrWhiteSpace(activo.Contacto_Rel))
+                    activos = activos.Where(x => x.contacto != null && x.contacto.Nombre.ToLower().Contains(activo.Contacto_Rel.ToLower()));
 
                 if (!string.IsNullOrEmpty(activo.VendedorId) && !string.IsNullOrWhiteSpace(activo.VendedorId))
                     activos = activos.Where(x => x.vendedor != null && x.vendedor.Nombre.ToLower().Contains(activo.VendedorId.ToLower()));
@@ -423,6 +432,10 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.Estados)
                        .Include(x => x.contacto)
                        .Include(x => x.prioridades)
+                       .Include(x => x.vendedor)
+                       .Include(x => x.contacto)
+                       .ThenInclude(x => x.Cliente)
+                       .OrderBy(x => x.vendedor)
                    .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
@@ -434,7 +447,7 @@ namespace GComFuelManager.Server.Controllers
                     }
 
                     var equipos = await context.CRMEquipos.AsNoTracking()
-                        .Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+                        .Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == comercial.Id)).Select(x => x.Id).ToListAsync();
 
                     var relacion = await context.CRMEquipoVendedores.AsNoTracking()
                        .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => x.Key).ToListAsync();
@@ -446,6 +459,8 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Estados)
                         .Include(x => x.contacto)
                         .Include(x => x.prioridades)
+                        .Include(x => x.vendedor)
+                        .OrderBy(x => x.vendedor)
                         .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "VER_MODULO_HISTORIAL_ACTIVIDADES"))
@@ -460,6 +475,8 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.Estados)
                        .Include(x => x.contacto)
                        .Include(x => x.prioridades)
+                       .Include(x => x.vendedor)
+                       .OrderBy(x => x.vendedor)
                    .AsQueryable();
 
                 }
@@ -470,6 +487,12 @@ namespace GComFuelManager.Server.Controllers
 
                 if (!string.IsNullOrEmpty(actividadDTO.Prioridad) && !string.IsNullOrWhiteSpace(actividadDTO.Prioridad))
                     actividades = actividades.Where(x => x.prioridades != null && x.prioridades.Valor.ToLower().Contains(actividadDTO.Prioridad.ToLower()));
+
+                if (!string.IsNullOrEmpty(actividadDTO.Contacto_Rel) && !string.IsNullOrWhiteSpace(actividadDTO.Contacto_Rel))
+                    actividades = actividades.Where(x => x.contacto != null && x.contacto.Nombre.ToLower().Contains(actividadDTO.Contacto_Rel.ToLower()));
+
+                if (!string.IsNullOrEmpty(actividadDTO.VendedorId) && !string.IsNullOrWhiteSpace(actividadDTO.VendedorId))
+                    actividades = actividades.Where(x => x.vendedor != null && x.vendedor.Nombre.ToLower().Contains(actividadDTO.VendedorId.ToLower()));
 
                 //Paginacion
                 await HttpContext.InsertarParametrosPaginacion(actividades, actividadDTO.Registros_por_pagina, actividadDTO.Pagina);
@@ -557,7 +580,7 @@ namespace GComFuelManager.Server.Controllers
                     }
 
                     var equipos = await context.CRMEquipos.AsNoTracking()
-                        .Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+                        .Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == comercial.Id)).Select(x => x.Id).ToListAsync();
 
                     var relacion = await context.CRMEquipoVendedores.AsNoTracking()
                        .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => x.Key).ToListAsync();

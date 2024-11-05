@@ -43,6 +43,24 @@ namespace GComFuelManager.Server.Mappers
                 .ForMember(x => x.Fecha_Ven, o => o.MapFrom(x => x.Fecha_Ven))
                 .ForMember(x => x.Estatus, o => o.MapFrom(x => x.Estados.Valor))
                 .ForMember(x => x.Asignado, o => o.MapFrom(x => $"{x.vendedor.Nombre} {x.vendedor.Apellidos}"));
+
+            CreateMap<CRMContacto, CRMContactosExcelDTO>()
+                .ForMember(x => x.Nombre, o => o.MapFrom(x => $"{x.Nombre} {x.Apellidos}"))
+                .ForMember(x => x.Cuenta, o => o.MapFrom(x => x.Cliente.Nombre))
+                .ForMember(x => x.Tel_Movil, o => o.MapFrom(x => x.Tel_Movil.ToString()))
+                .ForMember(x => x.Tel_Oficina, o => o.MapFrom(x => x.Tel_Oficina.ToString()))
+                .ForMember(x => x.Correo, o => o.MapFrom(x => x.Correo))
+                .ForMember(x => x.Vendedor, o => o.MapFrom(x => $"{x.Vendedor.Nombre} {x.Vendedor.Apellidos}"))
+                .ForMember(x => x.Division, o => o.MapFrom(x => x.Division.Nombre))
+                .ForMember(x => x.Estado, o => o.MapFrom(x => x.Estatus.Valor))
+                .ForMember(x => x.Titulo, o => o.MapFrom(x => x.Titulo))
+                .ForMember(x => x.Departamento, o => o.MapFrom(x => x.Departamento))
+                .ForMember(x => x.Calle, o => o.MapFrom(x => x.Calle))
+                .ForMember(x => x.Colonia, o => o.MapFrom(x => x.Colonia))
+                .ForMember(x => x.Ciudad, o => o.MapFrom(x => x.Ciudad))
+                .ForMember(x => x.CP, o => o.MapFrom(x => x.CP))
+                .ForMember(x => x.SitioWeb, o => o.MapFrom(x => x.SitioWeb))
+                .ForMember(x => x.Recomen, o => o.MapFrom(x => x.Recomen));
         }
     }
 }

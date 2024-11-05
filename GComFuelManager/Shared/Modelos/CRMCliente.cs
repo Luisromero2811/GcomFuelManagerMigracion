@@ -9,6 +9,7 @@
         public string Tel { get; set; } = string.Empty;
         public string Correo { get; set; } = string.Empty;
         public bool Activo { get; set; } = true;
+        public string? Descripcion { get; set; } = string.Empty;
 
         public CRMContacto? Contacto { get; set; } = null!;
     }

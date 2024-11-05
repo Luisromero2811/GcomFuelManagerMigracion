@@ -30,18 +30,34 @@
                     </div>
                     <div class="col-md-4 col-12">
                         <label>Lider de equipo</label>
-                        <DropDownFilter Listado="Comerciales" TListado="CRMOriginadorDTO" TValue="int" Default_Placeholder="Seleccione un comercial" FiltrarValor="ObtenerComerciales"
-                                        @bind-Valor="@Equipo.LiderId" Propiedad_Valor="Id">
+                        <DropDownFilter Listado="Comerciales" TListado="CRMOriginadorDTO" TValue="CRMOriginadorDTO" Default_Placeholder="Seleccione un comercial" FiltrarValor="ObtenerComerciales"
+                                        Propiedad_Valor="Id" Seleccion_Multiple="true" On_Cancel_Method="CancelOriginadorSelector">
                             <RenderValue Context="item">
-                                @($"{item.Nombre} {item.Apellidos}")
+                                @if (OriginadorSeleccionado.Count > 0)
+                                {
+                                    <div>
+                                        @(OriginadorSeleccionado.Count()) seleccionados
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>Lideres</div>
+                                }
                             </RenderValue>
                             <Render Context="item">
-                                @($"{item.Nombre} {item.Apellidos}")
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="@item.Id" checked="@(OriginadorSeleccionado.Any(x => x.Id == item.Id))" @onchange="@((e)=>SelectOriginador(e, item))" />
+                                    <label class="form-check-label" for="@item.Id">
+                                        <div class="my-auto">
+                                            @($"{item.Nombre} {item.Apellidos}")
+                                        </div>
+                                    </label>
+                                </div>
                             </Render>
                         </DropDownFilter>
 
                         <InputSelect class="d-none" @bind-Value="Equipo.LiderId" />
-                        <ValidationMessage For="@(()=>Equipo.LiderId)" />
+                        @*<ValidationMessage For="@(()=>Equipo.LiderId)" />*@
                     </div>
                     <div class="col-md-4 col-12">
                         <label>Division</label>
@@ -98,6 +114,9 @@
     CRMEquipoPostDTO Equipo = new();
     List<CRMVendedorDTO> VendedoresNoSeleccionados = new();
     List<CRMVendedorDTO> VendedoresSeleccionados = new();
+
+    List<CRMOriginadorDTO> OriginadorNoSeleccionado = new();
+    List<CRMOriginadorDTO> OriginadorSeleccionado = new();
 
     bool loading_info = false;
     bool loading_save = false;
@@ -175,6 +194,7 @@
         try
         {
             Equipo.VendedoresDTO = VendedoresSeleccionados;
+            Equipo.OriginadorDTO = OriginadorSeleccionado;
 
             loading_save = true;
             var response = await http.Post<CRMEquipoPostDTO>($"api/crmequipo", Equipo);
@@ -276,4 +296,28 @@
         }
 
     }
+
+    void CancelOriginadorSelector()
+    {
+        OriginadorSeleccionado = new();
+    }
+
+    void SelectOriginador(ChangeEventArgs args, CRMOriginadorDTO dto)
+    {
+        if (args.Value is null) { return; }
+
+        if ((bool)args.Value)
+        {
+            if (!OriginadorSeleccionado.Any(x => x.Id == dto.Id))
+                OriginadorSeleccionado.Add(dto);
+        }
+        else
+        {
+            if (OriginadorSeleccionado.Any(x => x.Id == dto.Id))
+                OriginadorSeleccionado.RemoveAt(OriginadorSeleccionado.IndexOf(OriginadorSeleccionado.First(x => x.Id == dto.Id)));
+        }
+
+        Equipo.OriginadorDTO = OriginadorSeleccionado;
+    }
+
 }

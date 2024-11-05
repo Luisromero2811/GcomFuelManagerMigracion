@@ -18,6 +18,7 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string Calle { get; set; } = string.Empty;
         public string Colonia { get; set; } = string.Empty;
         public string Ciudad { get; set; } = string.Empty;
+        public string Estado { get; set; } = string.Empty;
         public string CP { get; set; } = string.Empty;
         public string Pais { get; set; } = string.Empty;
         public int EstatusId { get; set; }

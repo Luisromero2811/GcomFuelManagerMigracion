@@ -9,5 +9,6 @@
         public int DivisionId { get; set; }
         public bool Activo { get; set; } = true;
         public List<CRMVendedorDTO> VendedoresDTO { get; set; } = new();
+        public List<CRMOriginadorDTO> OriginadorDTO { get; set; } = new();
     }
 }

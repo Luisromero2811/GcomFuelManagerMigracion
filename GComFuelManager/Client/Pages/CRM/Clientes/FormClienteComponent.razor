@@ -40,6 +40,13 @@
                                         @($"{item.Nombre} {item.Apellidos} - {item.Tel_Movil} - {item.Correo}")
                                     </Render>
                                 </DropDownFilter>
+                                <NavLink class="g-1 btn gcom-bg-amarillo" href="@($"crm/contactos/formulario/{Cuenta.ContactoPrincipalId}")">
+                                    <i class="fa fa-solid fa-edit"></i> Editar Datos de Contacto Principal
+                                </NavLink>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Descripción</label>
+                                <InputTextArea @bind-Value="Cuenta.Descripcion" class="form-control" />
                             </div>
                         </Body>
                     </Card>
@@ -67,6 +74,7 @@
 @code {
     [Parameter] public int Id { get; set; }
     CRMClientePostDTO Cuenta = new();
+    CRMContacto Contacto = new();
 
     List<CRMContactoDTO> Contactos = new();
 

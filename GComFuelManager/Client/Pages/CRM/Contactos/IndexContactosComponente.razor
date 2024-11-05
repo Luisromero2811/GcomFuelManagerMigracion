@@ -1,6 +1,7 @@
 ﻿@page "/crm/contactos"
 @inject IRepositorio http
 @inject SweetAlertService swal
+@inject IJSRuntime Js
 @attribute [Authorize(Roles = "Admin, VER_MODULO_CONTACTOS")]
 
 <AuthorizeView Roles="Admin, VER_MODULO_CONTACTOS">
@@ -34,15 +35,21 @@
                     </Authorized>
                 </AuthorizeView>
             </div>
-            <div class="col-md-4 col d-md-block d-none">
+            <div class="col-md-4 d-flex justify-content-end">
                 <AuthorizeView Roles="Admin, VER_CONTACTOS">
                     <Authorized Context="VERCONTACTOS">
-                        <button class="btn btn-sm gcom-bg-amarillo g-1 col-12" type="button" @onclick="OpenModal">
-                            <i class="fa fa-solid fa-eye" />Ver todos los contactos
-                        </button>
+                        <div class="d-flex">
+                            <button class="btn btn-sm gcom-bg-amarillo me-2 d-flex align-items-center justify-content-center" style="min-width: 150px;" type="button" @onclick="OpenModal">
+                                <i class="fa fa-solid fa-eye me-1"></i> Ver todos los contactos
+                            </button>
+                            <button class="btn btn-sm gcom-bg-amarillo d-flex align-items-center justify-content-center" style="min-width: 150px;" type="button" @onclick="ExportContactos">
+                                <i class="fa fa-solid fa-file-excel me-1"></i> Exportar
+                            </button>
+                        </div>
                     </Authorized>
                 </AuthorizeView>
             </div>
+
         </div>
         <AuthorizeView Roles="Admin, VER_CONTACTOS">
             <Authorized Context="VERCONTACTOS">
@@ -58,6 +65,7 @@
                                 <th>Contacto</th>
                                 <th>Nombre de cuenta</th>
                                 <th>Tel. movil</th>
+                                <th>Tel. Oficina</th>
                                 <th>Correo</th>
                                 <th>Encargado</th>
                                 <th class=" ">División</th>
@@ -80,6 +88,7 @@
                                 <td>
                                     <input class="form-control form-control-sm" @bind-value="filtro_contacto.Tel_Movil" @oninput="FiltrarTel" />
                                 </td>
+                                <td></td>
                                 <td>
                                     <input class="form-control form-control-sm" @bind-value="filtro_contacto.Correo" @oninput="FiltrarCorreo" />
                                 </td>
@@ -128,6 +137,7 @@
                                 <td>@item.FullName</td>
                                 <td>@item.Cuenta</td>
                                 <td>@item.Tel_Movil</td>
+                                <td>@item.Tel_Oficina</td>
                                 <td>@item.Correo</td>
                                 <td>@item.Vendedor</td>
                                 <td class=" ">@item.Division</td>
@@ -269,14 +279,14 @@
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Title = "Eliminacion",
-                    Text = $"¿Desea eliminar el contacto {crm.FullName}?",
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar"
-                });
+            {
+                Title = "Eliminacion",
+                Text = $"¿Desea eliminar el contacto {crm.FullName}?",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar"
+            });
             if (!string.IsNullOrEmpty(confirm.Value))
             {
                 var response = await http.Delete($"api/crmcontactos/{crm.Id}");
@@ -301,5 +311,30 @@
     private void OpenModal()
     {
         _modal.OpenModal<IndexContactosOtrasDivisionesComponente>("Contactos");
+    }
+
+    private async Task ExportContactos()
+    {
+        try
+        {
+            query[nameof(filtro_contacto.Excel)] = true.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+
+            var responseHttp = await http.Get<byte[]>($"api/crmcontactos?{uri}");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Js.GuardarComo($"Contactos_{DateTime.Today:g}.xlsx", responseHttp.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 }

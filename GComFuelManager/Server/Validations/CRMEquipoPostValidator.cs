@@ -12,10 +12,10 @@ namespace GComFuelManager.Server.Validations
                 .NotNull()
                 .MaximumLength(100).WithMessage("El nombre no puede tener mas de 100 caracteres");
 
-            RuleFor(x => x.LiderId)
-                .NotEmpty().WithMessage("El líder de equipo es obligatorio")
-                .NotNull().WithMessage("El líder de equipo es obligatorio")
-                .GreaterThan(0).WithMessage("Debe seleccionar un líder de equipo");
+            //RuleFor(x => x.LiderId)
+            //    .NotEmpty().WithMessage("El líder de equipo es obligatorio")
+            //    .NotNull().WithMessage("El líder de equipo es obligatorio")
+            //    .GreaterThan(0).WithMessage("Debe seleccionar un líder de equipo");
 
             RuleFor(x => x.DivisionId)
                 .NotEmpty().WithMessage("La división es obligatoria")

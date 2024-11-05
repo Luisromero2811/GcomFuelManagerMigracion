@@ -135,10 +135,15 @@
                                 </InputSelect>
                                 <ValidationMessage For="@(()=>Oportunidad.UnidadMedidaId)" />
                             </div>
+                            @*<div class="col-md-4 col-12">
+                                    <label>Cantidad de la oportunidad</label>
+                                    <InputNumber @bind-Value="Oportunidad.CantidadLts" class="form-control" oninput="@CalcularImporte()" />
+                                    <ValidationMessage For="@(()=>Oportunidad.CantidadLts)" />
+                                </div>*@
                             <div class="col-md-4 col-12">
                                 <label>Cantidad de la oportunidad</label>
-                                <InputNumber @bind-Value="Oportunidad.CantidadLts" class="form-control" oninput="@CalcularImporte()" />
-                                <ValidationMessage For="@(()=>Oportunidad.CantidadLts)" />
+                                <InputText @bind-Value="FormattedCantidadLts" class="form-control" @oninput="OnInput" />
+                                <ValidationMessage For="@(() => Oportunidad.CantidadLts)" />
                             </div>
                             <div class="col-md-4 col-12">
                                 <label>Precio del producto MXN por Lts</label>
@@ -225,7 +230,7 @@
                                 <ValidationMessage For="@(()=>Oportunidad.TipoId)" />
                             </div>
                             <div class="col-md-4 col-12">
-                                <label>Fecha de cierre</label>
+                                <label>Fecha de seguimiento</label>
                                 <InputDate Type="InputDateType.Date" @bind-Value="Oportunidad.FechaCierre" class="form-control" />
                                 <ValidationMessage For="@(()=>Oportunidad.FechaCierre)" />
                             </div>
@@ -726,6 +731,31 @@
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+    }
+
+    // Campo temporal para mostrar el valor con comas
+    private string FormattedCantidadLts { get; set; }
+
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        // Obtiene el valor ingresado
+        var input = e.Value?.ToString().Replace(",", "") ?? "0";
+
+        // Intenta convertir el valor a decimal
+        if (double.TryParse(input, out var cantidad))
+        {
+            Oportunidad.CantidadLts = cantidad;
+            // Almacena el valor formateado con comas en FormattedCantidadLts
+            FormattedCantidadLts = Oportunidad.CantidadLts.ToString("N0", CultureInfo.InvariantCulture);
+
+            await CalcularImporte();
+        }
+        else
+        {
+            // Si la conversión falla, resetea el campo formateado
+            FormattedCantidadLts = "0";
+        }
+
     }
 
     private async Task CalcularImporte()

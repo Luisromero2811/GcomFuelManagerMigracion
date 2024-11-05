@@ -92,7 +92,19 @@
                                         @item.Nombre
                                     </div>
                                 </td>
-                                <td>@item.Lider</td>
+                                <td>
+                                    @if (item.Lideres != null && item.Lideres.Any())
+                                    {
+                                        foreach (var lider in item.Lideres)
+                                        {
+                                            <span  class="badge rounded-pill gcom-bg-rojo me-1" style="font-size: 1.1rem; padding: 7px 12px;">@lider.Nombre @lider.Apellidos</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span>No hay líderes</span>
+                                    }
+                                </td>
                                 <td>@item.Division</td>
                             </tr>
                         </Columnas>

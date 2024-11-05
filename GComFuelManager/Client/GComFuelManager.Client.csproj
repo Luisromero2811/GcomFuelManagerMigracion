@@ -53,7 +53,6 @@
     <None Remove="Shared\DropdownMenuComponents\DropDownMenuButton.razor.css" />
     <None Remove="Shared\Layouts\" />
     <None Remove="Pages\CRM\Actividades\" />
-    <None Remove="Pages\CRM\Historiales\" />
     <None Remove="Pages\CRM\Usuarios\" />
     <None Remove="Pages\CRM\Documentos\" />
   </ItemGroup>
@@ -62,8 +61,8 @@
     <Folder Include="Pages\Auth\" />
     <Folder Include="Repositorios\" />
     <Folder Include="Pages\CRM\Actividades\" />
-    <Folder Include="Pages\CRM\Historiales\" />
     <Folder Include="Pages\CRM\Usuarios\" />
+    <Folder Include="Pages\CRM\Documentos\" />
     <Folder Include="Pages\CRM\Documentos\" />
   </ItemGroup>
   <ItemGroup>

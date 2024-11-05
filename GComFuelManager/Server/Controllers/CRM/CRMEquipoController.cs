@@ -49,7 +49,8 @@ namespace GComFuelManager.Server.Controllers.CRM
                 {
                     equipos = context.CRMEquipos.Where(x => x.Activo)
                     .AsNoTracking()
-                    .Include(x => x.Originador)
+                    .Include(x => x.EquipoOriginadores)
+                    .ThenInclude(x => x.Originador)
                     .Include(x => x.Division)
                     .Include(x => x.Vendedores)
                     .OrderBy(x => x.Nombre)
@@ -60,8 +61,9 @@ namespace GComFuelManager.Server.Controllers.CRM
                     var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null) return NotFound();
 
-                    equipos = context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.LiderId == comercial.Id)
-                    .Include(x => x.Originador)
+                    equipos = context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == comercial.Id))
+                    .Include(x => x.EquipoOriginadores)
+                    .ThenInclude(x => x.Originador)
                     .Include(x => x.Division)
                     .Include(x => x.Vendedores)
                     .OrderBy(x => x.Nombre)
@@ -77,7 +79,8 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Select(x => x.EquipoId).ToListAsync();
                     equipos = context.CRMEquipos.AsNoTracking().Where(x => x.Activo && relacion.Contains(x.Id))
                         .IgnoreAutoIncludes()
-                        .Include(x => x.Originador)
+                        .Include(x => x.EquipoOriginadores)
+                        .ThenInclude(x => x.Originador)
                         .Include(x => x.Division)
                         .OrderBy(x => x.Nombre)
                         .AsQueryable();
@@ -118,7 +121,8 @@ namespace GComFuelManager.Server.Controllers.CRM
             try
             {
                 var equipo = await context.CRMEquipos.Where(x => x.Id == Id)
-                    .Include(x => x.Originador)
+                    .Include(x => x.EquipoOriginadores)
+                    .ThenInclude(x => x.Originador)
                     .Include(x => x.Division)
                     .SingleOrDefaultAsync();
                 if (equipo is null) { return NotFound(); }
@@ -144,7 +148,8 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var equipo = await context.CRMEquipos
                     .AsNoTracking()
                     .Include(x => x.Division)
-                    .Include(x => x.Originador)
+                    .Include(x => x.EquipoOriginadores)
+                    .ThenInclude(x => x.Originador)
                     .ThenInclude(x => x.Division)
                     .Include(x => x.Vendedores)
                     .ThenInclude(x => x.Division)
@@ -176,16 +181,42 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 //vendedor.Originadores = originadores;
 
-                var lider = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.Id == equipo.LiderId);
-                if (lider is null) { return NotFound(); }
-                if (string.IsNullOrEmpty(lider.UserId)) { return BadRequest("El comercial no cuenta con un usuario relacionado"); }
-                var usercomercial = await manager.FindByIdAsync(lider.UserId);
-                if (usercomercial is null) { return BadRequest("El comercial no cuenta con un usuario relacionado"); }
+                //var lider = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.Id == equipo.LiderId);
+                //if (lider is null) { return NotFound(); }
+                //if (string.IsNullOrEmpty(lider.UserId)) { return BadRequest("El comercial no cuenta con un usuario relacionado"); }
+                //var usercomercial = await manager.FindByIdAsync(lider.UserId);
+                //if (usercomercial is null) { return BadRequest("El comercial no cuenta con un usuario relacionado"); }
+
+                var lideres = await context.CRMOriginadores.AsNoTracking()
+                    .Where(x => dTO.OriginadorDTO.Select(x => x.Id).Contains(x.Id)).ToListAsync();
+
+                if (!lideres.Any())
+                {
+                    return NotFound("No se encontraron los lideres seleccionados");
+                }
+
+                //Validación para saber si el lider tiene usuario o no
+                foreach (var lider in lideres)
+                {
+                    if (string.IsNullOrEmpty(lider.UserId))
+                    {
+                        return BadRequest($"El comercial no cuenta con un usuario relacionado");
+                    }
+
+                    var userComercial = await manager.FindByIdAsync(lider.UserId);
+                    if (userComercial is null)
+                    {
+                        return BadRequest("El comercial no cuenta con un usuario valido");
+                    }
+                }
 
                 if (equipo.Id != 0)
                 {
                     var relations = dTO.VendedoresDTO.Select(x => new CRMEquipoVendedor { EquipoId = equipo.Id, VendedorId = x.Id }).ToList();
                     var relations_actual = await context.CRMEquipoVendedores.Where(x => x.EquipoId == equipo.Id).ToListAsync();
+
+                    var relationOri = dTO.OriginadorDTO.Select(x => new CRMEquipoOriginadores { EquipoId = equipo.Id, OriginadorId = x.Id }).ToList();
+                    var relationsOri_actual = await context.CRMEquipoOriginadores.Where(x => x.EquipoId == equipo.Id).ToListAsync();
 
                     if (!relations_actual.SequenceEqual(relations))
                     {
@@ -193,21 +224,76 @@ namespace GComFuelManager.Server.Controllers.CRM
                         await context.AddRangeAsync(relations);
                     }
 
+                    if (!relationsOri_actual.SequenceEqual(relationOri))
+                    {
+                        context.RemoveRange(relationsOri_actual);
+                        await context.AddRangeAsync(relationOri);
+                    }
+
                     var equipodb = await context.CRMEquipos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == equipo.Id);
                     if (equipodb is null) { return NotFound(); }
-                    if (equipo.LiderId != equipodb.LiderId)
+
+
+
+                    //if (equipo.LiderId != equipodb.LiderId)
+                    //{
+                    //    var nlider = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.Id == equipo.LiderId);
+                    //    if (nlider is null) { return NotFound(); }
+                    //    if (string.IsNullOrEmpty(nlider.UserId)) { return BadRequest("El comercial no cuenta con un usuario relacionado"); }
+                    //    var nusercomercial = await manager.FindByIdAsync(lider.UserId);
+                    //    if (nusercomercial is null) { return BadRequest("El comercial no cuenta con un usuario relacionado"); }
+
+                    //    if (!await context.CRMEquipos.AnyAsync(x => x.LiderId == lider.Id && x.Id != equipo.Id))
+                    //        await manager.RemoveFromRoleAsync(usercomercial, "LIDER_DE_EQUIPO");
+
+                    //    if (!await manager.IsInRoleAsync(nusercomercial, "LIDER_DE_EQUIPO"))
+                    //        await manager.AddToRoleAsync(nusercomercial, "LIDER_DE_EQUIPO");
+                    //}
+
+                    // Obtener los líderes actuales del equipo
+                    var lideresActuales = await context.CRMEquipoOriginadores
+                        .Where(x => x.EquipoId == equipo.Id)
+                        .Select(x => x.OriginadorId)
+                        .ToListAsync();
+
+                    // Determinar los nuevos líderes
+                    var nuevosLideres = dTO.OriginadorDTO.Select(x => x.Id).ToList();
+
+                    // Líderes que se han eliminado
+                    var lideresEliminados = lideresActuales.Except(nuevosLideres).ToList();
+
+                    // Líderes que se han agregado
+                    var lideresAgregados = nuevosLideres.Except(lideresActuales).ToList();
+
+                    // Remover el rol de los líderes eliminados
+                    foreach (var liderId in lideresEliminados)
                     {
-                        var nlider = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.Id == equipo.LiderId);
-                        if (nlider is null) { return NotFound(); }
-                        if (string.IsNullOrEmpty(nlider.UserId)) { return BadRequest("El comercial no cuenta con un usuario relacionado"); }
-                        var nusercomercial = await manager.FindByIdAsync(lider.UserId);
-                        if (nusercomercial is null) { return BadRequest("El comercial no cuenta con un usuario relacionado"); }
+                        var liderEliminado = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.Id == liderId);
+                        if (liderEliminado != null && !string.IsNullOrEmpty(liderEliminado.UserId))
+                        {
+                            var userComercialEliminado = await manager.FindByIdAsync(liderEliminado.UserId);
+                            if (userComercialEliminado != null)
+                            {
+                                if (!await context.CRMEquipos.AnyAsync(x => x.EquipoOriginadores.Any(l => l.OriginadorId == liderEliminado.Id && x.Id != equipo.Id)))
+                                {
+                                    await manager.RemoveFromRoleAsync(userComercialEliminado, "LIDER_DE_EQUIPO");
+                                }
+                            }
+                        }
+                    }
 
-                        if (!await context.CRMEquipos.AnyAsync(x => x.LiderId == lider.Id && x.Id != equipo.Id))
-                            await manager.RemoveFromRoleAsync(usercomercial, "LIDER_DE_EQUIPO");
-
-                        if (!await manager.IsInRoleAsync(nusercomercial, "LIDER_DE_EQUIPO"))
-                            await manager.AddToRoleAsync(nusercomercial, "LIDER_DE_EQUIPO");
+                    // Asignar el rol a los nuevos líderes
+                    foreach (var liderId in lideresAgregados)
+                    {
+                        var nuevoLider = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.Id == liderId);
+                        if (nuevoLider != null && !string.IsNullOrEmpty(nuevoLider.UserId))
+                        {
+                            var userComercialNuevo = await manager.FindByIdAsync(nuevoLider.UserId);
+                            if (userComercialNuevo != null && !await manager.IsInRoleAsync(userComercialNuevo, "LIDER_DE_EQUIPO"))
+                            {
+                                await manager.AddToRoleAsync(userComercialNuevo, "LIDER_DE_EQUIPO");
+                            }
+                        }
                     }
 
                     var e = mapper.Map(equipo, equipodb);
@@ -218,9 +304,18 @@ namespace GComFuelManager.Server.Controllers.CRM
                     var integrantes = dTO.VendedoresDTO.Select(x => new CRMEquipoVendedor { EquipoId = equipo.Id, VendedorId = x.Id }).ToList();
                     equipo.EquipoVendedores = integrantes;
 
-                    if (!await manager.IsInRoleAsync(usercomercial, "LIDER_DE_EQUIPO"))
-                        await manager.AddToRoleAsync(usercomercial, "LIDER_DE_EQUIPO");
+                    var originadores = dTO.OriginadorDTO.Select(x => new CRMEquipoOriginadores { EquipoId = equipo.Id, OriginadorId = x.Id }).ToList();
+                    equipo.EquipoOriginadores = originadores;
 
+                    // Asignar el rol a los líderes seleccionados
+                    foreach (var lider in lideres)
+                    {
+                        var userComercial = await manager.FindByIdAsync(lider.UserId);
+                        if (userComercial != null && !await manager.IsInRoleAsync(userComercial, "LIDER_DE_EQUIPO"))
+                        {
+                            await manager.AddToRoleAsync(userComercial, "LIDER_DE_EQUIPO");
+                        }
+                    }
                     await context.AddAsync(equipo);
                 }
                 await context.SaveChangesAsync();

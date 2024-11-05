@@ -1,4 +1,5 @@
-﻿using GComFuelManager.Shared.Filtro;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using GComFuelManager.Shared.Filtro;
 
 namespace GComFuelManager.Shared.DTOs.CRM
 {

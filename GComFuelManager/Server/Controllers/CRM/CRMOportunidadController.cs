@@ -65,7 +65,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     if (comercial is null) return NotFound();
 
                     var equipos = await context.CRMEquipos.AsNoTracking()
-                        .Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+                        .Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == comercial.Id)).Select(x => x.Id).ToListAsync();
 
                     var relacion = await context.CRMEquipoVendedores.AsNoTracking()
                         .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => x.Key).ToListAsync();

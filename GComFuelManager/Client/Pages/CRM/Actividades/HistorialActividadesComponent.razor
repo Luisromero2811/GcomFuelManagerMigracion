@@ -48,32 +48,51 @@
             <div class="col-12">
             </div>
         </div>
-        <div class="container-fluid overflow-scroll">
+        <div class="ancho-tabla">
             <Tabla Datos="ListadoActividad">
                 <Cabeceras>
                     <tr>
                         <th style="width:100px;"></th>
-                        <th>Contacto</th>
+                        <th>Asignado A:</th>
+                        <th>Cuenta</th>
                         <th>Asunto</th>
+                        <th>Contacto</th>
                         <th>Prioridad</th>
-                        <th>Estatus</th>
                         <th>Descripción</th>
                         <th>Fecha de creación</th>
                         <th>Fecha de Inicio</th>
                         <th>Fecha de Vencimiento</th>
                         <th>Fecha de Finalización</th>
-
+                        <th>Estatus</th>
                     </tr>
                 </Cabeceras>
                 <Filtros>
                     <tr>
                         <td></td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control" @bind-value="Listado_Actividad.VendedorId" @oninput="FiltrarVendedor" />
+                            </div>
+                        </td>
                         <td></td>
                         <td>
-                            <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Asunto" @oninput="FiltrarAsunto" />
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control" @bind-value="Listado_Actividad.Asunto" @oninput="FiltrarAsunto" />
+                            </div>
                         </td>
                         <td>
-                            <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Prioridad" @oninput="FiltrarPrioridad" />
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control" @bind-value="Listado_Actividad.Contacto_Rel" @oninput="FiltrarContacto" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control" @bind-value="Listado_Actividad.Prioridad" @oninput="FiltrarPrioridad" />
+                            </div>
                         </td>
                         <td></td>
                         <td></td>
@@ -92,10 +111,11 @@
                                 </NavLink>
                             </div>
                         </td>
-                        <td>@item.Contacto_Rel</td>
+                        <td>@item.VendedorId</td>
+                        <td>@item.Cuenta_Rel</td>
                         <td>@item.Asunto</td>
+                        <td>@item.Contacto_Rel</td>
                         <td>@item.Prioridad</td>
-                        <td>@item.Estatus</td>
                         <td>
                             <div class="col-12">
                                 <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>OpenModal(item.Desccripcion ?? string.Empty))">
@@ -107,6 +127,7 @@
                         <td>@item.Fch_Inicio</td>
                         <td>@item.Fecha_Ven</td>
                         <td>@item.Fecha_Mod</td>
+                        <td>@item.Estatus</td>
                     </tr>
                 </Columnas>
             </Tabla>
@@ -127,6 +148,8 @@
         keys["Fecha_Ven"] = Listado_Actividad.Fecha_Ven.ToString("MM-dd-yyyy");
         keys["Asunto"] = Listado_Actividad.Asunto ?? string.Empty;
         keys["Prioridad"] = Listado_Actividad.Prioridad ?? string.Empty;
+        keys["VendedorId"] = Listado_Actividad.VendedorId ?? string.Empty;
+        keys["Contacto_Rel"] = Listado_Actividad.Contacto_Rel ?? string.Empty;
         return keys;
     }
 
@@ -165,6 +188,18 @@
     private async Task FiltrarAsunto(ChangeEventArgs args)
     {
         Listado_Actividad.Asunto = args.Value?.ToString() ?? string.Empty;
+        await Get_Activities();
+    }
+
+    private async Task FiltrarContacto(ChangeEventArgs args)
+    {
+        Listado_Actividad.Contacto_Rel = args.Value?.ToString() ?? string.Empty;
+        await Get_Activities();
+    }
+
+    private async Task FiltrarVendedor(ChangeEventArgs args)
+    {
+        Listado_Actividad.VendedorId = args.Value?.ToString() ?? string.Empty;
         await Get_Activities();
     }
 

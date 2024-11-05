@@ -35,7 +35,7 @@
 
         <AuthorizeView Roles="Admin, VER_OPORTUNIDADES">
             <Authorized Context="VEROPORTUNIDADES">
-                <div class="container-fluid overflow-scroll">
+                <div class="ancho-tabla">
                     <Tabla Datos="Oportunidades" Cargando="loading_info">
                         <Cabeceras>
                             <tr>
@@ -47,6 +47,7 @@
                                 <th>Oportunidad</th>
                                 <th>Cuenta</th>
                                 <th>Contacto</th>
+                                <th>Fecha de Creación</th>
                                 <th>Etapa de venta</th>
                                 <th>Valor</th>
                                 <th>Division</th>
@@ -62,14 +63,45 @@
                                         <td></td>
                                     </Authorized>
                                 </AuthorizeView>
-                                <td><input class="form-control form-control-sm" @bind-value="filtro.Nombre_Opor" @oninput="FiltrarNombre" /></td>
-                                <td><input class="form-control form-control-sm" @bind-value="filtro.Cuenta" @oninput="FiltrarCuenta" /></td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                        <input type="text" class="form-control" @bind-value="filtro.Nombre_Opor" @oninput="FiltrarNombre" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                        <input class="form-control form-control-sm" @bind-value="filtro.Cuenta" @oninput="FiltrarCuenta" />
+                                    </div>
+                                </td>
                                 <td></td>
-                                <td><input class="form-control form-control-sm" @bind-value="filtro.EtapaVenta" @oninput="FiltrarEtapa" /></td>
                                 <td></td>
-                                <td><input class="form-control form-control-sm" @bind-value="filtro.Division" @oninput="FiltrarDivision" /></td>
-                                <td><input class="form-control form-control-sm" @bind-value="filtro.Equipo" @oninput="FiltrarEquipo" /></td>
-                                <td><input class="form-control form-control-sm" @bind-value="filtro.Vendedor" @oninput="FiltrarVendedor" /></td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                        <input class="form-control form-control-sm" @bind-value="filtro.EtapaVenta" @oninput="FiltrarEtapa" />
+                                    </div>
+                                </td>
+                                <td></td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                        <input class="form-control form-control-sm" @bind-value="filtro.Division" @oninput="FiltrarDivision" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                        <input class="form-control form-control-sm" @bind-value="filtro.Equipo" @oninput="FiltrarEquipo" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                        <input class="form-control form-control-sm" @bind-value="filtro.Vendedor" @oninput="FiltrarVendedor" />
+                                    </div>
+                                </td>
                                 <td></td>
                             </tr>
                         </Filtros>
@@ -126,6 +158,7 @@
                                         </NotAuthorized>
                                     </AuthorizeView>
                                 </td>
+                                <td>@item.FechaCreacion</td>
                                 <td>@item.EtapaVenta</td>
                                 <td>$ @item.ValorOportunidad.ToString("N", CultureInfo.InvariantCulture)</td>
                                 <td>@item.Division</td>
@@ -322,14 +355,14 @@
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Title = "Eliminacion",
-                    Text = $"¿Desea eliminar la oportunidad {crm.Nombre_Opor}?",
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar"
-                });
+            {
+                Title = "Eliminacion",
+                Text = $"¿Desea eliminar la oportunidad {crm.Nombre_Opor}?",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar"
+            });
             if (!string.IsNullOrEmpty(confirm.Value))
             {
 

@@ -34,10 +34,11 @@
                             <tr>
                                 <AuthorizeView Roles="Admin, EDITAR_CUENTA, ELIMINAR_CUENTA, VER_DETALLE_CUENTA">
                                     <Authorized Context="ACCIONES">
-                                        <th style="max-width:180px;"></th>
+                                        <th style="width:140px;"></th>
                                     </Authorized>
                                 </AuthorizeView>
-                                <th>Cuenta</th>
+                                <th style="width:340px;">Cuenta</th>
+                                <th>Descripción</th>
                             </tr>
                         </Cabeceras>
                         <Filtros>
@@ -47,7 +48,11 @@
                                         <td></td>
                                     </Authorized>
                                 </AuthorizeView>
-                                <td><input class="form-control" @bind-value="@filtro.Nombre" @oninput="FiltrarNombre" /></td>
+                                <td style="display: flex; align-items: center;">
+                                    <i class="fa-solid fa-magnifying-glass" style="margin-right: 8px;"></i>
+                                    <input class="form-control" @bind-value="@filtro.Nombre" @oninput="FiltrarNombre" />
+                                </td>
+                                <td></td>
                             </tr>
                         </Filtros>
                         <Columnas Context="item">
@@ -82,6 +87,7 @@
                                     </Authorized>
                                 </AuthorizeView>
                                 <td>@item.Nombre</td>
+                                <td>@item.Descripcion</td>
                             </tr>
                         </Columnas>
                     </Tabla>

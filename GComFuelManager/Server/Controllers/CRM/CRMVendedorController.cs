@@ -56,7 +56,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 {
                     var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null) return NotFound();
-                    var equipos = await context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+                    var equipos = await context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == comercial.Id)).Select(x => x.Id).ToListAsync();
                     var relaciones = await context.CRMEquipoVendedores.AsNoTracking().Where(x => equipos.Contains(x.EquipoId))
                         .GroupBy(x => x.VendedorId)
                         .Select(x => x.Key).ToListAsync();
@@ -126,6 +126,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     //.ThenInclude(x => x.Division)
                     .Include(x => x.Division)
                     .Include(x => x.Equipos)
+                    .ThenInclude(x => x.EquipoOriginadores)
                     .ThenInclude(x => x.Originador)
                     .SingleOrDefaultAsync();
                 if (vendedor is null) { return NotFound(); }
@@ -411,9 +412,9 @@ namespace GComFuelManager.Server.Controllers.CRM
                      select new CRMUsuarioDTO
                      {
                          Id_Asp = user.Id,
-                         UserName = user.UserName,
-                         NombreUsuario = vendedor != null ? vendedor.Nombre : originador.Nombre,
-                         TipoUsuario = vendedor != null ? "Vendedor" : originador != null ? "Comercial" : "Sin asignar",
+                         UserName = user.UserName.ToUpper(),
+                         NombreUsuario = vendedor != null ? vendedor.Nombre.ToUpper() : originador.Nombre.ToUpper(),
+                         TipoUsuario = vendedor != null ? "VENDEDOR" : originador != null ? "COMERCIAL" : "Sin asignar",
                          Activo = user.Activo
                      })
                     .AsQueryable();

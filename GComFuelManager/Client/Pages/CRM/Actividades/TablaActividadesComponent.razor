@@ -2,6 +2,7 @@
 @inject SweetAlertService Swal
 @inject IRepositorio repositorio
 @inject NotificationService ns
+@inject DialogService ds
 @inject IJSRuntime Js
 <!--Tabla de muestreo de datos de actividades-->
 <AuthorizeView Roles="Admin, VER_DETALLE_ACTIVIDAD">
@@ -47,85 +48,117 @@
                 </div>
             </div>
         </div>
-            <div class="container-fluid overflow-scroll">
-                <Tabla Datos="CRMActividades">
-                    <Cabeceras>
-                        <tr>
-                            <th style="width:100px;"></th>
-                            <th>Contacto</th>
-                            <th>Cuenta</th>
-                            <th>Asunto</th>
-                            <th>Prioridad</th>
-                            <th>Estado</th>
-                            <th>Fecha de Inicio</th>
-                            <th>Fecha de Modificación</th>
-                            <th>Fecha de Vencimiento</th>
-                            <th>Asignado A:</th>
-                            <th>Habilitar / Deshabilitar</th>
-                        </tr>
-                    </Cabeceras>
-                    <Filtros>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asunto" @oninput="FiltrarAsunto" />
-                            </td>
-                            <td>
-                                <input class="form-control form-control-sm" @bind-value="filtro_actividad.Prioridad" @oninput="FiltrarPrioridad" />
-                            </td>
-                            <td>
-                                <input class="form-control form-control-sm" @bind-value="filtro_actividad.Estatus" @oninput="FiltrarEstados" />
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <input class="form-control form-control-sm" @bind-value="filtro_actividad.VendedorId" @oninput="FiltrarVendedor" />
-                            </td>
-                            <td></td>
-                        </tr>
-                    </Filtros>
-                    <Columnas Context="item">
-                        <tr>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <AuthorizeView Roles="Admin, EDITAR_ACTIVIDAD">
-                                        <Authorized Context="EditActivity">
-                                            <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/actividades/{item?.Id}")>
-                                                <i class="fa fa-solid fa-edit" />
-                                            </NavLink>
-                                        </Authorized>
-                                    </AuthorizeView>
-                                    <NavLink class="btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
-                                        <i class="fa fa-solid fa-folder-open" />
-                                    </NavLink>
-                                </div>
-                            </td>
-                            <td>@item.Contacto_Rel</td>
-                            <td>@item.Cuenta_Rel</td>
-                            <td>@item.Asunto</td>
-                            <td>@item.Prioridad</td>
-                            <td>@item.Estatus</td>
-                            <td>@item.Fch_Inicio.ToString()</td>
-                            <td>@(item.Fecha_Mod == null || item.Fecha_Mod == DateTime.MinValue ? "" : item.Fecha_Mod.Value.ToString())</td>
-                            <td>@item.Fecha_Ven.ToString()</td>
-                            <td>@item.VendedorId</td>
-                            <AuthorizeView Roles="Admin, DESACTIVAR_ACTIVIDAD">
-                                <Authorized Context="DeshabilitarActividad">
-                                    <td>
-                                        <div class="form-check form-switch m-2">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="@item?.Id" checked="@item?.Activo"
-                                                   @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))" />
-                                        </div>
-                                    </td>
-                                </Authorized>
-                            </AuthorizeView>
-                        </tr>
-                    </Columnas>
-                </Tabla>
-            </div>
+        <div class="ancho-tabla">
+            <Tabla Datos="CRMActividades">
+                <Cabeceras>
+                    <tr>
+                        <th style="max-width: 185px;"></th>
+                        <th>Fecha de Modificación</th>
+                        <th>Asignado A:</th>
+                        <th>Cuenta</th>
+                        <th>Asunto</th>
+                        <th>Contacto</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Fecha de Inicio</th>
+                        <th>Fecha de Vencimiento</th>
+                        <th>Descripción</th>
+                        <th>Habilitar / Deshabilitar</th>
+                    </tr>
+                </Cabeceras>
+                <Filtros>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control" @bind-value="filtro_actividad.VendedorId" @oninput="FiltrarVendedor" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control" @bind-value="filtro_actividad.Cuenta_Rel" @oninput="FiltrarCuenta" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control" @bind-value="filtro_actividad.Asunto" @oninput="FiltrarAsunto" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control" @bind-value="filtro_actividad.Contacto_Rel" @oninput="FiltrarContacto" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control" @bind-value="filtro_actividad.Prioridad" @oninput="FiltrarPrioridad" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control" @bind-value="filtro_actividad.Estatus" @oninput="FiltrarEstados" />
+                            </div>
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+
+                </Filtros>
+                <Columnas Context="item">
+                    <tr>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <AuthorizeView Roles="Admin, EDITAR_ACTIVIDAD">
+                                    <Authorized Context="EditActivity">
+                                        <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/actividades/{item?.Id}")>
+                                            <i class="fa fa-solid fa-edit" />
+                                        </NavLink>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <NavLink class="btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
+                                    <i class="fa fa-solid fa-folder-open" />
+                                </NavLink>
+                            </div>
+                        </td>
+                        <td>@(item.Fecha_Mod == null || item.Fecha_Mod == DateTime.MinValue ? "" : item.Fecha_Mod.Value.ToString())</td>
+                        <td>@item.VendedorId</td>
+                        <td>@item.Cuenta_Rel</td>
+                        <td>@item.Asunto</td>
+                        <td>@item.Contacto_Rel</td>
+                        <td>@item.Prioridad</td>
+                        <td>@item.Estatus</td>
+                        <td>@item.Fch_Inicio.ToString()</td>
+                        <td>@item.Fecha_Ven.ToString()</td>
+                        <td>
+                            <div class="col-12">
+                                <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="(()=>OpenModal(item.Desccripcion ?? string.Empty))">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <AuthorizeView Roles="Admin, DESACTIVAR_ACTIVIDAD">
+                            <Authorized Context="DeshabilitarActividad">
+                                <td>
+                                    <div class="form-check form-switch m-2">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="@item?.Id" checked="@item?.Activo"
+                                               @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))" />
+                                    </div>
+                                </td>
+                            </Authorized>
+                        </AuthorizeView>
+                    </tr>
+                </Columnas>
+            </Tabla>
+        </div>
         <div class="col-12">
             <PaginacionComponent PaginaActual="filtro_actividad.Pagina_ACtual" PaginasTotales="filtro_actividad.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
             <div class="col-12">
@@ -154,6 +187,7 @@
         query[$"{nameof(filtro_actividad.Desccripcion)}"] = filtro_actividad.Desccripcion;
         query[$"{nameof(filtro_actividad.Estatus)}"] = filtro_actividad.Estatus;
         query[$"{nameof(filtro_actividad.Contacto_Rel)}"] = filtro_actividad.Contacto_Rel;
+        query[$"{nameof(filtro_actividad.Cuenta_Rel)}"] = filtro_actividad.Cuenta_Rel;
         query[$"{nameof(filtro_actividad.Pagina)}"] = filtro_actividad.Pagina.ToString();
         query[$"{nameof(filtro_actividad.Registros_por_pagina)}"] = filtro_actividad.Registros_por_pagina.ToString();
         return query;
@@ -204,6 +238,17 @@
         await Obtener_Actividades();
     }
 
+    private async Task FiltrarContacto(ChangeEventArgs args)
+    {
+        filtro_actividad.Contacto_Rel = args.Value?.ToString() ?? string.Empty;
+        await Obtener_Actividades();
+    }
+    private async Task FiltrarCuenta(ChangeEventArgs args)
+    {
+        filtro_actividad.Cuenta_Rel = args.Value?.ToString() ?? string.Empty;
+        await Obtener_Actividades();
+    }
+
     private async Task FiltrarVendedor(ChangeEventArgs args)
     {
         filtro_actividad.VendedorId = args.Value?.ToString() ?? string.Empty;
@@ -245,6 +290,20 @@
                     Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actividad deshabilitado", Detail = "La actividad ha sido deshabilitada." });
                 }
             }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task OpenModal(string Desccripcion)
+    {
+        try
+        {
+            await ds.OpenAsync<ModalDescriptionComponent>($"Descripción:",
+            new Dictionary<string, object>() { { "Desccripcion", Desccripcion } },
+                   new DialogOptions() { Height = "70px", Width = "85%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
         }
         catch (Exception e)
         {

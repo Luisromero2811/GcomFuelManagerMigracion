@@ -4,12 +4,14 @@ using GComFuelManager.Client.Helpers;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs.CRM;
+using GComFuelManager.Shared.DTOs.Reportes.CRM;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 
 namespace GComFuelManager.Server.Controllers.CRM
 {
@@ -61,7 +63,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     {
                         List<int> equipos = await context.CRMEquipos
                             .AsNoTracking()
-                            .Where(x => x.Activo && x.LiderId == comercial.Id)
+                            .Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == comercial.Id))
                             .Select(x => x.Id)
                             .ToListAsync();
 
@@ -123,6 +125,30 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (contacto.CuentaId != 0)
                     contactos = contactos.Where(x => x.CuentaId.Equals(contacto.CuentaId));
 
+                if (contacto.Excel)
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                    ExcelPackage excelPackage = new();
+                    ExcelWorksheet ws = excelPackage.Workbook.Worksheets.Add("Contactos");
+                    var contactosExcel = contactos
+                        .Include(x => x.Estatus)
+                        .Include(x => x.Origen)
+                        .Include(x => x.Cliente)
+                        .Include(x => x.Vendedor)
+                        .Include(x => x.Division)
+                        .OrderByDescending(x => x.Fecha_Creacion)
+                        .Select(x => mapper.Map<CRMContacto, CRMContactosExcelDTO>(x)).ToList();
+                    ws.Cells["A1"].LoadFromCollection(contactosExcel, opt =>
+                    {
+                        opt.PrintHeaders = true;
+                        opt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium12;
+                    });
+
+                    ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                    return Ok(excelPackage.GetAsByteArray());
+                }
+
                 if (contacto.Paginacion)
                 {
                     await HttpContext.InsertarParametrosPaginacion(contactos, contacto.Registros_por_pagina, contacto.Pagina);
@@ -170,7 +196,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     {
                         var equipos = await context.CRMEquipos
                             .AsNoTracking()
-                            .Where(x => x.Activo && x.LiderId == originador.Id)
+                            .Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == originador.Id))
                             .Include(x => x.Vendedores)
                             .Select(x => x.Id)
                             .ToListAsync();

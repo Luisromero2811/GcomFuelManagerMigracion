@@ -122,6 +122,11 @@
                                     <ValidationMessage For="@(()=>CRMContacto.Ciudad)" />
                                 </div>
                                 <div class="col-md-4 col-12">
+                                    <label>Estado</label>
+                                    <InputText @bind-Value="CRMContacto.Estado" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Estado)" />
+                                </div>
+                                <div class="col-md-4 col-12">
                                     <label>C.P.</label>
                                     <InputText @bind-Value="CRMContacto.CP" class="form-control" />
                                     <ValidationMessage For="@(()=>CRMContacto.CP)" />
