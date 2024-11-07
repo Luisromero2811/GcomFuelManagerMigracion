@@ -109,9 +109,7 @@
             else
             {
                 loading_save = false;
-                if (Id != 0)
-                    navigation.NavigateTo("crm/cuentas", false);
-                else
+                if (Id.IsZero())
                     Cuenta = new();
             }
         }

@@ -39,7 +39,9 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var originadores = context.CRMOriginadores.AsNoTracking()
+                var originadores = context.CRMOriginadores
+                    .AsNoTracking()
+                    .Where(x => x.Activo)
                     .Include(x => x.Equipos)
                     .OrderBy(x => x.Nombre)
                     .AsQueryable();
@@ -114,7 +116,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var originador = await context.CRMOriginadores
                     .AsNoTracking()
                     .Include(x => x.Division)
-                    .Include(x => x.Equipos)
+                    .Include(x => x.Equipos.Where(y => y.Activo))
                     .ThenInclude(x => x.Division)
                     .Where(x => x.Id == Id)
                     .Select(x => mapper.Map<CRMOriginador, CRMOriginadorDetalleDTO>(x))
