@@ -1,13 +1,12 @@
-﻿using System;
-using GComFuelManager.Server.Helpers;
+﻿using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ProductServiceProd;
 
 namespace GComFuelManager.Server.Controllers
 {
@@ -136,6 +135,71 @@ namespace GComFuelManager.Server.Controllers
                 GetRandomCarid();
 
             return random;
+        }
+
+        [Route("service")]
+        [HttpGet]
+        public async Task<ActionResult> GetClienteService()
+        {
+            try
+            {
+                if (HttpContext.User.Identity is null)
+                    return NotFound();
+
+                if (string.IsNullOrEmpty(HttpContext.User.Identity.Name))
+                    return NotFound();
+
+                var user = await userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+                if (user is null)
+                    return NotFound();
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0 && !await userManager.IsInRoleAsync(user, "Obtencion de Ordenes"))
+                    return BadRequest();
+
+                if (id_terminal != 1 && !await userManager.IsInRoleAsync(user, "Obtencion de Ordenes"))
+                    return BadRequest("No esta permitida esta accion en esta terminal");
+
+                ProductServiceClient client = new ProductServiceClient(ProductServiceClient.EndpointConfiguration.BasicHttpBinding_ProductService2);
+                client.ClientCredentials.UserName.UserName = "energasws";
+                client.ClientCredentials.UserName.Password = "Energas23!";
+                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
+
+                try
+                {
+
+                    var svc = client.ChannelFactory.CreateChannel();
+
+                    WsGetProductsRequest getReq = new();
+
+                    getReq.IncludeChildObjects = new NBool();
+                    getReq.IncludeChildObjects.Value = false;
+
+                    getReq.ActiveIndicator = new NEnumOfActiveIndicatorEnum();
+                    getReq.ActiveIndicator.Value = ActiveIndicatorEnum.ACTIVE;
+
+                    var respuesta = await svc.GetProductsAsync(getReq);
+
+                    foreach (var item in respuesta.Products)
+                    {
+                    }
+                }
+                catch (Exception e)
+                {
+                    return BadRequest(e.Message);
+                }
+                finally
+                {
+                    client.Close();
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
         }
     }
 }
