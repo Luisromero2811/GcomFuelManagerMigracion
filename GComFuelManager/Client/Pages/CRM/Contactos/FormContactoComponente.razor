@@ -17,9 +17,9 @@
                     </div>
                     <div>
                         <div class="btn-group">
-                            <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/contactos" Match="NavLinkMatch.All">
+                            <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
                                 <i class="fa fa-solid fa-arrow-left" /> Volver
-                            </NavLink>
+                            </button>
                             <NavLink class="btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
                                 Actividades
                             </NavLink>
@@ -346,9 +346,7 @@
             else
             {
                 loading_save = false;
-                if (Id != 0)
-                    navigation.NavigateTo("crm/contactos", false);
-                else
+                if (Id.IsZero())
                     CRMContacto = new();
             }
         }

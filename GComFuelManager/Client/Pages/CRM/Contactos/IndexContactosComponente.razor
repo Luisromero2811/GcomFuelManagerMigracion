@@ -38,14 +38,12 @@
             <div class="col-md-4 d-flex justify-content-end">
                 <AuthorizeView Roles="Admin, VER_CONTACTOS">
                     <Authorized Context="VERCONTACTOS">
-                        <div class="d-flex">
-                            <button class="btn btn-sm gcom-bg-amarillo me-2 d-flex align-items-center justify-content-center" style="min-width: 150px;" type="button" @onclick="OpenModal">
-                                <i class="fa fa-solid fa-eye me-1"></i> Ver todos los contactos
-                            </button>
-                            <button class="btn btn-sm gcom-bg-amarillo d-flex align-items-center justify-content-center" style="min-width: 150px;" type="button" @onclick="ExportContactos">
-                                <i class="fa fa-solid fa-file-excel me-1"></i> Exportar
-                            </button>
-                        </div>
+                        <button class="btn btn-sm gcom-bg-amarillo me-2" type="button" @onclick="OpenModal">
+                            <i class="fa fa-solid fa-eye me-1"></i> Ver todos los contactos
+                        </button>
+                        <button class="btn btn-sm gcom-bg-amarillo" type="button" @onclick="ExportContactos">
+                            <i class="fa fa-solid fa-file-excel me-1"></i> Exportar
+                        </button>
                     </Authorized>
                 </AuthorizeView>
             </div>
@@ -53,7 +51,7 @@
         </div>
         <AuthorizeView Roles="Admin, VER_CONTACTOS">
             <Authorized Context="VERCONTACTOS">
-                <div class="container-fluid overflow-scroll">
+                <div class="ancho-tabla">
                     <Tabla Datos="contactos" Cargando="loading_info">
                         <Cabeceras>
                             <tr>
@@ -279,14 +277,14 @@
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-            {
-                Title = "Eliminacion",
-                Text = $"¿Desea eliminar el contacto {crm.FullName}?",
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar"
-            });
+                {
+                    Title = "Eliminacion",
+                    Text = $"¿Desea eliminar el contacto {crm.FullName}?",
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar"
+                });
             if (!string.IsNullOrEmpty(confirm.Value))
             {
                 var response = await http.Delete($"api/crmcontactos/{crm.Id}");

@@ -273,14 +273,14 @@ namespace GComFuelManager.Server.Controllers
                 {
                     activos = context.CRMActividades
                        .Where(x => x.Activo && x.Estados.Valor != "Completada")
-                       .Include(x => x.vendedor)
-                       .Include(x => x.contacto)
+                       .Include(x => x.Vendedor)
+                       .Include(x => x.Contacto)
                        .ThenInclude(x => x.Cliente)
-                       .Include(x => x.asuntos)
+                       .Include(x => x.Asuntos)
                        .Include(x => x.Estados)
-                       .Include(x => x.prioridades)
+                       .Include(x => x.Prioridades)
                        .OrderByDescending(x => x.Fecha_Creacion)
-                       .OrderBy(x => x.vendedor)
+                       .OrderBy(x => x.Vendedor)
                        .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
@@ -300,14 +300,14 @@ namespace GComFuelManager.Server.Controllers
                     activos = context.CRMActividades
                         .AsNoTracking()
                         .Where(x => x.Activo && x.Estados.Valor != "Completada" && relacion.Contains((int)x.Asignado) && equipos.Contains((int)x.EquipoId))
-                         .Include(x => x.vendedor)
-                        .Include(x => x.contacto)
+                         .Include(x => x.Vendedor)
+                        .Include(x => x.Contacto)
                          .ThenInclude(x => x.Cliente)
-                        .Include(x => x.asuntos)
+                        .Include(x => x.Asuntos)
                         .Include(x => x.Estados)
-                        .Include(x => x.prioridades)
+                        .Include(x => x.Prioridades)
                         .OrderByDescending(x => x.Fecha_Creacion)
-                        .OrderBy(x => x.vendedor)
+                        .OrderBy(x => x.Vendedor)
                         .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "VER_DETALLE_ACTIVIDAD"))
@@ -318,34 +318,34 @@ namespace GComFuelManager.Server.Controllers
                     activos = context.CRMActividades
                         .AsNoTracking()
                         .Where(x => x.Activo && x.Estados.Valor != "Completada" && x.Asignado == vendedor.Id)
-                        .Include(x => x.vendedor)
-                        .Include(x => x.contacto)
+                        .Include(x => x.Vendedor)
+                        .Include(x => x.Contacto)
                          .ThenInclude(x => x.Cliente)
-                        .Include(x => x.asuntos)
+                        .Include(x => x.Asuntos)
                         .Include(x => x.Estados)
-                        .Include(x => x.prioridades)
+                        .Include(x => x.Prioridades)
                         .OrderByDescending(x => x.Fecha_Creacion)
-                        .OrderBy(x => x.vendedor)
+                        .OrderBy(x => x.Vendedor)
                         .AsQueryable();
                 }
 
                 if (!string.IsNullOrEmpty(activo.Asunto) && !string.IsNullOrWhiteSpace(activo.Asunto))
-                    activos = activos.Where(x => x.asuntos != null && x.asuntos.Valor.ToLower().Contains(activo.Asunto.ToLower()));
+                    activos = activos.Where(x => x.Asuntos != null && x.Asuntos.Valor.ToLower().Contains(activo.Asunto.ToLower()));
 
                 if (!string.IsNullOrEmpty(activo.Prioridad) && !string.IsNullOrWhiteSpace(activo.Prioridad))
-                    activos = activos.Where(x => x.prioridades != null && x.prioridades.Valor.ToLower().Contains(activo.Prioridad.ToLower()));
+                    activos = activos.Where(x => x.Prioridades != null && x.Prioridades.Valor.ToLower().Contains(activo.Prioridad.ToLower()));
 
                 if (!string.IsNullOrEmpty(activo.Estatus) && !string.IsNullOrWhiteSpace(activo.Estatus))
                     activos = activos.Where(x => x.Estados != null && x.Estados.Valor.ToLower().Contains(activo.Estatus.ToLower()));
 
                 if (!string.IsNullOrEmpty(activo.Cuenta_Rel) && !string.IsNullOrWhiteSpace(activo.Cuenta_Rel))
-                    activos = activos.Where(x => x.contacto.Cliente != null && x.contacto.Cliente.Nombre.ToLower().Contains(activo.Cuenta_Rel.ToLower()));
+                    activos = activos.Where(x => x.Contacto.Cliente != null && x.Contacto.Cliente.Nombre.ToLower().Contains(activo.Cuenta_Rel.ToLower()));
 
                 if (!string.IsNullOrEmpty(activo.Contacto_Rel) && !string.IsNullOrWhiteSpace(activo.Contacto_Rel))
-                    activos = activos.Where(x => x.contacto != null && x.contacto.Nombre.ToLower().Contains(activo.Contacto_Rel.ToLower()));
+                    activos = activos.Where(x => x.Contacto != null && x.Contacto.Nombre.ToLower().Contains(activo.Contacto_Rel.ToLower()));
 
                 if (!string.IsNullOrEmpty(activo.VendedorId) && !string.IsNullOrWhiteSpace(activo.VendedorId))
-                    activos = activos.Where(x => x.vendedor != null && x.vendedor.Nombre.ToLower().Contains(activo.VendedorId.ToLower()));
+                    activos = activos.Where(x => x.Vendedor != null && x.Vendedor.Nombre.ToLower().Contains(activo.VendedorId.ToLower()));
 
                 if (!activo.Asignado.IsZero())
                     activos = activos.Where(x => x.Asignado.Equals(activo.Asignado));
@@ -356,11 +356,11 @@ namespace GComFuelManager.Server.Controllers
                     ExcelPackage excelPackage = new();
                     ExcelWorksheet ws = excelPackage.Workbook.Worksheets.Add("Actividades");
                     var actividadesexcel = activos
-                     .Include(x => x.vendedor)
-                     .Include(x => x.contacto)
-                     .Include(x => x.asuntos)
+                     .Include(x => x.Vendedor)
+                     .Include(x => x.Contacto)
+                     .Include(x => x.Asuntos)
                      .Include(x => x.Estados)
-                     .Include(x => x.prioridades)
+                     .Include(x => x.Prioridades)
                      .OrderByDescending(x => x.Fecha_Creacion)
                      .Select(x => mapper.Map<CRMActividades, CRMActividadesExcelDTO>(x)).ToList();
                     ws.Cells["A1"].LoadFromCollection(actividadesexcel, opt =>
@@ -428,14 +428,14 @@ namespace GComFuelManager.Server.Controllers
                     //Consulta a la entidad CRMActividades
                     actividades = context.CRMActividades
                        .Where(x => x.Fecha_Creacion >= actividadDTO.Fecha_Creacion && x.Fecha_Creacion <= actividadDTO.Fecha_Ven && x.Estados.Valor.Equals("Completada"))
-                       .Include(x => x.asuntos)
+                       .Include(x => x.Asuntos)
                        .Include(x => x.Estados)
-                       .Include(x => x.contacto)
-                       .Include(x => x.prioridades)
-                       .Include(x => x.vendedor)
-                       .Include(x => x.contacto)
+                       .Include(x => x.Contacto)
+                       .Include(x => x.Prioridades)
+                       .Include(x => x.Vendedor)
+                       .Include(x => x.Contacto)
                        .ThenInclude(x => x.Cliente)
-                       .OrderBy(x => x.vendedor)
+                       .OrderBy(x => x.Vendedor)
                    .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
@@ -455,12 +455,12 @@ namespace GComFuelManager.Server.Controllers
                     actividades = context.CRMActividades
                         .AsNoTracking()
                         .Where(x => x.Activo && x.Estados.Valor == "Completada" && relacion.Contains((int)x.Asignado) && equipos.Contains((int)x.EquipoId))
-                        .Include(x => x.asuntos)
+                        .Include(x => x.Asuntos)
                         .Include(x => x.Estados)
-                        .Include(x => x.contacto)
-                        .Include(x => x.prioridades)
-                        .Include(x => x.vendedor)
-                        .OrderBy(x => x.vendedor)
+                        .Include(x => x.Contacto)
+                        .Include(x => x.Prioridades)
+                        .Include(x => x.Vendedor)
+                        .OrderBy(x => x.Vendedor)
                         .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "VER_MODULO_HISTORIAL_ACTIVIDADES"))
@@ -471,28 +471,28 @@ namespace GComFuelManager.Server.Controllers
                     //Consulta a la entidad CRMActividades
                     actividades = context.CRMActividades
                        .Where(x => x.Fecha_Creacion >= actividadDTO.Fecha_Creacion && x.Fecha_Creacion <= actividadDTO.Fecha_Ven && x.Asignado == vendedor.Id && x.Estados.Valor.Equals("Completada"))
-                       .Include(x => x.asuntos)
+                       .Include(x => x.Asuntos)
                        .Include(x => x.Estados)
-                       .Include(x => x.contacto)
-                       .Include(x => x.prioridades)
-                       .Include(x => x.vendedor)
-                       .OrderBy(x => x.vendedor)
+                       .Include(x => x.Contacto)
+                       .Include(x => x.Prioridades)
+                       .Include(x => x.Vendedor)
+                       .OrderBy(x => x.Vendedor)
                    .AsQueryable();
 
                 }
 
                 //Filtros
                 if (!string.IsNullOrEmpty(actividadDTO.Asunto) && !string.IsNullOrWhiteSpace(actividadDTO.Asunto))
-                    actividades = actividades.Where(x => x.asuntos != null && x.asuntos.Valor.ToLower().Contains(actividadDTO.Asunto.ToLower()));
+                    actividades = actividades.Where(x => x.Asuntos != null && x.Asuntos.Valor.ToLower().Contains(actividadDTO.Asunto.ToLower()));
 
                 if (!string.IsNullOrEmpty(actividadDTO.Prioridad) && !string.IsNullOrWhiteSpace(actividadDTO.Prioridad))
-                    actividades = actividades.Where(x => x.prioridades != null && x.prioridades.Valor.ToLower().Contains(actividadDTO.Prioridad.ToLower()));
+                    actividades = actividades.Where(x => x.Prioridades != null && x.Prioridades.Valor.ToLower().Contains(actividadDTO.Prioridad.ToLower()));
 
                 if (!string.IsNullOrEmpty(actividadDTO.Contacto_Rel) && !string.IsNullOrWhiteSpace(actividadDTO.Contacto_Rel))
-                    actividades = actividades.Where(x => x.contacto != null && x.contacto.Nombre.ToLower().Contains(actividadDTO.Contacto_Rel.ToLower()));
+                    actividades = actividades.Where(x => x.Contacto != null && x.Contacto.Nombre.ToLower().Contains(actividadDTO.Contacto_Rel.ToLower()));
 
                 if (!string.IsNullOrEmpty(actividadDTO.VendedorId) && !string.IsNullOrWhiteSpace(actividadDTO.VendedorId))
-                    actividades = actividades.Where(x => x.vendedor != null && x.vendedor.Nombre.ToLower().Contains(actividadDTO.VendedorId.ToLower()));
+                    actividades = actividades.Where(x => x.Vendedor != null && x.Vendedor.Nombre.ToLower().Contains(actividadDTO.VendedorId.ToLower()));
 
                 //Paginacion
                 await HttpContext.InsertarParametrosPaginacion(actividades, actividadDTO.Registros_por_pagina, actividadDTO.Pagina);
@@ -538,11 +538,11 @@ namespace GComFuelManager.Server.Controllers
                     //Consulta a la entidad CRMActividades
                     var actividades = context.CRMActividades
                        .Where(x => x.Fecha_Creacion >= actividadDTO.Fecha_Creacion && x.Fecha_Creacion <= actividadDTO.Fecha_Ven && x.Estados.Valor.Equals("Completada"))
-                       .Include(x => x.asuntos)
+                       .Include(x => x.Asuntos)
                        .Include(x => x.Estados)
-                       .Include(x => x.contacto)
-                       .Include(x => x.prioridades)
-                       .Include(x => x.vendedor)
+                       .Include(x => x.Contacto)
+                       .Include(x => x.Prioridades)
+                       .Include(x => x.Vendedor)
                        .Select(x => x.Asignacion_Datos())
                    .ToList();
 
@@ -588,10 +588,10 @@ namespace GComFuelManager.Server.Controllers
                     var actividades = context.CRMActividades
                         .AsNoTracking()
                         .Where(x => x.Activo && x.Estados.Valor == "Completada" && relacion.Contains((int)x.Asignado) && equipos.Contains((int)x.EquipoId))
-                        .Include(x => x.asuntos)
+                        .Include(x => x.Asuntos)
                         .Include(x => x.Estados)
-                        .Include(x => x.contacto)
-                        .Include(x => x.prioridades)
+                        .Include(x => x.Contacto)
+                        .Include(x => x.Prioridades)
                         .Select(x => x.Asignacion_Datos())
                         .ToList();
 
@@ -628,10 +628,10 @@ namespace GComFuelManager.Server.Controllers
                     //Consulta a la entidad CRMActividades
                     var actividades = context.CRMActividades
                         .Where(x => x.Fecha_Creacion >= actividadDTO.Fecha_Creacion && x.Fecha_Creacion <= actividadDTO.Fecha_Ven && x.Asignado == vendedor.Id && x.Estados.Valor.Equals("Completada"))
-                        .Include(x => x.asuntos)
+                        .Include(x => x.Asuntos)
                         .Include(x => x.Estados)
-                        .Include(x => x.contacto)
-                        .Include(x => x.prioridades)
+                        .Include(x => x.Contacto)
+                        .Include(x => x.Prioridades)
                         .Select(x => x.Asignacion_Datos())
                     .ToList();
 

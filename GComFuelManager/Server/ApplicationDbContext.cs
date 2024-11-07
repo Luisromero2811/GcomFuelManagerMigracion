@@ -1,10 +1,8 @@
-using System;
-using GComFuelManager.Shared.Modelos;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
-using Microsoft.AspNetCore.Identity;
+using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace GComFuelManager.Server
 {
@@ -83,21 +81,21 @@ namespace GComFuelManager.Server
 
             //Actividad a Asignado a CRMVendedor
             modelBuilder.Entity<CRMActividades>()
-                .HasOne(x => x.vendedor)
+                .HasOne(x => x.Vendedor)
                 .WithMany(x => x.Actividades)
                 .HasForeignKey(x => x.Asignado)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //Actividad Relacionada Con CRMContacto
             modelBuilder.Entity<CRMActividades>()
-                .HasOne(x => x.contacto)
+                .HasOne(x => x.Contacto)
                 .WithMany()
                 .HasForeignKey(x => x.Contacto_Rel)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //Actividad a Catalogo Fijo de Asunto
             modelBuilder.Entity<CRMActividades>()
-                .HasOne(x => x.asuntos)
+                .HasOne(x => x.Asuntos)
                 .WithMany()
                 .HasForeignKey(x => x.Asunto)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -112,7 +110,7 @@ namespace GComFuelManager.Server
 
             //Actividad a Catalogo Fijo de prioridades
             modelBuilder.Entity<CRMActividades>()
-                .HasOne(x => x.prioridades)
+                .HasOne(x => x.Prioridades)
                 .WithMany()
                 .HasForeignKey(x => x.Prioridad)
                 .OnDelete(DeleteBehavior.Restrict);

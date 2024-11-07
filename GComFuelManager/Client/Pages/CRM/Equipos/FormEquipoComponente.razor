@@ -193,8 +193,8 @@
     {
         try
         {
-            Equipo.VendedoresDTO = VendedoresSeleccionados;
-            Equipo.OriginadorDTO = OriginadorSeleccionado;
+            Equipo.Vendedores = VendedoresSeleccionados;
+            Equipo.Originadores = OriginadorSeleccionado;
 
             loading_save = true;
             var response = await http.Post<CRMEquipoPostDTO>($"api/crmequipo", Equipo);
@@ -240,6 +240,7 @@
             {
                 loading_info = false;
                 Equipo = response.Response;
+                OriginadorSeleccionado = Equipo.Originadores;
             }
         }
         catch (Exception e)
@@ -317,7 +318,7 @@
                 OriginadorSeleccionado.RemoveAt(OriginadorSeleccionado.IndexOf(OriginadorSeleccionado.First(x => x.Id == dto.Id)));
         }
 
-        Equipo.OriginadorDTO = OriginadorSeleccionado;
+        Equipo.Originadores = OriginadorSeleccionado;
     }
 
 }

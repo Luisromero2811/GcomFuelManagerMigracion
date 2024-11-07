@@ -12,9 +12,9 @@
             <Header>
                 <div class="col-12 d-flex justify-content-between">
                     <b>Detalle de vendedor</b>
-                    <NavLink class="g-1 btn gcom-bg-amarillo" onclick="history.back();" Match="NavLinkMatch.All">
+                    <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();" >
                         <i class="fa fa-solid fa-arrow-left" /> Volver
-                    </NavLink>
+                    </button>
                 </div>
             </Header>
             <Body>
@@ -127,9 +127,7 @@
                                 <Cabeceras>
                                     <tr>
                                         <th>Equipo</th>
-                                        <th>Lider del equipo</th>
-                                        <th>Telfono movil del lider de equipo</th>
-                                        <th>Correo del lider de equipo</th>
+                                        @* <th>Lider del equipo</th> *@
                                         <th>Division del equipo</th>
                                     </tr>
                                 </Cabeceras>
@@ -139,12 +137,10 @@
                                             <input class="form-control" @bind-value="filtroEquipo.Nombre" placeholder="Filtrar equipo"
                                                    @oninput="@((args) => FiltrarParametrosEquipos(args, nameof(filtroEquipo.Nombre)))" />
                                         </td>
-                                        <td>
+                                        @* <td>
                                             <input class="form-control" @bind-value="filtroEquipo.Lider" placeholder="Filtrar lider"
                                                    @oninput="@((args) => FiltrarParametrosEquipos(args, nameof(filtroEquipo.Lider)))" />
-                                        </td>
-                                        <td></td>
-                                        <td></td>
+                                        </td> *@
                                         <td>
                                             <input class="form-control" @bind-value="filtroEquipo.Division" placeholder="Filtrar division"
                                                    @oninput="@((args) => FiltrarParametrosEquipos(args, nameof(filtroEquipo.Division)))" />
@@ -154,9 +150,7 @@
                                 <Columnas Context="item">
                                     <tr>
                                         <td>@item.Nombre</td>
-                                        <td>@item.Lider</td>
-                                        <td>@item.TelMovil</td>
-                                        <td>@item.Correo</td>
+                                        @* <td>@item.Lider</td> *@
                                         <td>@item.Division</td>
                                     </tr>
                                 </Columnas>

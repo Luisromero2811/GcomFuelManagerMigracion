@@ -7,7 +7,7 @@
         public string Apellidos { get; set; } = string.Empty;
         public string Titulo { get; set; } = string.Empty;
         public string Departamento { get; set; } = string.Empty;
-        public int? CuentaId { get; set; }
+        public int CuentaId { get; set; }
         public string Tel_Oficina { get; set; } = string.Empty;
         public string Tel_Movil { get; set; } = string.Empty;
         public string SitioWeb { get; set; } = string.Empty;
@@ -31,7 +31,7 @@
         public CRMCatalogoValor? Estatus { get; set; } = null!;
         public CRMCatalogoValor? Origen { get; set; } = null!;
         public CRMVendedor? Vendedor { get; set; } = null!;
-        public CRMCliente? Cliente { get; set; } = null!;
+        public CRMCliente Cliente { get; set; } = null!;
         public CRMDivision? Division { get; set; } = null!;
     }
 }

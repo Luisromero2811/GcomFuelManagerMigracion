@@ -121,16 +121,15 @@ namespace GComFuelManager.Server.Controllers.CRM
             try
             {
                 var equipo = await context.CRMEquipos.Where(x => x.Id == Id)
-                    .Include(x => x.EquipoOriginadores)
-                    .ThenInclude(x => x.Originador)
+                    .Include(x => x.Originadores)
                     .Include(x => x.Division)
                     .SingleOrDefaultAsync();
                 if (equipo is null) { return NotFound(); }
 
-                var vendedoresdto = equipo.Vendedores.Select(x => mapper.Map<CRMVendedor, CRMVendedorDTO>(x)).ToList();
+                //var vendedoresdto = equipo.Vendedores.Select(x => mapper.Map<CRMVendedor, CRMVendedorDTO>(x)).ToList();
 
                 var equipodto = mapper.Map<CRMEquipoPostDTO>(equipo);
-                equipodto.VendedoresDTO = vendedoresdto;
+                //equipodto.VendedoresDTO = vendedoresdto;
 
                 return Ok(equipodto);
             }
@@ -188,7 +187,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 //if (usercomercial is null) { return BadRequest("El comercial no cuenta con un usuario relacionado"); }
 
                 var lideres = await context.CRMOriginadores.AsNoTracking()
-                    .Where(x => dTO.OriginadorDTO.Select(x => x.Id).Contains(x.Id)).ToListAsync();
+                    .Where(x => dTO.Originadores.Select(x => x.Id).Contains(x.Id)).ToListAsync();
 
                 if (!lideres.Any())
                 {
@@ -212,10 +211,10 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (equipo.Id != 0)
                 {
-                    var relations = dTO.VendedoresDTO.Select(x => new CRMEquipoVendedor { EquipoId = equipo.Id, VendedorId = x.Id }).ToList();
+                    var relations = dTO.Vendedores.Select(x => new CRMEquipoVendedor { EquipoId = equipo.Id, VendedorId = x.Id }).ToList();
                     var relations_actual = await context.CRMEquipoVendedores.Where(x => x.EquipoId == equipo.Id).ToListAsync();
 
-                    var relationOri = dTO.OriginadorDTO.Select(x => new CRMEquipoOriginadores { EquipoId = equipo.Id, OriginadorId = x.Id }).ToList();
+                    var relationOri = dTO.Originadores.Select(x => new CRMEquipoOriginadores { EquipoId = equipo.Id, OriginadorId = x.Id }).ToList();
                     var relationsOri_actual = await context.CRMEquipoOriginadores.Where(x => x.EquipoId == equipo.Id).ToListAsync();
 
                     if (!relations_actual.SequenceEqual(relations))
@@ -257,7 +256,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .ToListAsync();
 
                     // Determinar los nuevos líderes
-                    var nuevosLideres = dTO.OriginadorDTO.Select(x => x.Id).ToList();
+                    var nuevosLideres = dTO.Originadores.Select(x => x.Id).ToList();
 
                     // Líderes que se han eliminado
                     var lideresEliminados = lideresActuales.Except(nuevosLideres).ToList();
@@ -301,10 +300,10 @@ namespace GComFuelManager.Server.Controllers.CRM
                 }
                 else
                 {
-                    var integrantes = dTO.VendedoresDTO.Select(x => new CRMEquipoVendedor { EquipoId = equipo.Id, VendedorId = x.Id }).ToList();
+                    var integrantes = dTO.Vendedores.Select(x => new CRMEquipoVendedor { EquipoId = equipo.Id, VendedorId = x.Id }).ToList();
                     equipo.EquipoVendedores = integrantes;
 
-                    var originadores = dTO.OriginadorDTO.Select(x => new CRMEquipoOriginadores { EquipoId = equipo.Id, OriginadorId = x.Id }).ToList();
+                    var originadores = dTO.Originadores.Select(x => new CRMEquipoOriginadores { EquipoId = equipo.Id, OriginadorId = x.Id }).ToList();
                     equipo.EquipoOriginadores = originadores;
 
                     // Asignar el rol a los líderes seleccionados
