@@ -22,6 +22,7 @@ namespace GComFuelManager.Shared.ReportesDTO
         public double OrdenReservado { get; set; }
         [DisplayName("En orden")]
         public double EnOrden { get; set; }
+        public double Cargado { get; set; }
         [DisplayName("Total dispobible")]
         public double TotalDisponible { get; set; }
         [DisplayName("Total dispoble en full")]

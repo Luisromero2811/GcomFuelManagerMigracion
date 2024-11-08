@@ -20,6 +20,7 @@ namespace GComFuelManager.Shared.ModelDTOs
         public double PedidoTotal { get; set; }
         public double OrdenReservado { get; set; }
         public double EnOrden { get; set; }
+        public double Cargado { get; set; }
         public double TotalDisponible { get; set; }
         public double TotalDisponibleFull { get; set; }
         public DateTime FechaCierre { get; set; } = DateTime.Now;

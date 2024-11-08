@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using GComFuelManager.Shared.ModelDTOs;
 using GComFuelManager.Shared.Modelos;
-using GComFuelManager.Shared.ReportesDTO;
 
 namespace GComFuelManager.Server.Automapper
 {
@@ -19,10 +18,8 @@ namespace GComFuelManager.Server.Automapper
                 .ForMember(x => x.LocalidadId, op => op.Ignore())
                 .ForMember(x => x.UnidadMedidaId, op => op.Ignore())
                 .ForMember(x => x.TipoMovimientoId, op => op.Ignore());
-            CreateMap<Inventario, InventarioExcelDTO>();
             CreateMap<Inventario, InventarioPostDTO>();
             CreateMap<InventarioPostDTO, Inventario>()
-                //.ForMember(x => x.CierreId, op => op.Ignore())
                 .ForMember(x => x.FechaRegistro, op => op.Ignore())
                 .ForMember(x => x.FechaCierre, op => op.Ignore())
                 .ForMember(x => x.Activo, op => op.Ignore());
@@ -32,8 +29,6 @@ namespace GComFuelManager.Server.Automapper
             CreateMap<TerminalPostDTO, Tad>();
 
             CreateMap<InventarioCierre, InventarioCierreDTO>();
-            CreateMap<InventarioCierre, InventarioCierreExcelDTO>();
-            CreateMap<InventarioCierreDTO, InventarioActualExcelDTO>();
             CreateMap<InventarioCierreDTO, InventarioCierre>()
                 .ForMember(x => x.Producto, op => op.Ignore())
                 .ForMember(x => x.Sitio, op => op.Ignore())

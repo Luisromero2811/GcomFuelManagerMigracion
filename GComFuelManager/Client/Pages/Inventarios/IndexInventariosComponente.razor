@@ -76,7 +76,7 @@
                     <div class="col-4">
                         <label>Inventario</label>
                         <InputSelect @bind-Value="Inventario.TipoInventario" class="form-select form-select-sm">
-                            <option>-- Tipo de movimiento --</option>
+                            <option>-- Tipo de inventario --</option>
                             @foreach (var item in Enum.GetValues(typeof(TipoInventario)))
                             {
                                 <option value="@item">@(((TipoInventario)item).Description())</option>
@@ -173,6 +173,15 @@
                         Guardar
                     </button>
                 </div>
+                @if (IsEdit)
+                {
+                    <div class="col-2">
+                        <button class="btn btn-sm btn-danger col-12" type="button" @onclick="CancelEdit">
+                            <i class="fa fa-solid fa-floppy-disk" />
+                            Cancelar
+                        </button>
+                    </div>
+                }
                 @if (Cierre.Abierto && !Cierre.Id.IsZero())
                 {
                     <div class="col-2">
@@ -196,7 +205,7 @@
             <label>A:</label>
             <input type="date" class="form-control form-control-sm" @bind="Filtro.Fecha_Fin" />
         </div>
-        <button class="col-2 btn btn-sm gcom-bg-amarillo mt-auto" type="button" @onclick="CargarInventario">
+        <button class="col-2 btn btn-sm gcom-bg-amarillo mt-auto" type="button" @onclick="BuscarInventario">
             <i class="fa fa-solid fa-magnifying-glass" />
         </button>
     </div>
@@ -223,6 +232,7 @@
                 <th style="width: 150px;" class="resizable-column">Fecha de ejecucion de cierre</th>
                 <th style="width: 150px;" class="resizable-column">Transportista</th>
                 <th style="width: 150px;" class="resizable-column">Tonel</th>
+                <th style="width: 150px;" class="resizable-column">Inventario</th>
                 <th style="width: 150px;" class="resizable-column">Origen / Destino</th>
             </tr>
         </Cabeceras>
@@ -296,6 +306,7 @@
                 <td></td>
                 <td><input class="form-control form-control-sm" @bind-value="Filtro.Transportista" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Transportista)))" /></td>
                 <td><input class="form-control form-control-sm" @bind-value="Filtro.Tonel" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Tonel)))" /></td>
+                <td></td>
                 <td><input class="form-control form-control-sm" @bind-value="Filtro.OrigenDestino" @oninput="@((args)=>Filtrar(args, nameof(Filtro.OrigenDestino)))" /></td>
             </tr>
         </Filtros>
@@ -327,6 +338,7 @@
                 <td>@(item.FechaCierre?.ToShortDateString() ?? "----")</td>
                 <td>@item.Transportista</td>
                 <td>@item.Tonel</td>
+                <td>@item.TipoInventario.Description()</td>
                 <td>@item.OrigenDestino</td>
             </tr>
         </Columnas>
@@ -372,7 +384,6 @@
         Filtro.Fecha_Fin = Filtro.Fecha_Fin.AddDays(1);
 
         await Task.WhenAll(
-            CargarInventario(),
             GetProductos(),
             CatalogoSitio(),
             CatalogoAlmacen(),
@@ -387,6 +398,8 @@
     {
         if (!Id.IsZero())
             await CargarCierreInventario();
+        else
+            await BuscarInventario();
     }
 
     private Dictionary<string, string> SetFiltro()
@@ -400,12 +413,10 @@
         query[nameof(Filtro.Transportista)] = Filtro.Transportista;
         query[nameof(Filtro.Tonel)] = Filtro.Tonel;
         query[nameof(Filtro.OrigenDestino)] = Filtro.OrigenDestino;
-        query[nameof(Filtro.CierreId)] = Filtro.CierreId.ToString();
         query[nameof(Filtro.Pagina)] = Filtro.Pagina.ToString();
         query[nameof(Filtro.Registros_por_pagina)] = Filtro.Registros_por_pagina.ToString();
         query[nameof(Filtro.Fecha_Inicio)] = Filtro.Fecha_Inicio.ToString("MM-dd-yyyy");
         query[nameof(Filtro.Fecha_Fin)] = Filtro.Fecha_Fin.ToString("MM-dd-yyyy");
-        query[nameof(Filtro.PorFecha)] = true.ToString();
 
         return query;
     }
@@ -677,6 +688,7 @@
         try
         {
             loading = true;
+            query[nameof(Filtro.Excel)] = false.ToString();
             query[nameof(Filtro.PorFecha)] = true.ToString();
             var url = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
             var response = await http.Get<List<InventarioDTO>>($"api/inventario?{url}");
@@ -826,6 +838,9 @@
                 Inventario.LocalidadId = Cierre.LocalidadId;
                 Inventario.CierreId = Cierre.Id;
 
+                query[nameof(Filtro.PorFecha)] = false.ToString();
+                query[nameof(Filtro.CierreId)] = Cierre.Id.ToString();
+
                 await CargarInventario();
             }
         }
@@ -889,5 +904,11 @@
             loading = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+    }
+
+    private void CancelEdit()
+    {
+        Inventario = new();
+        IsEdit = false;
     }
 }

@@ -22,7 +22,7 @@ namespace GComFuelManager.Shared.Modelos
         public int? TransportistaId { get; set; }
         public int? TonelId { get; set; }
         public int OrigenDestinoId { get; set; }
-        public TipoInventario? TipoInventario { get; set; } = null!;
+        public TipoInventario TipoInventario { get; set; } = TipoInventario.Inicial;
         public bool Activo { get; set; } = true;
 
         public Producto Producto { get; set; } = null!;

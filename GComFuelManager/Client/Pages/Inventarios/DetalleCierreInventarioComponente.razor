@@ -26,25 +26,45 @@
                 <th style="width: 100px;" class="resizable-column">Fecha de ejecucion de cierre</th>
                 <th style="width: 150px;" class="resizable-column">Transportista</th>
                 <th style="width: 150px;" class="resizable-column">Tonel</th>
+                <th style="width: 150px;" class="resizable-column">Inventario</th>
                 <th style="width: 150px;" class="resizable-column">Origen / Destino</th>
             </tr>
         </Cabeceras>
         <Filtros>
             <tr>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Producto" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Producto)))" /></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Sitio" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Sitio)))" /></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Almacen" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Almacen)))" /></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.Localidad" @oninput="@((args)=>Filtrar(args,nameof(Filtro.Localidad)))" /></td>
-                <td></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.TipoMovimiento" @oninput="@((args)=>Filtrar(args,nameof(Filtro.TipoMovimiento)))" /></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td><input class="form-control form-control-sm" @bind-value="Filtro.UnidadMedida" @oninput="@((args)=>Filtrar(args,nameof(Filtro.UnidadMedida)))" /></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.TipoMovimientoId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in TiposMovimientos)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.UnidadMedidaId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in UnidadesMedida)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.Transportista" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Transportista)))" /></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.Tonel" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Tonel)))" /></td>
+                <td></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.OrigenDestino" @oninput="@((args)=>Filtrar(args, nameof(Filtro.OrigenDestino)))" /></td>
             </tr>
         </Filtros>
         <Columnas Context="item">
@@ -62,6 +82,7 @@
                 <td>@(item.FechaCierre?.ToShortDateString() ?? "----")</td>
                 <td>@item.Transportista</td>
                 <td>@item.Tonel</td>
+                <td>@item.TipoInventario</td>
                 <td>@item.OrigenDestino</td>
             </tr>
         </Columnas>
@@ -82,21 +103,27 @@
     bool loading = false;
     Dictionary<string, string> query = new();
 
+    IEnumerable<CatalogoValorDTO> UnidadesMedida = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> TiposMovimientos = new List<CatalogoValorDTO>();
+
     protected override async Task OnInitializedAsync()
     {
-        await CargarInventario();
+        await Task.WhenAll(
+            CatalogoTipoMovimiento(),
+            CatalogoUnidadMedida(),
+            CargarInventario()
+        );
     }
 
     private Dictionary<string, string> SetFiltro()
     {
-        query[nameof(Filtro.Producto)] = Cierre.Producto;
-        query[nameof(Filtro.Sitio)] = Cierre.Sitio;
-        query[nameof(Filtro.Almacen)] = Cierre.Almacen;
-        query[nameof(Filtro.Localidad)] = Cierre.Localidad;
+        query[nameof(Filtro.TipoMovimientoId)] = Filtro.TipoMovimientoId.ToString();
+        query[nameof(Filtro.UnidadMedidaId)] = Filtro.UnidadMedidaId.ToString();
+        query[nameof(Filtro.Transportista)] = Filtro.Transportista;
+        query[nameof(Filtro.Tonel)] = Filtro.Tonel;
+        query[nameof(Filtro.OrigenDestino)] = Filtro.OrigenDestino;
         query[nameof(Filtro.CierreId)] = Cierre.Id.ToString();
         query[nameof(Filtro.FechaNULL)] = Cierre.Id.IsZero() ? true.ToString() : false.ToString();
-        // query[nameof(Filtro.TipoMovimiento)] = Filtro.TipoMovimiento;
-        // query[nameof(Filtro.UnidadMedida)] = Filtro.UnidadMedida;
         query[nameof(Filtro.Pagina)] = Filtro.Pagina.ToString();
         query[nameof(Filtro.Registros_por_pagina)] = Filtro.Registros_por_pagina.ToString();
 
@@ -144,23 +171,32 @@
     {
         switch (pro)
         {
-            case nameof(Filtro.Producto):
-                Filtro.Producto = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.ProductoId):
+                Filtro.ProductoId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.Sitio):
-                Filtro.Sitio = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.SitioId):
+                Filtro.SitioId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.Almacen):
-                Filtro.Almacen = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.AlmacenId):
+                Filtro.AlmacenId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.Localidad):
-                Filtro.Localidad = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.LocalidadId):
+                Filtro.LocalidadId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.TipoMovimiento):
-                Filtro.TipoMovimiento = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.TipoMovimientoId):
+                Filtro.TipoMovimientoId = int.Parse(args.Value?.ToString() ?? string.Empty);
                 break;
-            case nameof(Filtro.UnidadMedida):
-                Filtro.UnidadMedida = args.Value?.ToString() ?? string.Empty;
+            case nameof(Filtro.UnidadMedidaId):
+                Filtro.UnidadMedidaId = int.Parse(args.Value?.ToString() ?? string.Empty);
+                break;
+            case nameof(Filtro.Transportista):
+                Filtro.Transportista = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(Filtro.Tonel):
+                Filtro.Tonel = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(Filtro.OrigenDestino):
+                Filtro.OrigenDestino = args.Value?.ToString() ?? string.Empty;
                 break;
             default:
                 break;
@@ -195,4 +231,43 @@
         }
     }
 
+    private async Task CatalogoUnidadMedida()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/unidadmedida");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                UnidadesMedida = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CatalogoTipoMovimiento()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/tipomovimiento");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                TiposMovimientos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 }

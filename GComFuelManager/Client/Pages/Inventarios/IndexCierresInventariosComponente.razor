@@ -47,6 +47,7 @@
                 <th style="width:150px;" class="resizable-column">Pedido total</th>
                 <th style="width:150px;" class="resizable-column">Ordenada reservada</th>
                 <th style="width:150px;" class="resizable-column">En orden</th>
+                <th style="width:150px;" class="resizable-column">Cargado</th>
                 <th style="width:150px;" class="resizable-column">Total disponible</th>
                 <th style="width:150px;" class="resizable-column">Total disponible en full</th>
             </tr>
@@ -103,6 +104,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
             </tr>
         </Filtros>
         <Columnas Context="inv">
@@ -138,6 +140,7 @@
                 <td>@inv.PedidoTotal.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.OrdenReservado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.EnOrden.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.Cargado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.TotalDisponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.TotalDisponibleFull.ToString("N2", CultureInfo.InvariantCulture)</td>
             </tr>

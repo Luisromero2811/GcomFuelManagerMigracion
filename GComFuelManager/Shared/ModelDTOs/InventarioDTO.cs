@@ -1,4 +1,5 @@
-﻿using GComFuelManager.Shared.Filtro;
+﻿using GComFuelManager.Shared.Enums;
+using GComFuelManager.Shared.Filtro;
 using OfficeOpenXml.Attributes;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,6 +24,7 @@ namespace GComFuelManager.Shared.ModelDTOs
         public int CierreId { get; set; }
         public string Transportista { get; set; } = string.Empty;
         public string Tonel { get; set; } = string.Empty;
+        public TipoInventario TipoInventario { get; set; }
         public string OrigenDestino { get; set; } = string.Empty;
         [EpplusIgnore] public bool FechaNULL { get; set; } = false;
 

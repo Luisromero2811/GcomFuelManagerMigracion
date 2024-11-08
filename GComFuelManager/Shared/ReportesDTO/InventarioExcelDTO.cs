@@ -22,6 +22,7 @@ namespace GComFuelManager.Shared.ReportesDTO
         public string Referencia { get; set; } = string.Empty;
         public string Transportista { get; set; } = string.Empty;
         public string Tonel { get; set; } = string.Empty;
+        public string TipoInventario { get; set; } = string.Empty;
         public string OrigenDestino { get; set; } = string.Empty;
     }
 }

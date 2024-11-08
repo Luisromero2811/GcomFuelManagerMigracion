@@ -10,6 +10,8 @@ public enum TipoInventario
     [Description("Orden Reservada")]
     OrdenReservada,
     [Description("En Orden")]
-    EnOrden
+    EnOrden,
+    [Description("Cargado")]
+    Cargado
 }
 

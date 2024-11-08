@@ -51,7 +51,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ClockSkew = TimeSpan.Zero
     });
 
-builder.Services.AddAutoMapper(typeof(MapperProfileModel));
+builder.Services.AddAutoMapper(typeof(MapperProfileModel), typeof(MapperProfileReporte));
 
 builder.Services.AddScoped<IValidator<InventarioPostDTO>, InventarioValidator>();
 builder.Services.AddScoped<IValidator<TerminalPostDTO>, TerminalValidator>();

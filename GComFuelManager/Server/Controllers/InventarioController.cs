@@ -120,6 +120,9 @@ namespace GComFuelManager.Server.Controllers
                 if (!string.IsNullOrEmpty(inventario.Tonel) && !string.IsNullOrWhiteSpace(inventario.Tonel))
                     inventarios = inventarios.Where(x => x.Tonel != null && !string.IsNullOrEmpty(x.Tonel.Tracto) && x.Tonel.Tracto.ToLower().Contains(inventario.Tonel.ToLower()));
 
+                if (!string.IsNullOrEmpty(inventario.OrigenDestino) && !string.IsNullOrWhiteSpace(inventario.OrigenDestino))
+                    inventarios = inventarios.Where(x => !string.IsNullOrEmpty(x.OrigenDestino.Valor) && x.OrigenDestino.Valor.ToLower().Contains(inventario.OrigenDestino.ToLower()));
+
                 if (inventario.Excel)
                 {
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;
@@ -213,15 +216,22 @@ namespace GComFuelManager.Server.Controllers
                                 if (post.TipoInventario.Equals(TipoInventario.Inicial))
                                     if (inventariodto.CantidadLTS > cierre.Fisico)
                                         return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en Inventario");
+
                                 if (post.TipoInventario.Equals(TipoInventario.FisicaReservada))
                                     if (inventariodto.CantidadLTS > cierre.Reservado)
                                         return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en Fisico reservado");
+
                                 if (post.TipoInventario.Equals(TipoInventario.OrdenReservada))
                                     if (inventariodto.CantidadLTS > cierre.OrdenReservado)
                                         return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en Orden reservada");
+
                                 if (post.TipoInventario.Equals(TipoInventario.EnOrden))
                                     if (inventariodto.CantidadLTS > cierre.EnOrden)
                                         return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en En orden");
+
+                                if (post.TipoInventario.Equals(TipoInventario.Cargado))
+                                    if (inventariodto.CantidadLTS > cierre.Cargado)
+                                        return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible Cargada");
                             }
                             else if (tipo.Equals(21))
                             {
@@ -236,6 +246,21 @@ namespace GComFuelManager.Server.Controllers
                             else if (tipo.Equals(23))
                             {
                                 if (inventariodto.CantidadLTS > cierre.Fisico)
+                                    return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en inventario");
+                            }
+                            else if (tipo.Equals(25))
+                            {
+                                if (inventariodto.CantidadLTS > cierre.Reservado)
+                                    return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en Fisico reservado");
+                            }
+                            else if (tipo.Equals(26))
+                            {
+                                if (inventariodto.CantidadLTS > cierre.OrdenReservado)
+                                    return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en Orden reservado");
+                            }
+                            else if (tipo.Equals(27))
+                            {
+                                if (inventariodto.CantidadLTS > cierre.EnOrden && inventariodto.CantidadLTS > cierre.Fisico && inventariodto.CantidadLTS > cierre.Reservado)
                                     return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en inventario");
                             }
 
@@ -343,6 +368,23 @@ namespace GComFuelManager.Server.Controllers
                                         cierre.OrdenReservado += inventariodto.CantidadLTS;
                                     else if (tipo.Equals(23))
                                         cierre.EnOrden += inventariodto.CantidadLTS;
+                                    else if (tipo.Equals(25))
+                                    {
+                                        //cierre.Reservado -= inventariodto.CantidadLTS;
+                                        cierre.OrdenReservado += inventariodto.CantidadLTS;
+                                    }
+                                    else if (tipo.Equals(26))
+                                    {
+                                        cierre.OrdenReservado -= inventariodto.CantidadLTS;
+                                        cierre.EnOrden += inventariodto.CantidadLTS;
+                                    }
+                                    else if (tipo.Equals(27))
+                                    {
+                                        cierre.EnOrden -= inventariodto.CantidadLTS;
+                                        cierre.Reservado -= inventariodto.CantidadLTS;
+                                        cierre.Fisico -= inventariodto.CantidadLTS;
+                                        cierre.Cargado += inventariodto.CantidadLTS;
+                                    }
                                     else if (tipo >= 20)
                                         cierre.Fisico -= inventariodto.CantidadLTS;
                                 }
@@ -998,6 +1040,22 @@ namespace GComFuelManager.Server.Controllers
                                 cierre.OrdenReservado -= inventariodto.CantidadLTS;
                             else if (tipo.Equals(23))
                                 cierre.EnOrden -= inventariodto.CantidadLTS;
+                            else if (tipo.Equals(25))
+                            {
+                                cierre.OrdenReservado -= inventariodto.CantidadLTS;
+                            }
+                            else if (tipo.Equals(26))
+                            {
+                                cierre.OrdenReservado += inventariodto.CantidadLTS;
+                                cierre.EnOrden -= inventariodto.CantidadLTS;
+                            }
+                            else if (tipo.Equals(27))
+                            {
+                                cierre.Fisico += inventariodto.CantidadLTS;
+                                cierre.Reservado += inventariodto.CantidadLTS;
+                                //cierre.EnOrden += inventariodto.CantidadLTS;
+                                cierre.Cargado -= inventariodto.CantidadLTS;
+                            }
                             else if (tipo >= 20)
                                 cierre.Fisico += inventariodto.CantidadLTS;
                         }

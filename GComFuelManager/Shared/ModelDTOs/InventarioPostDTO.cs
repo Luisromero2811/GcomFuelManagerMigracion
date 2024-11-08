@@ -17,9 +17,7 @@ namespace GComFuelManager.Shared.ModelDTOs
         public int TransportistaId { get; set; }
         public int TonelId { get; set; }
         public int CierreId { get; set; }
-        public TipoInventario TipoInventario { get; set; }
+        public TipoInventario TipoInventario { get; set; } = TipoInventario.Inicial;
         public int OrigenDestinoID { get; set; }
-        public bool EsVenta { get; set; } = false;
-        public bool EsDevolucion { get; set; } = false;
     }
 }
