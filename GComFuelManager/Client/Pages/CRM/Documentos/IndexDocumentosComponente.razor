@@ -24,17 +24,29 @@
                         <th>Documento</th>
                         <th>Versión</th>
                         <th>Actividad/Oportunidad</th>
-                        <th>Cliente</th>
+                        <th>Cuenta</th>
+                        <th>Fecha de creacion</th>
                         <th>Fecha de caducidad</th>
                     </tr>
                 </Cabeceras>
                 <Filtros>
                     <tr>
                         <td></td>
-                        <td><input class="form-control" @bind-value="filtro.NombreDocumento" @oninput="@((args)=>Filtrar(args,nameof(filtro.NombreDocumento)))" /></td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input class="form-control" @bind-value="filtro.NombreDocumento" @oninput="@((args)=>Filtrar(args,nameof(filtro.NombreDocumento)))" />
+                            </div>
+                        </td>
                         <td></td>
                         <td></td>
-                        <td><input class="form-control" @bind-value="filtro.Cliente" @oninput="@((args)=>Filtrar(args,nameof(filtro.Cliente)))" /></td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input class="form-control" @bind-value="filtro.Cliente" @oninput="@((args)=>Filtrar(args,nameof(filtro.Cliente)))" />
+                            </div>
+                        </td>
+                        <td></td>
                         <td></td>
                     </tr>
                 </Filtros>
@@ -54,6 +66,7 @@
                         <td>@item.Version</td>
                         <td>@item.Oportunidad@item.Actividad</td>
                         <td>@item.ClienteOportunidad@item.ClienteActividad</td>
+                        <td>@item.FechaCreacion.ToShortDateString()</td>
                         <td>@item.FechaCaducidad.ToShortDateString()</td>
                     </tr>
                 </Columnas>
