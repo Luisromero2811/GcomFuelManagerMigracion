@@ -40,7 +40,7 @@
                                         @($"{item.Nombre} {item.Apellidos} - {item.Tel_Movil} - {item.Correo}")
                                     </Render>
                                 </DropDownFilter>
-                                <NavLink class="g-1 btn gcom-bg-amarillo" href="@($"crm/contactos/formulario/{Cuenta.ContactoPrincipalId}")">
+                                <NavLink class="g-1 btn gcom-bg-amarillo col-12 mt-1" href="@($"crm/contactos/formulario/{Cuenta.ContactoPrincipalId}")">
                                     <i class="fa fa-solid fa-edit"></i> Editar Datos de Contacto Principal
                                 </NavLink>
                             </div>
@@ -109,9 +109,7 @@
             else
             {
                 loading_save = false;
-                if (Id != 0)
-                    navigation.NavigateTo("crm/cuentas", false);
-                else
+                if (Id.IsZero())
                     Cuenta = new();
             }
         }

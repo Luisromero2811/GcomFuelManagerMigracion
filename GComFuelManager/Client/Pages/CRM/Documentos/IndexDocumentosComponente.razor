@@ -23,13 +23,29 @@
                         <th style="max-width:80px;"></th>
                         <th>Documento</th>
                         <th>Versión</th>
+                        <th>Actividad/Oportunidad</th>
+                        <th>Cuenta</th>
+                        <th>Fecha de creacion</th>
                         <th>Fecha de caducidad</th>
                     </tr>
                 </Cabeceras>
                 <Filtros>
                     <tr>
                         <td></td>
-                        <td><input class="form-control" @bind-value="filtro.NombreDocumento" @oninput="FiltrarNombre" /></td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input class="form-control" @bind-value="filtro.NombreDocumento" @oninput="@((args)=>Filtrar(args,nameof(filtro.NombreDocumento)))" />
+                            </div>
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input class="form-control" @bind-value="filtro.Cliente" @oninput="@((args)=>Filtrar(args,nameof(filtro.Cliente)))" />
+                            </div>
+                        </td>
                         <td></td>
                         <td></td>
                     </tr>
@@ -48,6 +64,9 @@
                         </td>
                         <td>@item.NombreDocumento</td>
                         <td>@item.Version</td>
+                        <td>@item.Oportunidad@item.Actividad</td>
+                        <td>@item.ClienteOportunidad@item.ClienteActividad</td>
+                        <td>@item.FechaCreacion.ToShortDateString()</td>
                         <td>@item.FechaCaducidad.ToShortDateString()</td>
                     </tr>
                 </Columnas>
@@ -66,8 +85,8 @@
 </AuthorizeView>
 @code {
 
-    CRMDocumentoDTO filtro = new();
-    List<CRMDocumentoDTO> Documentos = new();
+    CRMDocumentoClienteDTO filtro = new();
+    List<CRMDocumentoClienteDTO> Documentos = new();
 
     Dictionary<string, string> query = new();
 
@@ -92,7 +111,7 @@
             loading_info = true;
             var uri = Constructor_De_URL_Parametros.Generar_URL(SetParameter());
 
-            var response = await http.Get<List<CRMDocumentoDTO>>($"api/crmfile?{uri}");
+            var response = await http.Get<List<CRMDocumentoClienteDTO>>($"api/crmfile?{uri}");
             if (response.Error)
             {
                 loading_info = false;
@@ -128,6 +147,7 @@
     private Dictionary<string, string> SetParameter()
     {
         query[$"{nameof(filtro.NombreDocumento)}"] = filtro.NombreDocumento;
+        query[$"{nameof(filtro.Cliente)}"] = filtro.Cliente;
         query[$"{nameof(filtro.OportunidadId)}"] = filtro.OportunidadId.ToString();
         query[$"{nameof(filtro.ActividadId)}"] = filtro.ActividadId.ToString();
         query[$"{nameof(filtro.Pagina)}"] = filtro.Pagina.ToString();
@@ -135,15 +155,34 @@
         return query;
     }
 
-    private async Task FiltrarNombre(ChangeEventArgs args)
+    private async Task Filtrar(ChangeEventArgs args, string campo)
     {
-        filtro.NombreDocumento = args.Value?.ToString() ?? string.Empty;
+        switch (campo)
+        {
+            case nameof(filtro.NombreDocumento):
+                filtro.NombreDocumento = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(filtro.Cliente):
+                filtro.Cliente = args.Value?.ToString() ?? string.Empty;
+                break;
+            default:
+                break;
+        }
         await ObtenerDocumentos();
     }
 
-    private async Task DescargarDocumento(CRMDocumentoDTO crm)
+    private async Task DescargarDocumento(CRMDocumentoClienteDTO crm)
     {
-        var bytes = await httpclient.GetByteArrayAsync(crm.Url);
-        await js.GuardarComo(crm.NombreDocumento, bytes);
+        var response = await http.Get<CRMDocumentoDTO>($"api/crmfile/download/{crm.Id}");
+        if (response.Error)
+        {
+
+            var message = await response.ObtenerMensajeError();
+            await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+        else
+        {
+            await js.GuardarComo(response.Response.NombreDocumento, response.Response.InfoBytes);
+        }
     }
 }

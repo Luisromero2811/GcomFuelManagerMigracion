@@ -7,21 +7,18 @@
 <!--Formulario de registro-->
 <AuthorizeView Roles="Admin, CREAR_ACTIVIDAD">
     <Authorized Context="GestionActividad">
-        <div class="card mt-2" style="height: 680px; overflow: scroll; ">
-            <div class="card-header">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <b>Creación de Actividades</b>
-                    </div>
-                    <div>
-                        <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/listado/actividades" Match="NavLinkMatch.All">
-                            <i class="fa fa-solid fa-arrow-left" /> Volver
-                        </NavLink>
-                    </div>
+        <Card HeaderClass="d-flex justify-content-between">
+            <Header>
+                <div>
+                    <b>Creación de Actividades</b>
                 </div>
-
-            </div>
-            <div class="card-body">
+                <div>
+                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </NavLink>
+                </div>
+            </Header>
+            <Body>
                 <div class="col-12">
                     <EditForm Model="@CRMActividad" class="form col-12" OnValidSubmit="CreateActividad">
                         <FluentValidationValidator Validator="validation" />
@@ -84,7 +81,7 @@
                             <!--Descripción-->
                             <div class="col-12 col-md-4 my-1">
                                 <label>Descripción:</label>
-                                <InputTextArea @bind-Value="@CRMActividad.Desccripcion" class="form-control" style=" height: 180px;" placeholder="Descripción de la Actividad" />
+                                <InputTextArea @bind-Value="@CRMActividad.Desccripcion" class="form-control" style=" height: 120px;" placeholder="Descripción de la Actividad" />
                                 <ValidationMessage For="@(()=>CRMActividad.Desccripcion)" />
                             </div>
                             <!--Estatus-->
@@ -180,8 +177,8 @@
                             @if (!isEdit)
                             {
                                 <div class="col-12 col-md-4 px-2">
-                                    <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit">
-                                        <i class="fa fa-solid fa-floppy-disk"></i> Crear Actividad
+                                    <button class="btn gcom-bg-amarillo col-12" type="submit">
+                                        <i class="fa fa-solid fa-floppy-disk"></i> Guardar
                                         @if (loading_guardar)
                                         {
                                             <SpinnerLoading />
@@ -192,14 +189,14 @@
                             else
                             {
                                 <div class="col-12 btn-group">
-                                    <button class="btn btn-sm gcom-bg-amarillo" type="submit">
+                                    <button class="btn gcom-bg-amarillo" type="submit">
                                         <i class="fa fa-solid fa-floppy-disk"></i> Editar
                                         @if (loading_guardar)
                                         {
                                             <SpinnerLoading />
                                         }
                                     </button>
-                                    <button class="btn btn-sm gcom-bg-rojo" type="button" @onclick="Cancel_Activity">
+                                    <button class="btn gcom-bg-rojo" type="button" @onclick="Cancel_Activity">
                                         <i class="fa fa-solid fa-cancel"></i> Cancelar
                                     </button>
                                 </div>
@@ -207,8 +204,8 @@
                         </div>
                     </EditForm>
                 </div>
-            </div>
-        </div>
+            </Body>
+        </Card>
     </Authorized>
 </AuthorizeView>
 @code {

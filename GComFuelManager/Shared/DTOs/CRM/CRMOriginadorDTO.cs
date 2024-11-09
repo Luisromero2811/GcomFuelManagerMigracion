@@ -3,7 +3,7 @@ using GComFuelManager.Shared.Filtro;
 
 namespace GComFuelManager.Shared.DTOs.CRM
 {
-    public class CRMOriginadorDTO:Parametros_Busqueda_Gen
+    public class CRMOriginadorDTO : Parametros_Busqueda_Gen
     {
         public int Id { get; set; }
         public string Nombre { get; set; } = string.Empty;
@@ -14,5 +14,6 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string Tel_Oficina { get; set; } = string.Empty;
         public string Tel_Movil { get; set; } = string.Empty;
         public string Correo { get; set; } = string.Empty;
+        public int EquipoId { get; set; }
     }
 }

@@ -120,29 +120,10 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                // Obtiene el cliente con la propiedad Contacto usando Include
-                var cliente = await context.CRMClientes
-                    .AsNoTracking()
-                    .Include(x => x.Contacto)
-                    .FirstOrDefaultAsync(x => x.Id == Id);
-
+                var cliente = await context.CRMClientes.AsNoTracking().Include(x => x.Contacto).FirstOrDefaultAsync(x => x.Id == Id);
                 if (cliente is null) return NotFound();
 
-                var clientedto = new CRMClienteDetalleDTO
-                {
-                    Nombre = cliente.Nombre,
-                    Contacto = cliente.Contacto != null
-                        ? new CRMContactoDTO
-                        {
-                            Id = cliente.Contacto.Id,
-                            Nombre = cliente.Contacto.Nombre,
-                            Tel_Movil = cliente.Contacto.Tel_Movil,
-                            Tel_Oficina = cliente.Contacto.Tel_Oficina,
-                            Correo = cliente.Contacto.Correo
-                        }
-                        : null
-                };
-
+                var clientedto = mapper.Map<CRMCliente, CRMClienteDetalleDTO>(cliente);
                 return Ok(clientedto);
             }
             catch (Exception e)
@@ -213,7 +194,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!string.IsNullOrEmpty(cliente.Nombre) && !string.IsNullOrWhiteSpace(cliente.Nombre))
                     clientes = clientes.Where(x => x.Nombre != null && x.Nombre.ToLower().Contains(cliente.Nombre.ToLower()));
 
-                return Ok(clientes);
+                return Ok(clientes.Select(x => mapper.Map<CRMClienteDTO>(x)));
             }
             catch (Exception e)
             {

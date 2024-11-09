@@ -51,7 +51,7 @@
                             </div>
                             <div class="col-md-4 col-12">
                                 <label>Cuenta</label>
-                                <DropDownFilter Listado="Clientes" TListado="CRMCliente" TValue="int" Default_Placeholder="Seleccione una cuenta" FiltrarValor="ObtenerClientes"
+                                <DropDownFilter Listado="Clientes" TListado="CRMClienteDTO" TValue="int" Default_Placeholder="Seleccione una cuenta" FiltrarValor="ObtenerClientes"
                                                 @bind-Valor="@Oportunidad.CuentaId" Propiedad_Valor="Id" On_Change_Method="ObtenerContacto">
                                     <RenderValue Context="item">
                                         @item.Nombre
@@ -322,7 +322,7 @@
     List<CRMCatalogoValor> Etapas = new();
 
     List<CRMVendedorDTO> Vendedores = new();
-    List<CRMCliente> Clientes = new();
+    List<CRMClienteDTO> Clientes = new();
     List<CRMContactoDTO> Contactos = new();
     List<CRMEquipoDTO> Equipos = new();
 
@@ -611,7 +611,7 @@
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
 
-            var response = await http.Get<List<CRMCliente>>($"api/crmcliente/contactos?{uri}");
+            var response = await http.Get<List<CRMClienteDTO>>($"api/crmcliente/contactos?{uri}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();

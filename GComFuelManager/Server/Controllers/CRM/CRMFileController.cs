@@ -4,6 +4,7 @@ using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.DTOs.CRM;
+using GComFuelManager.Shared.DTOs.Especiales;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -36,24 +37,111 @@ namespace GComFuelManager.Server.Controllers.CRM
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get([FromQuery] CRMDocumentoDTO dTO)
+        public async Task<ActionResult> Get([FromQuery] CRMDocumentoClienteDTO dTO)
         {
             try
             {
-                var documentos = context.CRMDocumentos.Where(x => x.Activo)
-                    .AsNoTracking()
-                    .AsQueryable();
+                var user = await userManager.FindByNameAsync(HttpContext.User.Identity?.Name ?? string.Empty);
+                if (user is null) return NotFound();
+
+                var documentos = new List<CRMDocumento>().AsQueryable();
+                if (await userManager.IsInRoleAsync(user, "Admin"))
+                {
+                    documentos = context.CRMDocumentos.Where(x => x.Activo)
+                        .Include(x => x.Actividades)
+                        .ThenInclude(x => x.Contacto)
+                        .ThenInclude(x => x.Cliente)
+                        .Include(x => x.Actividades)
+                        .ThenInclude(x => x.Asuntos)
+                        .Include(x => x.Oportunidades)
+                        .ThenInclude(x => x.CRMCliente)
+                        .AsNoTracking()
+                        .AsQueryable();
+                }
+                else if (await userManager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
+                {
+                    var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (comercial is null) return NotFound();
+
+                    var equipos = await context.CRMEquipos.AsNoTracking()
+                        .Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == comercial.Id)).Select(x => x.Id).ToListAsync();
+
+                    var relacion = await context.CRMEquipoVendedores.AsNoTracking()
+                        .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => (int?)x.Key).ToListAsync();
+
+                    var actividades = await context.CRMActividades.AsNoTracking().Where(x => relacion.Contains(x.Asignado) && equipos.Contains(x.EquipoId)).Select(x => x.Id).ToListAsync();
+                    var oportunidades = await context.CRMOportunidades.AsNoTracking().Where(x => relacion.Contains(x.VendedorId) && equipos.Contains(x.EquipoId)).Select(x => x.Id).ToListAsync();
+
+                    var relaciondocumentosactividades = await context.CRMActividadDocumentos.AsNoTracking()
+                        .Where(x => actividades.Contains(x.ActividadId)).Select(x => x.DocumentoId).ToListAsync();
+
+                    var relaciondocumentosoportunidades = await context.CRMOportunidadDocumentos.AsNoTracking()
+                        .Where(x => oportunidades.Contains(x.OportunidadId)).Select(x => x.DocumentoId).ToListAsync();
+
+                    List<int>? idsdocumentos = new();
+
+                    idsdocumentos.AddRange(relaciondocumentosactividades);
+                    idsdocumentos.AddRange(relaciondocumentosoportunidades);
+
+                    documentos = context.CRMDocumentos.Where(x => x.Activo && idsdocumentos.Contains(x.Id))
+                        .Include(x => x.Actividades)
+                        .ThenInclude(x => x.Contacto)
+                        .ThenInclude(x => x.Cliente)
+                        .Include(x => x.Actividades)
+                        .ThenInclude(x => x.Asuntos)
+                        .Include(x => x.Oportunidades)
+                        .ThenInclude(x => x.CRMCliente)
+                        .AsNoTracking()
+                        .OrderByDescending(x => x.FechaCreacion)
+                        .AsQueryable();
+                }
+                else
+                {
+                    var vendedor = await context.CRMVendedores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (vendedor is null) return NotFound();
+
+                    var actividades = await context.CRMActividades.AsNoTracking().Where(x => x.Asignado.Equals(vendedor.Id)).Select(x => x.Id).ToListAsync();
+                    var oportunidades = await context.CRMOportunidades.AsNoTracking().Where(x => x.VendedorId.Equals(vendedor.Id)).Select(x => x.Id).ToListAsync();
+
+                    var relaciondocumentosactividades = await context.CRMActividadDocumentos.AsNoTracking()
+                        .Where(x => actividades.Contains(x.ActividadId)).Select(x => x.DocumentoId).ToListAsync();
+
+                    var relaciondocumentosoportunidades = await context.CRMOportunidadDocumentos.AsNoTracking()
+                        .Where(x => oportunidades.Contains(x.OportunidadId)).Select(x => x.DocumentoId).ToListAsync();
+
+                    List<int>? idsdocumentos = new();
+
+                    idsdocumentos.AddRange(relaciondocumentosactividades);
+                    idsdocumentos.AddRange(relaciondocumentosoportunidades);
+
+                    documentos = context.CRMDocumentos.Where(x => x.Activo && idsdocumentos.Contains(x.Id))
+                        .Include(x => x.Actividades)
+                        .ThenInclude(x => x.Contacto)
+                        .ThenInclude(x => x.Cliente)
+                        .Include(x => x.Actividades)
+                        .ThenInclude(x=>x.Asuntos)
+                        .Include(x => x.Oportunidades)
+                        .ThenInclude(x => x.CRMCliente)
+                        .AsNoTracking()
+                        .OrderByDescending(x => x.FechaCreacion)
+                        .AsQueryable();
+                }
 
                 if (!string.IsNullOrEmpty(dTO.NombreDocumento) && !string.IsNullOrWhiteSpace(dTO.NombreDocumento))
                     documentos = documentos.Where(x => x.NombreDocumento.ToLower().Contains(dTO.NombreDocumento.ToLower()));
+
+                if (!string.IsNullOrEmpty(dTO.Cliente) && !string.IsNullOrWhiteSpace(dTO.Cliente))
+                    documentos = documentos.Where(x =>
+                    x.Actividades.Count > 0 &&
+                    x.Actividades.First().Contacto.Cliente.Nombre.ToLower().StartsWith(dTO.Cliente.ToLower()) ||
+                    x.Oportunidades.Count > 0 &&
+                    x.Oportunidades.First().CRMCliente.Nombre.ToLower().StartsWith(dTO.Cliente.ToLower()));
 
                 if (!dTO.OportunidadId.IsZero())
                     documentos = documentos.Where(x => x.Oportunidades.Select(x => x.Id).Contains(dTO.OportunidadId));
 
                 if (!dTO.ActividadId.IsZero())
-                {
                     documentos = documentos.Where(x => x.Actividades.Select(x => x.Id).Contains(dTO.ActividadId));
-                }
 
                 //actividades
 
@@ -61,9 +149,9 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 dTO.Pagina = HttpContext.ObtenerPagina();
 
-                documentos = documentos.OrderByDescending(x => x.FechaCreacion).Skip((dTO.Pagina - 1) * dTO.Registros_por_pagina).Take(dTO.Registros_por_pagina);
+                documentos = documentos.Skip((dTO.Pagina - 1) * dTO.Registros_por_pagina).Take(dTO.Registros_por_pagina);
 
-                var documentosdto = documentos.Select(x => mapper.Map<CRMDocumento, CRMDocumentoDTO>(x));
+                var documentosdto = documentos.Select(x => mapper.Map<CRMDocumento, CRMDocumentoClienteDTO>(x));
 
                 return Ok(documentosdto);
             }

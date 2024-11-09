@@ -13,13 +13,13 @@
                     <div>
                         <b>Actividades</b>
                     </div>
-                    <div>
+                    <div class="btn-group">
                         <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
                             <i class="fa fa-solid fa-arrow-left"></i> Volver
                         </NavLink>
                         <AuthorizeView Roles="Admin, VER_HISTORIAL_ACTIVIDAD">
                             <Authorized Context="IRHistorial">
-                                <NavLink class="g-1 btn gcom-bg-rojo ms-1" href="crm/historial/actividades" Match="NavLinkMatch.All">
+                                <NavLink class="g-1 btn gcom-bg-rojo" href="crm/historial/actividades" Match="NavLinkMatch.All">
                                     Ir a Historial
                                 </NavLink>
                             </Authorized>
@@ -28,24 +28,22 @@
                 </div>
 
             </div>
-            <div class="card-body">
-                <div class="col-12 my-2 d-flex flex-wrap justify-content-between align-items-center">
-                    <AuthorizeView Roles="Admin, CREAR_ACTIVIDAD">
-                        <Authorized Context="CrearActividad">
-                            <div class="col-12 col-md-2 mb-2 mb-md-0">
-                                <NavLink class="btn btn-sm gcom-bg-amarillo w-100" href="crm/gestion/actividades">
-                                    <i class="fa fa-solid fa-plus" /> Crear Nueva Actividad
-                                </NavLink>
-                            </div>
-                        </Authorized>
-                    </AuthorizeView>
+        </div>
+        <div class="col-12 my-2 d-flex flex-wrap justify-content-between align-items-center">
+            <AuthorizeView Roles="Admin, CREAR_ACTIVIDAD">
+                <Authorized Context="CrearActividad">
                     <div class="col-12 col-md-2 mb-2 mb-md-0">
-                        <button class="btn btn-sm gcom-bg-amarillo w-100" @onclick="ExportarActividades">
-                            <i class="fa fa-solid fa-file-excel"></i>
-                            Exportar
-                        </button>
+                        <NavLink class="btn btn-sm gcom-bg-amarillo w-100" href="crm/gestion/actividades">
+                            <i class="fa fa-solid fa-plus" /> Crear Nueva Actividad
+                        </NavLink>
                     </div>
-                </div>
+                </Authorized>
+            </AuthorizeView>
+            <div class="col-12 col-md-2 mb-2 mb-md-0">
+                <button class="btn btn-sm gcom-bg-amarillo w-100" @onclick="ExportarActividades">
+                    <i class="fa fa-solid fa-file-excel"></i>
+                    Exportar
+                </button>
             </div>
         </div>
         <div class="ancho-tabla">

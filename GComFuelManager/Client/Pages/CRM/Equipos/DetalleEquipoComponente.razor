@@ -24,18 +24,6 @@
                             <p>@Equipo.Nombre</p>
                         </div>
                         <div class="col-md-4 col-12">
-                            <label><b>Lider de equipo</b></label>
-                            <p>@Equipo.Originador.Nombre @Equipo.Originador.Apellidos</p>
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label><b>Telefono movil</b></label>
-                            <p>@Equipo.Originador.Tel_Movil</p>
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label><b>Correo electronico</b></label>
-                            <p>@Equipo.Originador.Correo</p>
-                        </div>
-                        <div class="col-md-4 col-12">
                             <label><b>Division</b></label>
                             <p>@Equipo.Division.Nombre</p>
                         </div>
@@ -43,9 +31,9 @@
                 </Card>
                 <Card HeaderText="Integrantes de equipo" BodyClass="g-1">
                     <Body>
-                        <label><b>Lider de equipo</b></label>
+                        <label><b>Lider/es de equipo</b></label>
                         <div class="container-fluid overflow-scroll">
-                            <Tabla Datos="Lider">
+                            <Tabla Datos="Comerciales">
                                 <Cabeceras>
                                     <tr>
                                         <th>Nombre</th>
@@ -58,9 +46,11 @@
                                     <tr>
                                         <AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
                                             <Authorized Context="VERCOMERCIAL">
+                                                <td>
                                                     <NavLink href=@($"crm/originador/{item.Id}")>
-                                                        <td>@item.Nombre @item.Apellidos</td>
+                                                        @item.Nombre @item.Apellidos
                                                     </NavLink>
+                                                </td>
                                             </Authorized>
                                             <NotAuthorized Context="VERCOMERCIAL">
                                                 <td>@item.Nombre @item.Apellidos</td>
@@ -73,7 +63,10 @@
                                 </Columnas>
                             </Tabla>
                         </div>
-
+                        <div class="col-12">
+                            <PaginacionComponent PaginaActual="filtroComercial.Pagina_ACtual" PaginasTotales="filtroComercial.Total_paginas"
+                                                 Radio="5" PaginaSeleccionada="Pagina_SeleccionadaComercial" />
+                        </div>
                         <label><b>Vendedores</b></label>
                         <div class="container-fluid overflow-scroll">
                             <Tabla Datos="Vendedores">
@@ -122,12 +115,12 @@
                                 </Columnas>
                             </Tabla>
                         </div>
+                        <div class="col-12">
+                            <PaginacionComponent PaginaActual="filtroVendedor.Pagina_ACtual" PaginasTotales="filtroVendedor.Total_paginas"
+                                                 Radio="5" PaginaSeleccionada="Pagina_Seleccionada" />
+                        </div>
                     </Body>
                 </Card>
-                <div class="col-12">
-                    <PaginacionComponent PaginaActual="filtroVendedor.Pagina_ACtual" PaginasTotales="filtroVendedor.Total_paginas"
-                                         Radio="5" PaginaSeleccionada="Pagina_Seleccionada" />
-                </div>
             </Body>
         </Card>
     </Authorized>
@@ -140,16 +133,20 @@
     [Parameter] public int Id { get; set; } = 0;
     bool loading_info = false;
     CRMEquipoDetalleDTO Equipo = new();
-    List<CRMOriginadorDTO> Lider = new();
 
     Dictionary<string, string> query = new();
+    CRMOriginadorDTO filtroComercial = new();
+    List<CRMOriginadorDTO> Comerciales = new();
     CRMVendedorDTO filtroVendedor = new();
     List<CRMVendedorDTO> Vendedores = new();
 
     protected override async Task OnParametersSetAsync()
     {
-        await Obtener();
-        await ObtenerVendedor();
+        await Task.WhenAll(
+            Obtener(),
+            ObtenerVendedor(),
+            ObtenerComercial()
+        );
     }
 
     private async Task Obtener()
@@ -168,7 +165,6 @@
             {
                 loading_info = false;
                 Equipo = response.Response;
-                Lider.Add(Equipo.Originador);
             }
         }
         catch (Exception e)
@@ -247,5 +243,75 @@
         filtroVendedor.Pagina = pagina;
 
         await ObtenerVendedor();
+    }
+
+    private Dictionary<string, string> SetFiltroComercial()
+    {
+        query[$"{nameof(filtroComercial.Nombre)}"] = filtroComercial.Nombre;
+        query[$"{nameof(filtroComercial.Tel_Movil)}"] = filtroComercial.Tel_Movil;
+        query[$"{nameof(filtroComercial.Correo)}"] = filtroComercial.Correo;
+        query[$"{nameof(filtroComercial.Pagina)}"] = filtroComercial.Pagina.ToString();
+        query[$"{nameof(filtroComercial.EquipoId)}"] = Id.ToString();
+        query[$"{nameof(filtroComercial.Registros_por_pagina)}"] = filtroComercial.Registros_por_pagina.ToString();
+        query[nameof(filtroComercial.Paginacion)] = true.ToString();
+        return query;
+    }
+
+    private async Task ObtenerComercial()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltroComercial());
+
+            var response = await http.Get<List<CRMOriginadorDTO>>($"api/crmoriginador?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Comerciales = response.Response;
+
+                filtroComercial.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                filtroComercial.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+                filtroComercial.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task FiltrarParametrosComercial(ChangeEventArgs args, string param)
+    {
+        switch (param)
+        {
+            case nameof(CRMOriginadorDTO.Nombre):
+                filtroVendedor.Nombre = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(CRMOriginadorDTO.Correo):
+                filtroVendedor.Correo = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(CRMOriginadorDTO.Tel_Movil):
+                filtroVendedor.Tel_Movil = args.Value?.ToString() ?? string.Empty;
+                break;
+            default:
+                break;
+        }
+        await ObtenerVendedor();
+    }
+
+    private async Task Pagina_SeleccionadaComercial(int pagina)
+    {
+        filtroComercial.Pagina_ACtual = pagina;
+        filtroComercial.Pagina = pagina;
+
+        await ObtenerComercial();
     }
 }

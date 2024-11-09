@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using GComFuelManager.Client.Helpers;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs.CRM;
@@ -38,7 +39,12 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var originadores = context.CRMOriginadores.AsNoTracking().OrderBy(x => x.Nombre).AsQueryable();
+                var originadores = context.CRMOriginadores
+                    .AsNoTracking()
+                    .Where(x => x.Activo)
+                    .Include(x => x.Equipos)
+                    .OrderBy(x => x.Nombre)
+                    .AsQueryable();
 
                 if (!string.IsNullOrEmpty(dTO.Nombre) || !string.IsNullOrWhiteSpace(dTO.Nombre))
                     originadores = originadores.Where(v => v.Nombre.ToLower().Contains(dTO.Nombre.ToLower()) || v.Apellidos.ToLower().Contains(dTO.Nombre.ToLower()));
@@ -48,6 +54,9 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (!string.IsNullOrEmpty(dTO.Correo) || !string.IsNullOrWhiteSpace(dTO.Correo))
                     originadores = originadores.Where(v => !string.IsNullOrEmpty(v.Correo) && v.Correo.ToLower().Contains(dTO.Correo.ToLower()));
+
+                if (!dTO.EquipoId.IsZero())
+                    originadores = originadores.Where(x => x.Equipos.Any(x => x.Id.Equals(dTO.EquipoId)));
 
                 if (dTO.Paginacion)
                 {
@@ -107,7 +116,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var originador = await context.CRMOriginadores
                     .AsNoTracking()
                     .Include(x => x.Division)
-                    .Include(x => x.Equipos)
+                    .Include(x => x.Equipos.Where(y => y.Activo))
                     .ThenInclude(x => x.Division)
                     .Where(x => x.Id == Id)
                     .Select(x => mapper.Map<CRMOriginador, CRMOriginadorDetalleDTO>(x))

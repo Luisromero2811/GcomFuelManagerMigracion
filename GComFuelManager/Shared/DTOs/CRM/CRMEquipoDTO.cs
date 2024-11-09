@@ -9,8 +9,6 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string Color { get; set; } = string.Empty;
         public List<CRMOriginadorDTO> Lideres { get; set; } = new();
         public string Lider { get; set; } = string.Empty;
-        public string TelMovil { get; set; } = string.Empty;
-        public string Correo { get; set; } = string.Empty;
         public string Division { get; set; } = string.Empty;
         public int VendedorId { get; set; }
     }
