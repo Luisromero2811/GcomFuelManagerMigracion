@@ -21,8 +21,9 @@ namespace GComFuelManager.Shared.DTOs.Reportes.CRM
         public string Asignado { get; set; } = string.Empty;
         [DisplayName("Descripción")]
         public string Desccripcion { get; set; } = string.Empty;
-        
-      
+        [DisplayName("Retroalimentación")]
+        public string Retroalimentacion { get; set; } = string.Empty;
+
     }
 }
 

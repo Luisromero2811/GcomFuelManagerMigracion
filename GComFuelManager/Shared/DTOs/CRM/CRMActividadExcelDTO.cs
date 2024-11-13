@@ -23,6 +23,8 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public DateTime? Fecha_Mod { get; set; } = DateTime.Now;
         [DisplayName("Vendedor asignado")]
         public string? Asignado { get; set; } = string.Empty;
+        [DisplayName("Retroalimentación")]
+        public string? Retroalimentacion { get; set; } = string.Empty;
     }
 }
 

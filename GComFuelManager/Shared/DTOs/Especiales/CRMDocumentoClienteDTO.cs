@@ -16,4 +16,6 @@ public class CRMDocumentoClienteDTO : Parametros_Busqueda_Gen
     public int ActividadId { get; set; }
     public string Url { get; set; } = string.Empty;
     public string Cliente { get; set; } = string.Empty;
+    public string VendedorActividad { get; set; } = string.Empty;
+     public string VendedorOportunidad { get; set; } = string.Empty;
 }

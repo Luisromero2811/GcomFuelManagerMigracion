@@ -62,6 +62,7 @@
                         <th>Fecha de Vencimiento</th>
                         <th>Descripción</th>
                         <th>Habilitar / Deshabilitar</th>
+                        <th>Retroalimentación</th>
                     </tr>
                 </Cabeceras>
                 <Filtros>
@@ -108,6 +109,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
                     </tr>
 
                 </Filtros>
@@ -125,6 +127,13 @@
                                 <NavLink class="btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
                                     <i class="fa fa-solid fa-folder-open" />
                                 </NavLink>
+                                <AuthorizeView Roles="Admin, Dirección">
+                                    <Authorized Context="Comentarios">
+                                        <NavLink class="btn gcom-bg-amarillo" href="@($"crm/comentarios/actividades/{item?.Id}")">
+                                            <i class="fa-solid fa-comment"></i>
+                                        </NavLink>
+                                    </Authorized>
+                                </AuthorizeView>
                             </div>
                         </td>
                         <td>@(item.Fecha_Mod == null || item.Fecha_Mod == DateTime.MinValue ? "" : item.Fecha_Mod.Value.ToString())</td>
@@ -153,6 +162,7 @@
                                 </td>
                             </Authorized>
                         </AuthorizeView>
+                        <td>@item.Retroalimentacion</td>
                     </tr>
                 </Columnas>
             </Tabla>

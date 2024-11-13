@@ -96,27 +96,24 @@
                                 </InputSelect>
                             </div>
                             <!--Relacionada con:-->
-                            <div class="col-12 col-md-4 my-1">
+                            <div class="col-md-4 col-12">
                                 <label>Relacionada Con:</label>
-                                <InputSelect @bind-Value="@CRMActividad.Contacto_Rel" class="form-select form-select-sm">
-                                    <option>-- Seleccione un Contacto --</option>
-                                    @if (Contactos == null)
-                                    {
-                                        <option>Cargando...</option>
-                                    }
-                                    else if (Contactos.Count == 0)
-                                    {
-                                        <option>No hay Contactos.</option>
-                                    }
-                                    else
-                                    {
-                                        @foreach (var item in Contactos)
-                                        {
-                                            <option value="@item.Id">@item.Nombre @item.Apellidos</option>
-                                        }
-                                    }
-                                </InputSelect>
+                                <DropDownFilter Listado="Contactos" TListado="CRMContactoDTO" TValue="int" Default_Placeholder="Seleccione un Contacto" FiltrarValor="ObtenerContactos"
+                                                @bind-Valor="@CRMActividad.Contacto_Rel" Propiedad_Valor="Id">
+                                    <RenderValue Context="item">
+                                        @item.Nombre @item.Apellidos
+                                        @(!string.IsNullOrEmpty(item.Correo) ? $"/{item.Correo}" : string.Empty)
+                                        @(!string.IsNullOrEmpty(item.Tel_Movil) ? $"/{item.Tel_Movil}" : string.Empty)
+                                    </RenderValue>
+                                    <Render Context="item">
+                                        @item.Nombre @item.Apellidos
+                                        @(!string.IsNullOrEmpty(item.Correo) ? $"/{item.Correo}" : string.Empty)
+                                        @(!string.IsNullOrEmpty(item.Tel_Movil) ? $"/{item.Tel_Movil}" : string.Empty)
+                                    </Render>
+                                </DropDownFilter>
+                                <InputSelect @bind-Value="CRMActividad.Contacto_Rel" class="d-none" />
                             </div>
+                            <!--Equipos-->
                             <div class="col-12 col-md-4 my-1">
                                 <label>Equipo</label>
                                 <InputSelect @bind-Value="@CRMActividad.EquipoId" class="form-select form-select-sm">
@@ -251,7 +248,7 @@
             }
             else
             {
-                await Swal.FireAsync("Éxito", "La actividad fue registrada exitosamente", SweetAlertIcon.Success);
+                await Swal.FireAsync("Éxito", "La actividad fue gestionada exitosamente", SweetAlertIcon.Success);
                 CRMActividad = new();
             }
 
@@ -442,6 +439,32 @@
         if (!doc.Id.IsZero())
         {
             CRMActividad.DocumentoRevision = doc.Id;
+        }
+    }
+
+    private async Task ObtenerContactos(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await repositorio.Get<List<CRMContactoDTO>>($"api/crmcontactos/contactList?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Contactos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 

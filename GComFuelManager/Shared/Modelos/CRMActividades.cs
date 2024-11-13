@@ -19,6 +19,7 @@ namespace GComFuelManager.Shared.Modelos
         public int? Recordatorio { get; set; }
         public bool Activo { get; set; } = true;
         public int EquipoId { get; set; }
+        public string? Retroalimentacion { get; set; } = string.Empty;
 
         public CRMCatalogoValor Asuntos { get; set; } = null!;
         public CRMCatalogoValor? Prioridades { get; set; } = null!;
@@ -38,11 +39,14 @@ namespace GComFuelManager.Shared.Modelos
             gestion_.Contacto_Rel = (Contacto?.Nombre ?? "") + " " + (Contacto?.Apellidos ?? "");
             gestion_.Asunto = Asuntos?.Valor;
             gestion_.Prioridad = Prioridades?.Valor;
+            gestion_.Fecha_Creacion = (DateTime)Fecha_Creacion;
             gestion_.Fch_Inicio = Fch_Inicio;
             gestion_.Fecha_Ven = Fecha_Ven;
+            gestion_.Fecha_Mod = Fecha_Mod;
             gestion_.Estatus = Estados?.Valor;
             gestion_.Asignado = (Vendedor?.Nombre ?? "") + " " + (Vendedor?.Apellidos ?? "");
             gestion_.Desccripcion = Desccripcion;
+            gestion_.Retroalimentacion = Retroalimentacion;
 
             return gestion_;
         }

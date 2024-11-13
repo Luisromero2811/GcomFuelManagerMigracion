@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace GComFuelManager.Shared.DTOs.CRM
 {
 	public class CRMActividadPostDTO
@@ -19,6 +21,7 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public bool Activo { get; set; } = true;
         public int EquipoId { get; set; }
         public int CuentaId { get; set; }
+        public string? Retroalimentacion { get; set; } = string.Empty;
 
         //Documento
         public int DocumentoId { get; set; }

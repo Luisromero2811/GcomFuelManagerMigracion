@@ -75,7 +75,12 @@
                                         <input class="form-control form-control-sm" @bind-value="filtro.Cuenta" @oninput="FiltrarCuenta" />
                                     </div>
                                 </td>
-                                <td></td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                        <input class="form-control form-control-sm" @bind-value="filtro.Contacto" @oninput="FiltrarContacto" />
+                                    </div>
+                                </td>
                                 <td></td>
                                 <td>
                                     <div class="input-group input-group-sm">
@@ -307,10 +312,17 @@
         await ObtenerOportunidades();
     }
 
+    private async Task FiltrarContacto(ChangeEventArgs args)
+    {
+        filtro.Contacto = args.Value?.ToString() ?? string.Empty;
+        await ObtenerOportunidades();
+    }
+
     private Dictionary<string, string> SetParameter()
     {
         query[$"{nameof(filtro.Nombre_Opor)}"] = filtro.Nombre_Opor;
         query[$"{nameof(filtro.Vendedor)}"] = filtro.Vendedor;
+        query[$"{nameof(filtro.Contacto)}"] = filtro.Contacto;
         query[$"{nameof(filtro.EtapaVenta)}"] = filtro.EtapaVenta;
         query[$"{nameof(filtro.Cuenta)}"] = filtro.Cuenta;
         query[$"{nameof(filtro.Pagina)}"] = filtro.Pagina.ToString();

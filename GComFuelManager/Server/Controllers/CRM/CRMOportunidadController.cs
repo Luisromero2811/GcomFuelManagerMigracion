@@ -106,6 +106,9 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!string.IsNullOrEmpty(dTO.Vendedor) || !string.IsNullOrWhiteSpace(dTO.Vendedor))
                     oportunidades = oportunidades.Where(x => x.Vendedor != null && x.Vendedor.Nombre.ToLower().Contains(dTO.Vendedor.ToLower()));
 
+                if (!string.IsNullOrEmpty(dTO.Contacto) || !string.IsNullOrWhiteSpace(dTO.Contacto))
+                    oportunidades = oportunidades.Where(x => x.Contacto != null && x.Contacto.Nombre.ToLower().Contains(dTO.Contacto.ToLower()));
+
                 if (!string.IsNullOrEmpty(dTO.Cuenta) || !string.IsNullOrWhiteSpace(dTO.Cuenta))
                     oportunidades = oportunidades.Where(x => x.CRMCliente != null && x.CRMCliente.Nombre.ToLower().Contains(dTO.Cuenta.ToLower()));
 

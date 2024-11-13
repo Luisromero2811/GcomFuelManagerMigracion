@@ -37,6 +37,16 @@ public class MapperProfileEspecial : Profile
             {
                 opt.PreCondition(y => y.Actividades.Count > 0);
                 opt.MapFrom(y => y.Actividades.First().Asuntos.Valor);
-            });
+            })
+           .ForMember(x => x.VendedorActividad, opt =>
+            {
+                opt.PreCondition(y => y.Actividades.Count > 0);
+                opt.MapFrom(y => $"{y.Actividades.First().Vendedor.Nombre} {y.Actividades.First().Vendedor.Apellidos}");
+            })
+             .ForMember(x => x.VendedorOportunidad, opt =>
+             {
+                 opt.PreCondition(y => y.Oportunidades.Count > 0);
+                 opt.MapFrom(y => $"{y.Oportunidades.First().Vendedor.Nombre} {y.Oportunidades.First().Vendedor.Apellidos}");
+             });
     }
 }

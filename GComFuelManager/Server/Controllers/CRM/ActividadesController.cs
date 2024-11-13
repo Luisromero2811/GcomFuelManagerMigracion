@@ -50,8 +50,21 @@ namespace GComFuelManager.Server.Controllers
                 //Si el ID de la actividad viene en 0 se agrega un nuevo registro de lo contrario se edita el registro
                 if (actividad.Id != 0)
                 {
-                    actividad.Fecha_Mod = DateTime.Now;
-                    context.Update(actividad);
+                    // Obtenemos la actividad actual de la base de datos para comparar
+                    var actividadExistente = await context.CRMActividades
+                        .AsNoTracking() // Evita rastrear la entidad para no afectar el contexto actual
+                        .FirstOrDefaultAsync(x => x.Id == actividad.Id);
+
+                    if (actividadExistente != null)
+                    {
+                        // Si la retroalimentación NO ha cambiado, actualizamos la fecha de modificación
+                        if (actividadExistente.Retroalimentacion == actividad.Retroalimentacion)
+                        {
+                            actividad.Fecha_Mod = DateTime.Now;
+                        }
+                    }
+
+                    context.Update(actividad); // Actualizamos la actividad
                 }
                 else
                 {
@@ -280,7 +293,7 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.Estados)
                        .Include(x => x.Prioridades)
                        .OrderByDescending(x => x.Fecha_Creacion)
-                       .OrderBy(x => x.Vendedor)
+                       .ThenBy(x => x.Vendedor)
                        .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
@@ -307,7 +320,7 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Estados)
                         .Include(x => x.Prioridades)
                         .OrderByDescending(x => x.Fecha_Creacion)
-                        .OrderBy(x => x.Vendedor)
+                        .ThenBy(x => x.Vendedor)
                         .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "VER_DETALLE_ACTIVIDAD"))
@@ -325,7 +338,7 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Estados)
                         .Include(x => x.Prioridades)
                         .OrderByDescending(x => x.Fecha_Creacion)
-                        .OrderBy(x => x.Vendedor)
+                        .ThenBy(x => x.Vendedor)
                         .AsQueryable();
                 }
 
@@ -435,7 +448,8 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.Vendedor)
                        .Include(x => x.Contacto)
                        .ThenInclude(x => x.Cliente)
-                       .OrderBy(x => x.Vendedor)
+                       .OrderByDescending(x => x.Fecha_Mod)
+                       .ThenBy(x => x.Vendedor)
                    .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
@@ -460,7 +474,8 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Contacto)
                         .Include(x => x.Prioridades)
                         .Include(x => x.Vendedor)
-                        .OrderBy(x => x.Vendedor)
+                        .OrderByDescending(x => x.Fecha_Mod)
+                        .ThenBy(x => x.Vendedor)
                         .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "VER_MODULO_HISTORIAL_ACTIVIDADES"))
@@ -476,7 +491,8 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.Contacto)
                        .Include(x => x.Prioridades)
                        .Include(x => x.Vendedor)
-                       .OrderBy(x => x.Vendedor)
+                       .OrderByDescending(x => x.Fecha_Mod)
+                       .ThenBy(x => x.Vendedor)
                    .AsQueryable();
 
                 }
@@ -494,13 +510,23 @@ namespace GComFuelManager.Server.Controllers
                 if (!string.IsNullOrEmpty(actividadDTO.VendedorId) && !string.IsNullOrWhiteSpace(actividadDTO.VendedorId))
                     actividades = actividades.Where(x => x.Vendedor != null && x.Vendedor.Nombre.ToLower().Contains(actividadDTO.VendedorId.ToLower()));
 
-                //Paginacion
+                if (!string.IsNullOrEmpty(actividadDTO.Cuenta_Rel) && !string.IsNullOrWhiteSpace(actividadDTO.Cuenta_Rel))
+                    actividades = actividades.Where(x => x.Contacto.Cliente != null && x.Contacto.Cliente.Nombre.ToLower().Contains(actividadDTO.Cuenta_Rel.ToLower()));
+
+                //// Si actividadDTO.Fecha_Mod tiene un valor
+                //if (actividadDTO.Fecha_Mod != null)
+                //{
+                //    // Filtrar por la propiedad Fecha_Mod comparando solo la fecha (sin la hora)
+                //    actividades = actividades.Where(x => x.Fecha_Mod.Value.Date == actividadDTO.Fecha_Mod.Value.Date);
+                //}
+
+                ////Paginacion
                 await HttpContext.InsertarParametrosPaginacion(actividades, actividadDTO.Registros_por_pagina, actividadDTO.Pagina);
 
                 if (HttpContext.Response.Headers.TryGetValue("pagina", out StringValues value))
                     if (!string.IsNullOrEmpty(value) || !string.IsNullOrWhiteSpace(value) && value != actividadDTO.Pagina)
                         actividadDTO.Pagina = int.Parse(value!);
-                actividades = actividades.Skip((actividadDTO.Pagina - 1) * actividadDTO.Registros_por_pagina).Take(actividadDTO.Registros_por_pagina);
+                //actividades = actividades.Skip((actividadDTO.Pagina - 1) * actividadDTO.Registros_por_pagina).Take(actividadDTO.Registros_por_pagina);
                 var actividadesdto = actividades.Select(x => mapper.Map<CRMActividadDTO>(x));
 
                 return Ok(actividadesdto);
@@ -543,6 +569,7 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.Contacto)
                        .Include(x => x.Prioridades)
                        .Include(x => x.Vendedor)
+                        .OrderByDescending(x => x.Fecha_Mod)
                        .Select(x => x.Asignacion_Datos())
                    .ToList();
 

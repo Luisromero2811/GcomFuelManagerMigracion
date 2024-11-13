@@ -65,7 +65,9 @@ namespace GComFuelManager.Server.Mappers
                 .ForMember(x => x.Prioridad, op => op.AddTransform(y => y.ToUpper()))
                 .ForMember(x => x.Contacto_Rel, op => op.AddTransform(y => y.ToUpper()))
                 .ForMember(x => x.VendedorId, op => op.AddTransform(y => y.ToUpper()))
-                .ForMember(x => x.Desccripcion, op => op.AddTransform(y => y.ToUpper()));
+                .ForMember(x => x.Desccripcion, op => op.AddTransform(y => y.ToUpper()))
+                .ForMember(x => x.Retroalimentacion, op => op.AddTransform(y => y == null ? string.Empty : y.ToUpper()));
+
 
             CreateMap<CRMVendedor, CRMVendedor>()
                 .ForMember(x => x.UserId, o => o.Ignore());

@@ -1,0 +1,106 @@
+﻿@page "/crm/comentarios/actividades"
+@page "/crm/comentarios/actividades/{Id:int}"
+
+@inject SweetAlertService Swal
+@inject IRepositorio repositorio
+
+<Card HeaderText="Documentos asociados" BodyClass="col-12 row">
+    <Header>
+        <div>
+            <b>Retroalimentación de actividad</b>
+        </div>
+        <div>
+            <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                <i class="fa fa-solid fa-arrow-left" /> Volver
+            </NavLink>
+        </div>
+    </Header>
+    <Body>
+        <EditForm Model="@CRMActividad" class="form col-12" OnValidSubmit="CreateActividad">
+            <div class="d-flex flex-column align-items-center">
+                <div class="col-12 col-md-6 my-3">
+                    <label>Descripción:</label>
+                    <textarea @bind="CRMActividad.Retroalimentacion"
+                              class="form-control"
+                              style="height: 220px; width: 100%;"
+                              placeholder="Retro de la Actividad">
+                    </textarea>
+                </div>
+                <div class="col-12 col-md-6">
+                    <button class="btn gcom-bg-amarillo w-100" type="submit">
+                        <i class="fa fa-solid fa-floppy-disk"></i> Guardar
+                        @if (loading_guardar)
+                        {
+                            <SpinnerLoading />
+                        }
+                    </button>
+                </div>
+            </div>
+
+        </EditForm>
+    </Body>
+</Card>
+
+@code {
+
+    [Parameter] public int Id { get; set; }
+
+    bool loading_guardar = false;
+    CRMActividades Actividad = new();
+    CRMActividadPostDTO CRMActividad = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != 0)
+        {
+            await ObtenerActividad();
+        }
+
+    }
+
+    private async Task ObtenerActividad()
+    {
+        try
+        {
+            var response = await repositorio.Get<CRMActividadPostDTO>($"api/actividades/{Id}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                CRMActividad = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task CreateActividad()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<CRMActividadPostDTO>($"api/actividades/create", CRMActividad);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Swal.FireAsync("Éxito", "La retroalimentación fue agregada exitosamente.", SweetAlertIcon.Success);
+                CRMActividad = new();
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+}
+

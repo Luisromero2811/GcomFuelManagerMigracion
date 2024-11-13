@@ -201,5 +201,24 @@ namespace GComFuelManager.Server.Controllers.CRM
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("contactList")]
+        public async Task<ActionResult> GetContact([FromQuery] CRMContacto contacto)
+        {
+            try
+            {
+                var contactos = new List<CRMContacto>().AsQueryable();
+
+                if (!string.IsNullOrEmpty(contacto.Nombre) && !string.IsNullOrWhiteSpace(contacto.Nombre))
+                    contactos = contactos.Where(x => x.Nombre != null && x.Nombre.ToLower().Contains(contacto.Nombre.ToLower()));
+
+                return Ok(contactos.Select(x => mapper.Map<CRMContactoDTO>(x)));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }

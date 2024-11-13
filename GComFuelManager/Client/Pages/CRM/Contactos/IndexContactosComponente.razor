@@ -86,7 +86,9 @@
                                 <td>
                                     <input class="form-control form-control-sm" @bind-value="filtro_contacto.Tel_Movil" @oninput="FiltrarTel" />
                                 </td>
-                                <td></td>
+                                <td>
+                                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Tel_Movil" @oninput="FiltrarMovil" />
+                                </td>
                                 <td>
                                     <input class="form-control form-control-sm" @bind-value="filtro_contacto.Correo" @oninput="FiltrarCorreo" />
                                 </td>
@@ -180,6 +182,7 @@
         query[$"{nameof(filtro_contacto.Nombre)}"] = filtro_contacto.Nombre;
         query[$"{nameof(filtro_contacto.Cuenta)}"] = filtro_contacto.Cuenta;
         query[$"{nameof(filtro_contacto.Tel_Movil)}"] = filtro_contacto.Tel_Movil;
+        query[$"{nameof(filtro_contacto.Tel_Oficina)}"] = filtro_contacto.Tel_Oficina;
         query[$"{nameof(filtro_contacto.Correo)}"] = filtro_contacto.Correo;
         query[$"{nameof(filtro_contacto.Vendedor)}"] = filtro_contacto.Vendedor;
         query[$"{nameof(filtro_contacto.Estatus)}"] = filtro_contacto.Estatus;
@@ -240,6 +243,12 @@
         await ObtenerContactos();
     }
 
+    private async Task FiltrarMovil(ChangeEventArgs args)
+    {
+        filtro_contacto.Tel_Oficina = args.Value?.ToString() ?? string.Empty;
+        await ObtenerContactos();
+    }
+
     private async Task FiltrarVendedor(ChangeEventArgs args)
     {
         filtro_contacto.Vendedor = args.Value?.ToString() ?? string.Empty;
@@ -277,14 +286,14 @@
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Title = "Eliminacion",
-                    Text = $"¿Desea eliminar el contacto {crm.FullName}?",
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar"
-                });
+            {
+                Title = "Eliminacion",
+                Text = $"¿Desea eliminar el contacto {crm.FullName}?",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar"
+            });
             if (!string.IsNullOrEmpty(confirm.Value))
             {
                 var response = await http.Delete($"api/crmcontactos/{crm.Id}");

@@ -65,17 +65,20 @@
                             </div>
                             <div class="col-md-4 col-12">
                                 <label>Contacto</label>
-                                <InputSelect @bind-Value="Oportunidad.ContactoId" class="form-select">
-                                    <option>-- seleccione un contacto --</option>
-                                    @foreach (var item in Contactos)
-                                    {
-                                        <option value="@item.Id">
-                                            @item.Nombre @item.Apellidos
-                                            @(!string.IsNullOrEmpty(item.Correo) ? $"/{item.Correo}" : string.Empty)
-                                            @(!string.IsNullOrEmpty(item.Tel_Movil) ? $"/{item.Tel_Movil}" : string.Empty)
-                                        </option>
-                                    }
-                                </InputSelect>
+                                <DropDownFilter Listado="Contactos" TListado="CRMContactoDTO" TValue="int" Default_Placeholder="Seleccione un Contacto" FiltrarValor="ObtenerContactos"
+                                                @bind-Valor="@Oportunidad.ContactoId" Propiedad_Valor="Id">
+                                    <RenderValue Context="item">
+                                        @item.Nombre @item.Apellidos
+                                        @(!string.IsNullOrEmpty(item.Correo) ? $"/{item.Correo}" : string.Empty)
+                                        @(!string.IsNullOrEmpty(item.Tel_Movil) ? $"/{item.Tel_Movil}" : string.Empty)
+                                    </RenderValue>
+                                    <Render Context="item">
+                                        @item.Nombre @item.Apellidos
+                                        @(!string.IsNullOrEmpty(item.Correo) ? $"/{item.Correo}" : string.Empty)
+                                        @(!string.IsNullOrEmpty(item.Tel_Movil) ? $"/{item.Tel_Movil}" : string.Empty)
+                                    </Render>
+                                </DropDownFilter>
+                                <InputSelect @bind-Value="Oportunidad.ContactoId" class="d-none"/>
                                 <ValidationMessage For="@(()=>Oportunidad.ContactoId)" />
                             </div>
                             <div class="col-md-4 col-12">
@@ -620,6 +623,32 @@
             else
             {
                 Clientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ObtenerContactos(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<CRMContactoDTO>>($"api/crmcontactos/contactList?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Contactos = response.Response;
             }
         }
         catch (Exception e)

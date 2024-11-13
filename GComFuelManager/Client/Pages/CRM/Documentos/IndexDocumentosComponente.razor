@@ -24,6 +24,7 @@
                         <th>Documento</th>
                         <th>Versión</th>
                         <th>Actividad/Oportunidad</th>
+                        <th>Vendedor:</th>
                         <th>Cuenta</th>
                         <th>Fecha de creacion</th>
                         <th>Fecha de caducidad</th>
@@ -38,6 +39,7 @@
                                 <input class="form-control" @bind-value="filtro.NombreDocumento" @oninput="@((args)=>Filtrar(args,nameof(filtro.NombreDocumento)))" />
                             </div>
                         </td>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td>
@@ -65,6 +67,7 @@
                         <td>@item.NombreDocumento</td>
                         <td>@item.Version</td>
                         <td>@item.Oportunidad@item.Actividad</td>
+                        <td>@item.VendedorActividad@item.VendedorOportunidad</td>
                         <td>@item.ClienteOportunidad@item.ClienteActividad</td>
                         <td>@item.FechaCreacion.ToShortDateString()</td>
                         <td>@item.FechaCaducidad.ToShortDateString()</td>

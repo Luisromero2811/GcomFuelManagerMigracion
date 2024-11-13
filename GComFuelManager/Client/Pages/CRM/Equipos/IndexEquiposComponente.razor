@@ -51,7 +51,9 @@
                                     </Authorized>
                                 </AuthorizeView>
                                 <td><input class="form-control" @bind-value="@filtro.Nombre" @oninput="FiltrarNombre" /></td>
-                                <td><input class="form-control" @bind-value="@filtro.Lider" @oninput="FiltrarLider" /></td>
+                                <td>
+                                    @*<input class="form-control" @bind-value="@filtro.Lider" @oninput="FiltrarLider" />*@
+                                </td>
                                 <td><input class="form-control" @bind-value="@filtro.Division" @oninput="FiltrarDivision" /></td>
                             </tr>
                         </Filtros>

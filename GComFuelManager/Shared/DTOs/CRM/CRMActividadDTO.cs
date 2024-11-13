@@ -19,6 +19,7 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string? Cuenta_Rel { get; set; } = string.Empty;
         public bool Activo { get; set; } = true;
         public string? VendedorId { get; set; } = string.Empty;
+        public string? Retroalimentacion { get; set; } = string.Empty;
     }
 }
 

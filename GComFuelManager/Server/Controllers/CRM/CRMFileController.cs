@@ -55,6 +55,10 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .ThenInclude(x => x.Asuntos)
                         .Include(x => x.Oportunidades)
                         .ThenInclude(x => x.CRMCliente)
+                        .Include(x => x.Actividades)
+                        .ThenInclude(x => x.Vendedor)
+                        .Include(x => x.Oportunidades)
+                        .ThenInclude(x => x.Vendedor)
                         .AsNoTracking()
                         .AsQueryable();
                 }

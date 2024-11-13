@@ -116,6 +116,9 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!string.IsNullOrEmpty(contacto.Tel_Movil) && !string.IsNullOrWhiteSpace(contacto.Tel_Movil))
                     contactos = contactos.Where(x => x.Tel_Movil.ToLower().Contains(contacto.Tel_Movil.ToLower()));
 
+                if (!string.IsNullOrEmpty(contacto.Tel_Oficina) && !string.IsNullOrWhiteSpace(contacto.Tel_Oficina))
+                    contactos = contactos.Where(x => x.Tel_Oficina.ToLower().Contains(contacto.Tel_Oficina.ToLower()));
+
                 if (!string.IsNullOrEmpty(contacto.Estatus) && !string.IsNullOrWhiteSpace(contacto.Estatus))
                     contactos = contactos.Where(x => x.Estatus != null && x.Estatus.Valor.ToLower().Contains(contacto.Estatus.ToLower()));
 
@@ -127,26 +130,110 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (contacto.Excel)
                 {
-                    ExcelPackage.LicenseContext = LicenseContext.Commercial;
-                    ExcelPackage excelPackage = new();
-                    ExcelWorksheet ws = excelPackage.Workbook.Worksheets.Add("Contactos");
-                    var contactosExcel = contactos
-                        .Include(x => x.Estatus)
-                        .Include(x => x.Origen)
-                        .Include(x => x.Cliente)
-                        .Include(x => x.Vendedor)
-                        .Include(x => x.Division)
-                        .OrderByDescending(x => x.Fecha_Creacion)
-                        .Select(x => mapper.Map<CRMContacto, CRMContactosExcelDTO>(x)).ToList();
-                    ws.Cells["A1"].LoadFromCollection(contactosExcel, opt =>
+                    if (await manager.IsInRoleAsync(user, "Admin"))
                     {
-                        opt.PrintHeaders = true;
-                        opt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium12;
-                    });
+                        ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                        ExcelPackage excelPackage = new();
+                        ExcelWorksheet ws = excelPackage.Workbook.Worksheets.Add("Contactos");
 
-                    ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+                        var contactosExcel = context.CRMContactos.AsNoTracking().Where(x => x.Activo)
+                            .Include(x => x.Estatus)
+                            .Include(x => x.Origen)
+                            .Include(x => x.Cliente)
+                            .Include(x => x.Vendedor)
+                            .Include(x => x.Division)
+                           .OrderByDescending(x => x.Fecha_Creacion)
+                           .Select(x => mapper.Map<CRMContacto, CRMContactosExcelDTO>(x))
+                           .ToList();
 
-                    return Ok(excelPackage.GetAsByteArray());
+
+                        ws.Cells["A1"].LoadFromCollection(contactosExcel, opt =>
+                        {
+                            opt.PrintHeaders = true;
+                            opt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium12;
+                        });
+
+                        ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                        return Ok(excelPackage.GetAsByteArray());
+
+                    }
+                    else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
+                    {
+                        ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                        ExcelPackage excelPackage = new();
+                        ExcelWorksheet ws = excelPackage.Workbook.Worksheets.Add("Contactos");
+
+                        var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
+                        if (comercial is not null)
+                        {
+                            List<int> equipos = await context.CRMEquipos
+                                .AsNoTracking()
+                                .Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == comercial.Id))
+                                .Select(x => x.Id)
+                                .ToListAsync();
+
+                            List<int?> vendedoresequipo = await context.CRMEquipoVendedores
+                                .AsNoTracking()
+                                .Where(x => equipos.Contains(x.EquipoId))
+                                .GroupBy(x => x.VendedorId)
+                                .Select(x => (int?)x.Key)
+                                .ToListAsync();
+
+                            var contactosExcel = context.CRMContactos.AsNoTracking().Where(x => x.Activo
+                             && vendedoresequipo.Contains(x.VendedorId))
+                                 .Include(x => x.Estatus)
+                                 .Include(x => x.Origen)
+                                 .Include(x => x.Cliente)
+                                 .Include(x => x.Vendedor)
+                                 .Include(x => x.Division)
+                                 .OrderByDescending(x => x.Fecha_Creacion)
+                                .Select(x => mapper.Map<CRMContacto, CRMContactosExcelDTO>(x))
+                                .ToList();
+
+
+                            ws.Cells["A1"].LoadFromCollection(contactosExcel, opt =>
+                            {
+                                opt.PrintHeaders = true;
+                                opt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium12;
+                            });
+
+                            ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                            return Ok(excelPackage.GetAsByteArray());
+
+                        }
+                    }
+                    else
+                    {
+                        ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                        ExcelPackage excelPackage = new();
+                        ExcelWorksheet ws = excelPackage.Workbook.Worksheets.Add("Contactos");
+
+                        var vendedor = await context.CRMVendedores.FirstOrDefaultAsync(x => x.UserId == user.Id);
+                        if (vendedor is null) { return NotFound(); }
+
+                        var contactosExcel = context.CRMContactos.AsNoTracking().Where(x => x.Activo && x.VendedorId == vendedor.Id)
+                             .Include(x => x.Estatus)
+                             .Include(x => x.Origen)
+                             .Include(x => x.Cliente)
+                             .Include(x => x.Vendedor)
+                             .Include(x => x.Division)
+                             .OrderByDescending(x => x.Fecha_Creacion)
+                             .Select(x => mapper.Map<CRMContacto, CRMContactosExcelDTO>(x))
+                             .ToList();
+
+
+                        ws.Cells["A1"].LoadFromCollection(contactosExcel, opt =>
+                        {
+                            opt.PrintHeaders = true;
+                            opt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium12;
+                        });
+
+                        ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                        return Ok(excelPackage.GetAsByteArray());
+                    }
                 }
 
                 if (contacto.Paginacion)
@@ -155,6 +242,32 @@ namespace GComFuelManager.Server.Controllers.CRM
                     contacto.Pagina = HttpContext.ObtenerPagina();
                     contactos = contactos.Skip((contacto.Pagina - 1) * contacto.Registros_por_pagina).Take(contacto.Registros_por_pagina);
                 }
+
+                var contactosdto = contactos.Select(x => mapper.Map<CRMContactoDTO>(x));
+
+                return Ok(contactosdto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("contactList")]
+        public async Task<ActionResult> GetContact([FromQuery] CRMContactoDTO contacto)
+        {
+            try
+            {
+                var contactos = new List<CRMContacto>().AsQueryable();
+                contactos = context.CRMContactos.AsNoTracking().Where(x => x.Activo)
+                       .Include(x => x.Estatus)
+                       .Include(x => x.Origen)
+                       .Include(x => x.Cliente)
+                       .Include(x => x.Vendedor)
+                       .Include(x => x.Division)
+                       .AsQueryable();
+                if (!string.IsNullOrEmpty(contacto.Nombre) && !string.IsNullOrWhiteSpace(contacto.Nombre))
+                    contactos = contactos.Where(x => x.Nombre.ToLower().Contains(contacto.Nombre.ToLower()) || x.Apellidos.ToLower().Contains(contacto.Nombre.ToLower()));
 
                 var contactosdto = contactos.Select(x => mapper.Map<CRMContactoDTO>(x));
 
