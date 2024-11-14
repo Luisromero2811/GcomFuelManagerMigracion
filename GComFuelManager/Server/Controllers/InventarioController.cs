@@ -23,7 +23,7 @@ namespace GComFuelManager.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, Inventarios, Abrir Cierres Inventario")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, Inventarios, Inventarios Lectura , Abrir Cierres Inventario")]
 
     public class InventarioController : ControllerBase
     {
@@ -166,6 +166,16 @@ namespace GComFuelManager.Server.Controllers
                 if (id_terminal == 0)
                     return BadRequest();
 
+                var userid = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(userid))
+                    return NotFound();
+
+                var user = await userManager.FindByIdAsync(userid);
+                if (user is null) { return NotFound(); }
+
+                var usersis = await context.Usuario.AsNoTracking().FirstOrDefaultAsync(x => x.Cod.Equals(user.UserCod));
+                if (usersis is null) { return NotFound(); }
+
                 var result = validator.Validate(post);
                 if (!result.IsValid) { return BadRequest(result.Errors.Select(x => x.ErrorMessage)); }
 
@@ -218,7 +228,7 @@ namespace GComFuelManager.Server.Controllers
                                         return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en Inventario");
 
                                 if (post.TipoInventario.Equals(TipoInventario.FisicaReservada))
-                                    if (inventariodto.CantidadLTS > cierre.Reservado)
+                                    if (inventariodto.CantidadLTS > cierre.Reservado && inventariodto.CantidadLTS > cierre.ReservadoDisponible)
                                         return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en Fisico reservado");
 
                                 if (post.TipoInventario.Equals(TipoInventario.OrdenReservada))
@@ -312,7 +322,9 @@ namespace GComFuelManager.Server.Controllers
                                 AlmacenId = inventariodto.AlmacenId,
                                 LocalidadId = inventariodto.LocalidadId,
                                 FechaCierre = null,
-                                TadId = id_terminal
+                                FechaInicio = DateTime.Now,
+                                TadId = id_terminal,
+                                UsuarioInicioId = usersis.Cod
                             };
                             inventariodto.Cierre = newCierre;
                             await context.AddAsync(newCierre);
@@ -349,29 +361,51 @@ namespace GComFuelManager.Server.Controllers
                                     else if (tipo.Equals(9) || tipo.Equals(20))
                                     {
                                         if (post.TipoInventario.Equals(TipoInventario.FisicaReservada))
+                                        {
+                                            cierre.ReservadoDisponible -= inventariodto.CantidadLTS;
                                             cierre.Reservado -= inventariodto.CantidadLTS;
+                                        }
                                         if (post.TipoInventario.Equals(TipoInventario.OrdenReservada))
+                                        {
                                             cierre.OrdenReservado -= inventariodto.CantidadLTS;
+                                            cierre.ReservadoDisponible += inventariodto.CantidadLTS;
+                                        }
                                         if (post.TipoInventario.Equals(TipoInventario.EnOrden))
+                                        {
                                             cierre.EnOrden -= inventariodto.CantidadLTS;
+                                            cierre.ReservadoDisponible += inventariodto.CantidadLTS;
+                                        }
+                                        if (post.TipoInventario.Equals(TipoInventario.Cargado))
+                                        {
+                                            cierre.Cargado -= inventariodto.CantidadLTS;
+                                        }
 
                                         if (tipo.Equals(9))
                                             cierre.Fisico += inventariodto.CantidadLTS;
-                                        if (tipo.Equals(20))
+                                        if (tipo.Equals(20) && !post.TipoInventario.Equals(TipoInventario.Cargado))
                                             cierre.Fisico -= inventariodto.CantidadLTS;
                                     }
                                     else if (tipo < 20)
                                         cierre.Fisico += inventariodto.CantidadLTS;
                                     else if (tipo.Equals(21))
+                                    {
                                         cierre.Reservado += inventariodto.CantidadLTS;
+                                        cierre.ReservadoDisponible += inventariodto.CantidadLTS;
+                                    }
                                     else if (tipo.Equals(22))
+                                    {
                                         cierre.OrdenReservado += inventariodto.CantidadLTS;
+                                        cierre.ReservadoDisponible -= inventariodto.CantidadLTS;
+                                    }
                                     else if (tipo.Equals(23))
+                                    {
                                         cierre.EnOrden += inventariodto.CantidadLTS;
+                                        cierre.OrdenReservado -= inventariodto.CantidadLTS;
+                                    }
                                     else if (tipo.Equals(25))
                                     {
-                                        //cierre.Reservado -= inventariodto.CantidadLTS;
                                         cierre.OrdenReservado += inventariodto.CantidadLTS;
+                                        cierre.ReservadoDisponible -= inventariodto.CantidadLTS;
                                     }
                                     else if (tipo.Equals(26))
                                     {
@@ -382,6 +416,7 @@ namespace GComFuelManager.Server.Controllers
                                     {
                                         cierre.EnOrden -= inventariodto.CantidadLTS;
                                         cierre.Reservado -= inventariodto.CantidadLTS;
+                                        //cierre.ReservadoDisponible -= inventariodto.CantidadLTS;
                                         cierre.Fisico -= inventariodto.CantidadLTS;
                                         cierre.Cargado += inventariodto.CantidadLTS;
                                     }
@@ -390,7 +425,7 @@ namespace GComFuelManager.Server.Controllers
                                 }
 
                                 cierre.Disponible = (cierre.Fisico - cierre.Reservado);
-                                cierre.TotalDisponible = (cierre.Disponible + cierre.PedidoTotal) - (cierre.OrdenReservado + cierre.EnOrden);
+                                cierre.TotalDisponible = (cierre.Disponible + cierre.PedidoTotal);
                                 cierre.TotalDisponibleFull = cierre.TotalDisponible.IsZero() ? 0 : cierre.TotalDisponible / 62000;
 
                                 context.Update(cierre);
@@ -446,6 +481,12 @@ namespace GComFuelManager.Server.Controllers
                 if (string.IsNullOrEmpty(userid))
                     return NotFound();
 
+                var user = await userManager.FindByIdAsync(userid);
+                if (user is null) { return NotFound(); }
+
+                var usersis = await context.Usuario.AsNoTracking().FirstOrDefaultAsync(x => x.Cod.Equals(user.UserCod));
+                if (usersis is null) { return NotFound(); }
+
                 var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
                 if (id_terminal == 0)
                     return BadRequest();
@@ -453,23 +494,39 @@ namespace GComFuelManager.Server.Controllers
                 var cierre = await context.InventarioCierres.FindAsync(Id);
                 if (cierre is null) return NotFound();
 
+                var nuevocierre = mapper.Map<InventarioCierre>(cierre);
+                //invetir variables
+                nuevocierre.Id = 0;
+                nuevocierre.UsuarioInicioId = usersis.Cod;
+                nuevocierre.FechaInicio = DateTime.Now;
+
                 cierre.TadId = id_terminal;
                 cierre.UnidadMedidaId = 70;
-                cierre.FechaCierre = DateTime.Today;
+                cierre.FechaCierre = DateTime.Now;
+                cierre.UsuarioCierreId = usersis.Cod;
 
                 var anteriorcierre = await context.InventarioCierres
                     .AsNoTracking()
+                    .Include(x => x.Producto)
+                    .Include(x => x.Sitio)
+                    .Include(x => x.Almacen)
+                    .Include(x => x.Localidad)
                     .FirstOrDefaultAsync(x => x.ProductoId.Equals(cierre.ProductoId) &&
                     x.SitioId.Equals(cierre.SitioId) &&
                     x.AlmacenId.Equals(cierre.AlmacenId) &&
                     x.LocalidadId.Equals(cierre.LocalidadId) &&
-                    x.FechaCierre == DateTime.Today &&
+                    x.FechaCierre.Value.Date == DateTime.Today.Date &&
                     x.Activo && x.Id != cierre.Id);
 
-                if (anteriorcierre is not null) { return BadRequest($"Ya existe un cierre el dia {DateTime.Today:D}"); }
+                if (anteriorcierre is not null)
+                {
+                    return BadRequest($"Ya existe un cierre el dia {DateTime.Today:D}. \n Producto : {anteriorcierre.Producto.Nombre_Producto}. " +
+                    $"\n Sitio {anteriorcierre.Sitio.Valor}. \n Almacen: {anteriorcierre.Almacen.Valor}. \n Localidad: {anteriorcierre.Localidad.Valor}");
+                }
 
                 cierre.Abierto = false;
 
+                await context.AddAsync(nuevocierre);
                 context.Update(cierre);
 
                 var inventarios = await context.Inventarios
@@ -481,7 +538,7 @@ namespace GComFuelManager.Server.Controllers
                     x.Activo)
                     .ToListAsync();
 
-                var inventariosdecierre = inventarios.Select(x => { x.FechaCierre = cierre.FechaCierre; return x; });
+                var inventariosdecierre = inventarios.Select(x => { x.FechaCierre = nuevocierre.FechaCierre; return x; });
 
                 context.UpdateRange(inventariosdecierre);
                 await context.SaveChangesAsync(userid, 61);
@@ -550,6 +607,8 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Almacen)
                     .Include(x => x.Localidad)
                     .Include(x => x.Terminal)
+                    .Include(x => x.UsuarioCierre)
+                    .Include(x => x.UsuarioInicio)
                     .Select(x => mapper.Map<InventarioCierreDTO>(x))
                     .AsQueryable();
 
@@ -607,6 +666,8 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Almacen)
                     .Include(x => x.Localidad)
                     .Include(x => x.Terminal)
+                    .Include(x => x.UsuarioCierre)
+                    .Include(x => x.UsuarioInicio)
                     .AsQueryable();
 
                 if (cierreDTO.PorFecha)
@@ -835,6 +896,10 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var tipomovimiento = await context.CatalogoValores
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.Id == Id);
@@ -855,7 +920,7 @@ namespace GComFuelManager.Server.Controllers
                             menu.LabelMenu = "Destino";
                             var destinos = await context.Catalogos.AsNoTracking()
                                 .Where(x => x.Clave.Equals("Catalogo_Inventario_Destinos") && x.Activo)
-                                .Include(x => x.Valores.Where(y => y.Activo)).FirstOrDefaultAsync();
+                                .Include(x => x.Valores.Where(y => y.Activo && y.TadId.Equals(id_terminal))).FirstOrDefaultAsync();
 
                             menu.Destinos = destinos?.Valores.Select(y => mapper.Map<CatalogoValorDTO>(y)).ToList() ?? new();
 
@@ -870,7 +935,7 @@ namespace GComFuelManager.Server.Controllers
                             menu.LabelMenu = "Origen";
                             var origenes = await context.Catalogos.AsNoTracking()
                                 .Where(x => x.Clave.Equals("Catalogo_Inventario_Origen") && x.Activo)
-                                .Include(x => x.Valores.Where(y => y.Activo)).FirstOrDefaultAsync();
+                                .Include(x => x.Valores.Where(y => y.Activo && y.TadId.Equals(id_terminal))).FirstOrDefaultAsync();
 
                             menu.Origenes = origenes?.Valores.Select(y => mapper.Map<CatalogoValorDTO>(y)).ToList() ?? new();
 
@@ -1026,22 +1091,36 @@ namespace GComFuelManager.Server.Controllers
                                     cierre.OrdenReservado += inventariodto.CantidadLTS;
                                 if (inventariodto.TipoInventario.Equals(TipoInventario.EnOrden))
                                     cierre.EnOrden += inventariodto.CantidadLTS;
+                                if (inventariodto.TipoInventario.Equals(TipoInventario.Cargado))
+                                    cierre.Fisico += inventariodto.CantidadLTS;
 
                                 if (tipo.Equals(9))
                                     cierre.Fisico -= inventariodto.CantidadLTS;
-                                if (tipo.Equals(20))
+                                if (tipo.Equals(20) && !inventariodto.TipoInventario.Equals(TipoInventario.Cargado))
                                     cierre.Fisico += inventariodto.CantidadLTS;
                             }
                             else if (tipo < 20)
+                            {
                                 cierre.Fisico -= inventariodto.CantidadLTS;
+                            }
                             else if (tipo.Equals(21))
+                            {
                                 cierre.Reservado -= inventariodto.CantidadLTS;
+                                cierre.ReservadoDisponible -= inventariodto.CantidadLTS;
+                            }
                             else if (tipo.Equals(22))
+                            {
+                                cierre.ReservadoDisponible += inventariodto.CantidadLTS;
                                 cierre.OrdenReservado -= inventariodto.CantidadLTS;
+                            }
                             else if (tipo.Equals(23))
+                            {
+                                cierre.ReservadoDisponible += inventariodto.CantidadLTS;
                                 cierre.EnOrden -= inventariodto.CantidadLTS;
+                            }
                             else if (tipo.Equals(25))
                             {
+                                cierre.ReservadoDisponible += inventariodto.CantidadLTS;
                                 cierre.OrdenReservado -= inventariodto.CantidadLTS;
                             }
                             else if (tipo.Equals(26))
@@ -1052,8 +1131,6 @@ namespace GComFuelManager.Server.Controllers
                             else if (tipo.Equals(27))
                             {
                                 cierre.Fisico += inventariodto.CantidadLTS;
-                                cierre.Reservado += inventariodto.CantidadLTS;
-                                //cierre.EnOrden += inventariodto.CantidadLTS;
                                 cierre.Cargado -= inventariodto.CantidadLTS;
                             }
                             else if (tipo >= 20)
@@ -1061,7 +1138,7 @@ namespace GComFuelManager.Server.Controllers
                         }
 
                         cierre.Disponible = (cierre.Fisico - cierre.Reservado);
-                        cierre.TotalDisponible = (cierre.Disponible + cierre.PedidoTotal) - (cierre.OrdenReservado + cierre.EnOrden);
+                        cierre.TotalDisponible = (cierre.Disponible + cierre.PedidoTotal);
                         cierre.TotalDisponibleFull = cierre.TotalDisponible.IsZero() ? 0 : cierre.TotalDisponible / 62000;
                     }
                 }

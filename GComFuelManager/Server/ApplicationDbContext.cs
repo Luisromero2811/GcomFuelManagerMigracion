@@ -694,6 +694,18 @@ namespace GComFuelManager.Server
                 .WithMany()
                 .HasForeignKey(x => x.TonelId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InventarioCierre>()
+                .HasOne(x => x.UsuarioInicio)
+                .WithMany()
+                .HasForeignKey(x => x.UsuarioInicioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InventarioCierre>()
+                .HasOne(x => x.UsuarioCierre)
+                .WithMany()
+                .HasForeignKey(x => x.UsuarioCierreId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
 

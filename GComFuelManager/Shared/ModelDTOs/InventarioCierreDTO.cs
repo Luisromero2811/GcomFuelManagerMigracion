@@ -1,4 +1,5 @@
 ﻿using GComFuelManager.Shared.Filtro;
+using GComFuelManager.Shared.Modelos;
 using OfficeOpenXml.Attributes;
 
 namespace GComFuelManager.Shared.ModelDTOs
@@ -16,6 +17,7 @@ namespace GComFuelManager.Shared.ModelDTOs
         public int LocalidadId { get; set; }
         public double Fisico { get; set; }
         public double Reservado { get; set; }
+        public double ReservadoDisponible { get; set; }
         public double Disponible { get; set; }
         public double PedidoTotal { get; set; }
         public double OrdenReservado { get; set; }
@@ -24,7 +26,9 @@ namespace GComFuelManager.Shared.ModelDTOs
         public double TotalDisponible { get; set; }
         public double TotalDisponibleFull { get; set; }
         public DateTime FechaCierre { get; set; } = DateTime.Now;
+        public DateTime? FechaInicio { get; set; } = null!;
         public bool Abierto { get; set; } = true;
-        public bool Cerrado { get; set; } = false;
+        public UsuarioSistemaDTO? UsuarioInicio { get; set; } = new();
+        public UsuarioSistemaDTO? UsuarioCierre { get; set; } = new();
     }
 }

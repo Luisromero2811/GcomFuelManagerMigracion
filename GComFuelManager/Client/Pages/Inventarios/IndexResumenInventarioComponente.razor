@@ -3,7 +3,7 @@
 @inject IJSRuntime js
 @inject InventarioValidator validator
 @inject SweetAlertService Swal
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Inventarios")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Inventarios, Inventarios Lectura")]
 
 <Card HeaderText="Resumen de inventario actual" CardClass="mb-2" LoadingContent="loading" />
 
@@ -22,7 +22,12 @@
     <Tabla Datos="Cierres">
         <Cabeceras>
             <tr>
-                <th style="width: 150px;" class="resizable-column"></th>
+                <AuthorizeView Roles="Inventarios">
+                    <Authorized>
+                        <th style="width: 150px;" class="resizable-column">Acciones</th>
+                    </Authorized>
+                </AuthorizeView>
+                <th style="width: 150px;" class="resizable-column">Fecha de inicio</th>
                 <th style="width: 150px;" class="resizable-column">Producto</th>
                 <th style="width: 150px;" class="resizable-column">Sitio</th>
                 <th style="width: 150px;" class="resizable-column">Almacen</th>
@@ -30,16 +35,23 @@
                 <th style="width: 150px;" class="resizable-column">Inventario fisico</th>
                 <th style="width: 150px;" class="resizable-column">Fisica reservada</th>
                 <th style="width: 150px;" class="resizable-column">Fisico disponible</th>
+                <th style="width: 150px;" class="resizable-column">Fisica reservada disponible</th>
                 <th style="width: 150px;" class="resizable-column">Pedido total</th>
                 <th style="width: 150px;" class="resizable-column">Ordenada reservada</th>
                 <th style="width: 150px;" class="resizable-column">En orden</th>
                 <th style="width: 150px;" class="resizable-column">Cargada</th>
                 <th style="width: 150px;" class="resizable-column">Total disponible</th>
                 <th style="width: 150px;" class="resizable-column">Total disponible en full</th>
+                <th style="width: 150px;" class="resizable-column">Usuario de inicio de cierre</th>
             </tr>
         </Cabeceras>
         <Filtros>
             <tr>
+                <AuthorizeView Roles="Inventarios">
+                    <Authorized>
+                        <td></td>
+                    </Authorized>
+                </AuthorizeView>
                 <td></td>
                 <td>
                     <select class="form-select form-select-sm"
@@ -90,20 +102,27 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
+                <td></td>
             </tr>
         </Filtros>
         <Columnas Context="inv">
             <tr>
-                <td>
-                    <div class="btn-group col-12">
-                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>AbrirDetalleCierre(inv))" aria-label="Ver registros">
-                            <i class="fa fa-solid fa-eye" />
-                        </button>
-                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>CerrarInventario(inv))" aria-label="Cerrar inventario">
-                            <i class="fa fa-solid fa-lock" />
-                        </button>
-                    </div>
-                </td>
+                <AuthorizeView Roles="Inventarios">
+                    <Authorized>t  
+                        <td>
+                            <div class="btn-group col-12">
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>AbrirDetalleCierre(inv))" aria-label="Ver registros">
+                                    <i class="fa fa-solid fa-eye" />
+                                </button>
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>CerrarInventario(inv))" aria-label="Cerrar inventario">
+                                    <i class="fa fa-solid fa-lock" />
+                                </button>
+                            </div>
+                        </td>
+                    </Authorized>
+                </AuthorizeView>
+                <td>@inv.FechaInicio</td>
                 <td>@inv.Producto</td>
                 <td>@inv.Sitio</td>
                 <td>@inv.Almacen</td>
@@ -111,12 +130,14 @@
                 <td>@inv.Fisico.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.Reservado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.Disponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.ReservadoDisponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.PedidoTotal.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.OrdenReservado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.EnOrden.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.Cargado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.TotalDisponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.TotalDisponibleFull.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td>@inv.UsuarioInicio?.ToString()</td>
             </tr>
         </Columnas>
     </Tabla>

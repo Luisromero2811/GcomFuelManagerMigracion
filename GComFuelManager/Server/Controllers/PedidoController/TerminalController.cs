@@ -330,7 +330,7 @@ namespace GComFuelManager.Server.Controllers
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Terminal_Tipo_Terminal"));
                 if (catalogo is null) { return BadRequest("No se encontro un catalogo para los tipos de terminales"); }
 
-                var valores = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var valores = await context.Catalogo_Fijo.Where(x => x.Catalogo == catalogo.Cod).ToListAsync();
 
                 return Ok(valores);
             }

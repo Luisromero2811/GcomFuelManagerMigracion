@@ -16,6 +16,8 @@ namespace GComFuelManager.Shared.ReportesDTO
         public double Reservado { get; set; }
         [DisplayName("Física disponible")]
         public double Disponible { get; set; }
+        [DisplayName("Física reservada disponible")]
+        public double ReservadoDisponible { get; set; }
         [DisplayName("Pedido en total")]
         public double PedidoTotal { get; set; }
         [DisplayName("Ordenada reservada")]

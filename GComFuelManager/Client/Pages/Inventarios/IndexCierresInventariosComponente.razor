@@ -4,9 +4,9 @@
 @inject NotificationService ns
 @inject InventarioValidator validator
 @inject SweetAlertService Swal
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Inventarios")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Inventarios, Inventarios Lectura")]
 
-<Card HeaderText="Inventarios cerrados" BodyClass="col-12 row">
+<Card HeaderText="Cierre de inventarios" BodyClass="col-12 row">
     <Body>
         <div class="col-6 row">
             <div class="col-4">
@@ -35,8 +35,12 @@
     <Tabla Datos="Cierres">
         <Cabeceras>
             <tr>
-                <th style="width:120px;" class="resizable-column">Acciones</th>
-                <th style="width:150px;" class="resizable-column">Fecha de cierre</th>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Inventarios">
+                    <Authorized>
+                        <th style="width:120px;" class="resizable-column">Acciones</th>
+                    </Authorized>
+                </AuthorizeView>
+                <th style="width:150px;" class="resizable-column">Fecha de inicio / fin de cierre</th>
                 <th style="width:150px;" class="resizable-column">Producto</th>
                 <th style="width:150px;" class="resizable-column">Sitio</th>
                 <th style="width:150px;" class="resizable-column">Almacen</th>
@@ -50,11 +54,17 @@
                 <th style="width:150px;" class="resizable-column">Cargado</th>
                 <th style="width:150px;" class="resizable-column">Total disponible</th>
                 <th style="width:150px;" class="resizable-column">Total disponible en full</th>
+                <th style="width:150px;" class="resizable-column">Usuario de inicio de cierre</th>
+                <th style="width:150px;" class="resizable-column">Usuario de fin de cierre</th>
             </tr>
         </Cabeceras>
         <Filtros>
             <tr>
-                <td></td>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Inventarios">
+                    <Authorized>
+                        <td></td>
+                    </Authorized>
+                </AuthorizeView>
                 <td></td>
                 <td>
                     <select class="form-select form-select-sm"
@@ -105,31 +115,37 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
+                <td></td>
             </tr>
         </Filtros>
         <Columnas Context="inv">
             <tr>
-                <td>
-                    <div class="btn-group col-12">
-                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>AbrirDetalleCierre(inv))">
-                            <i class="fa fa-solid fa-eye" />
-                        </button>
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Abrir Cierres Inventario">
-                            <Authorized>
-                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>AbrirCierres(inv))">
-                                    <i class=@($"fa fa-solid {(inv.Abierto ? "fa-lock" : "fa-unlock")}") />
+                <AuthorizeView Roles="Admin, Administrador Sistema, Inventarios" Context="INV">
+                    <Authorized>
+                        <td>
+                            <div class="btn-group col-12">
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>AbrirDetalleCierre(inv))">
+                                    <i class="fa fa-solid fa-eye" />
                                 </button>
-                            </Authorized>
-                        </AuthorizeView>
-                        @if (inv.Abierto)
-                        {
-                            <NavLink class="btn btn-sm gcom-bg-amarillo" href="@($"inventarios/{inv.Id}")">
-                                <i class="fa fa-solid fa-edit" />
-                            </NavLink>
-                        }
-                    </div>
-                </td>
-                <td>@inv.FechaCierre.ToShortDateString()</td>
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Abrir Cierres Inventario">
+                                    <Authorized>
+                                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>AbrirCierres(inv))">
+                                            <i class=@($"fa fa-solid {(inv.Abierto ? "fa-lock" : "fa-unlock")}") />
+                                        </button>
+                                    </Authorized>
+                                </AuthorizeView>
+                                @if (inv.Abierto)
+                                {
+                                    <NavLink class="btn btn-sm gcom-bg-amarillo" href="@($"inventarios/{inv.Id}")">
+                                        <i class="fa fa-solid fa-edit" />
+                                    </NavLink>
+                                }
+                            </div>
+                        </td>
+                    </Authorized>
+                </AuthorizeView>
+                <td>@inv.FechaInicio - @inv.FechaCierre</td>
                 <td>@inv.Producto</td>
                 <td>@inv.Sitio</td>
                 <td>@inv.Almacen</td>
@@ -143,6 +159,8 @@
                 <td>@inv.Cargado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.TotalDisponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
                 <td>@inv.TotalDisponibleFull.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td>@inv.UsuarioInicio</td>
+                <td>@inv.UsuarioCierre</td>
             </tr>
         </Columnas>
     </Tabla>
