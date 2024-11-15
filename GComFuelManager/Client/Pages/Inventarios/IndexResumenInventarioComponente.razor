@@ -22,7 +22,7 @@
     <Tabla Datos="Cierres">
         <Cabeceras>
             <tr>
-                <AuthorizeView Roles="Inventarios">
+                <AuthorizeView Roles="Admin, Administrador Sistema,Inventarios">
                     <Authorized>
                         <th style="width: 150px;" class="resizable-column">Acciones</th>
                     </Authorized>
@@ -47,12 +47,11 @@
         </Cabeceras>
         <Filtros>
             <tr>
-                <AuthorizeView Roles="Inventarios">
+                <AuthorizeView Roles="Admin, Administrador Sistema,Inventarios">
                     <Authorized>
                         <td></td>
                     </Authorized>
                 </AuthorizeView>
-                <td></td>
                 <td>
                     <select class="form-select form-select-sm"
                             onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.ProductoId)))">
@@ -108,8 +107,8 @@
         </Filtros>
         <Columnas Context="inv">
             <tr>
-                <AuthorizeView Roles="Inventarios">
-                    <Authorized>t  
+                <AuthorizeView Roles="Admin, Administrador Sistema,Inventarios">
+                    <Authorized>
                         <td>
                             <div class="btn-group col-12">
                                 <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>AbrirDetalleCierre(inv))" aria-label="Ver registros">
