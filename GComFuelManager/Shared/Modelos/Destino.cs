@@ -1,4 +1,5 @@
-﻿using OfficeOpenXml.Attributes;
+﻿using GComFuelManager.Shared.Enums;
+using OfficeOpenXml.Attributes;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -39,6 +40,9 @@ namespace GComFuelManager.Shared.Modelos
         [DisplayName("ID Gobierno")] public string? Id_DestinoGobierno { get; set; } = string.Empty;
         [EpplusIgnore] public bool? Es_Multidestino { get; set; } = false;
 
+        public Tipo_Venta? TipoVenta { get; set; }
+        public Modelo_Venta? ModeloVenta { get; set; }
+
         [NotMapped, DisplayName("Nombre Completo del Destino")]
         public string FULLDEN
         {
@@ -78,5 +82,8 @@ namespace GComFuelManager.Shared.Modelos
                 Id_DestinoGobierno = Id_DestinoGobierno
             };
         }
+
+        public override int GetHashCode() =>
+            (Den, Id_Tad).GetHashCode();
     }
 }

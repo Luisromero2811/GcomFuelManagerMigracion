@@ -42,13 +42,22 @@
             </div>
             <div class="col-12">
                 <div class="col-3">
-                    <button class="col-12 btn btn-sm gcom-bg-amarillo" @onclick="@Guardar_Factura">
-                        Guardar
-                        @if (loading_guardar)
-                        {
-                            <SpinnerLoading />
-                        }
-                    </button>
+                    @if (loading_guardar)
+                    {
+                        <button class="col-12 btn btn-sm gcom-bg-amarillo" disabled>
+                            Guardar
+                            @if (loading_guardar)
+                            {
+                                <SpinnerLoading />
+                            }
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="col-12 btn btn-sm gcom-bg-amarillo" @onclick="@Guardar_Factura">
+                            Guardar
+                        </button>
+                    }
                 </div>
             </div>
         </div>

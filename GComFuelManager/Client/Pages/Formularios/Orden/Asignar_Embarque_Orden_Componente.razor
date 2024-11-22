@@ -119,9 +119,9 @@
                             <ValidationMessage For="@(()=>Datos_BOL.Factura)" />
                         </div>
                         @*<div class="col-2">
-                            <label>Importe Total:</label>
-                            <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Importe"/>
-                            </div>*@
+                        <label>Importe Total:</label>
+                        <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Importe"/>
+                        </div>*@
                     </div>
                     <div class="col-12 d-flex justify-content-center mt-2">
                         <div class="col-4">
@@ -143,178 +143,136 @@
                 <div class="row g3 d-flex">
                     <div class="row justify-content-center">
                         <label><b>Reporte</b></label>
-                        <div class="col-md-4" @onmouseenter="@(args => ShowToolsTips(infosIcon))" @ref="infosIcon">
-                            <label>Fecha de inicio:</label><i class="fa-solid fa-circle-info fa-xs"></i>
-                            <InputDate class="form-control col-12" @bind-Value="@fechas.DateInicio" />
+                        <div class="col-md-4">
+                            <label>Fecha de inicio:</label>
+                            <InputDate class="form-control form-control-sm col-12" @bind-Value="@etaDto.Fecha_Inicio" />
                         </div>
                         <div class="col-md-4">
                             <label>Fecha final</label>
-                            <InputDate class="form-control col-12" @bind-Value="@fechas.DateFin" />
+                            <InputDate class="form-control form-control-sm col-12" @bind-Value="@etaDto.Fecha_Fin" />
                         </div>
-                        <div class="col-md-4">
-                            <label></label>
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarEtaFecha"><i class="fa fa-solid fa-eye"></i> <b>Mostrar órdenes</b></button>
-                        </div>
-                    </div>
-                    <!--RadioButtons-->
-                    <div class="col-12 d-flex mt-2">
-                        <div class="col-6 card mx-auto">
-                            <div class="card-body">
-                                <div class="row col-12 mt-1" style="text-align: center;">
-                                    <div style="text-align: center;">
-                                        <label style="text-align: center;">Modelos de Venta (Rack y Delivery)</label>
-                                    </div>
-                                </div>
-                                <div class="col-12 mt-1 d-flex justify-content-center">
-                                    <div class="form-check form-check-inline">
-                                        <input type="radio" class="form-check-input" id="Delivery" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
-                                        <label class="form-check-label" for="Delivery">Delivery</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" id="Rack" name="estatus" checked="@(fechas.Estado == 2)" @onchange="@(()=>fechas.Estado = 2)" />
-                                        <label class="form-check-label" for="Rack">Rack</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" id="Ambas" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
-                                        <label class="form-check-label" for="Ambas">Ambos modelos de venta</label>
-                                    </div>
-                                    @*<div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" id="Todos" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
-                                            <label class="form-check-label" for="Todos">Delivery y Rack</label>
-                                        </div>*@
-                                </div>
-                            </div>
+                        <div class="col-md-4 d-flex">
+                            <button class="btn btn-sm gcom-bg-amarillo col-12 mt-auto" @onclick="@MostrarEtaFecha">
+                                <i class="fa fa-solid fa-eye"></i>
+                                <b>Mostrar órdenes</b>
+                                @if (loadingBuscarOrdenes)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
                         </div>
                     </div>
-
                 </div>
                 <!--Tabla de muestreo de datos-->
-                <div class="col-12 mt-4 table-responsive ancho-tabla" style="height:450px;resize:both;">
-                    <div class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
-                        <table class="table table-sm table-bordered table-hover table-striped" style="font-size:12px;width:2500px;text-align:left;">
-                            <thead class="fila" style="position: sticky;">
-                                <tr style="max-height:50px;white-space:nowrap; position: sticky;" class="sticky-column">
-                                    <th></th>
-                                    <th>
-                                        Referencia
-                                    </th>
-                                    <th>
-                                        Fecha de Programa
-                                    </th>
-                                    <th>
-                                        Unidad de Negocio
-                                    </th>
-                                    <th>
-                                        Estatus de Orden
-                                    </th>
-                                    <th>
-                                        Fecha de Carga
-                                    </th>
-                                    <th>
-                                        BOL
-                                    </th>
-                                    <th>
-                                        Precio
-                                    </th>
-                                    <th>
-                                        Modelo de Venta
-                                    </th>
-                                    <th>
-                                        Cliente
-                                    </th>
-                                    <th>
-                                        Destino
-                                    </th>
-                                    <th>
-                                        Producto
-                                    </th>
-                                    <th>
-                                        Volumen Natural
-                                    </th>
-                                    <th>
-                                        Volumen Cargado
-                                    </th>
-                                    <th>
-                                        Transportista
-                                    </th>
-                                    <th>
-                                        Unidad
-                                    </th>
-                                    <th>
-                                        Operador
-                                    </th>
-                                    <th>
-                                        ETA
-                                    </th>
-                                    <th>
-                                        Fecha de llegada estimada
-                                    </th>
-                                    <th>
-                                        Sellos
-                                    </th>
-                                    <th>
-                                        Pedimentos
-                                    </th>
-                                    <th>
-                                        # de Orden
-                                    </th>
-                                    <th>
-                                        Factura Proveedor
-                                    </th>
-                                    @*<th>
-                                        Importe Total
-                                        </th>*@
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <Virtualize Items="@ordens" Context="data" TItem="EtaNTDTO">
-                                    <tr style="white-space:nowrap;@(etaDto == data ? "background-color: #FFF633;" : string.Empty)">
-
-                                        <td>
-                                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Buscar_Orden_De_Tabla(data))">
-                                                <i class="fa fa-solid fa-table-cells"></i>
-                                            </button>
-                                        </td>
-                                        <td>@data?.Referencia</td>
-                                        <td>
-                                            <p class="text-break">
-                                                @data?.FechaPrograma
-                                            </p>
-                                        </td>
-                                        <td>@data?.Unidad_Negocio</td>
-                                        <td>@data?.EstatusOrden</td>
-                                        <td>
-                                            @(data?.FechaCarga is not null && data?.Bol is not null ? data?.FechaCarga : "")
-                                        </td>
-                                        <td>@data?.Bol</td>
-                                        <td>@data?.Precio</td>
-                                        <td>
-                                            @data?.MdVenta
-                                        </td>
-                                        <td>@data?.Cliente</td>
-                                        <td>@data?.Destino</td>
-                                        <td>@data?.Producto</td>
-                                        <td>
-                                            @data?.Volms
-                                        </td>
-                                        <td>@data?.Vols</td>
-                                        <td>@data?.Transportista</td>
-                                        <td>@data?.Unidad</td>
-                                        <td>@data?.Operador</td>
-                                        <td>@data?.ETA</td>
-                                        <td>@data?.Fecha_llegada</td>
-                                        <td>@data?.Sellos</td>
-                                        <td>@data?.Pedimentos</td>
-                                        <td>@data?.NOrden</td>
-                                        <td>@data?.Factura</td>
-                                        @*<td>@data?.Importe</td>*@
-                                        <th></th>
-                                    </tr>
-                                </Virtualize>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="col-12 mt-4 table-responsive" style="height:450px;resize:both;width:calc(100vw - 150px);">
+                    <Tabla Datos="Ordenes">
+                        <Cabeceras>
+                            <tr style="position: sticky;" class="sticky-column">
+                                <th style="width:80px;"></th>
+                                <th style="width:200px;">Referencia</th>
+                                <th style="width:200px;">Fecha de Programa</th>
+                                <th style="width:200px;">Unidad de Negocio</th>
+                                <th style="width:200px;">Estatus de Orden</th>
+                                <th style="width:200px;">Fecha de Carga</th>
+                                <th style="width:200px;">BOL</th>
+                                <th style="width:200px;">Precio</th>
+                                <th style="width:200px;">Modelo de Venta</th>
+                                <th style="width:200px;">Modelo de Compra</th>
+                                <th style="width:200px;">Cliente</th>
+                                <th style="width:200px;">Destino</th>
+                                <th style="width:200px;">Producto</th>
+                                <th style="width:200px;">Volumen Natural</th>
+                                <th style="width:200px;">Volumen Cargado</th>
+                                <th style="width:200px;">Transportista</th>
+                                <th style="width:200px;">Unidad</th>
+                                <th style="width:200px;">Operador</th>
+                                <th style="width:200px;">ETA</th>
+                                <th style="width:200px;">Fecha de llegada estimada</th>
+                                <th style="width:200px;">Sellos</th>
+                                <th style="width:200px;">Pedimentos</th>
+                                <th style="width:200px;"># de Orden</th>
+                                <th style="width:200px;">Factura Proveedor</th>
+                            </tr>
+                        </Cabeceras>
+                        <Filtros>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <select class="form-select form-select-sm" @bind="etaDto.MdVenta" @bind:event="onchange" @bind:after="@MostrarEtaFecha">
+                                        @foreach (var item in Enum.GetValues(typeof(TipoVentaFiltro)))
+                                        {
+                                            <option value="@item">@(((TipoVentaFiltro)item).Description())</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-select form-select-sm" @bind="etaDto.ModeloCompra" @bind:event="onchange" @bind:after="@MostrarEtaFecha">
+                                        @foreach (var item in Enum.GetValues(typeof(TipoCompraFiltro)))
+                                        {
+                                            <option value="@item">@item</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </Filtros>
+                        <Columnas Context="data">
+                            <tr style="white-space:nowrap;@(etaDto == data ? "background-color: #FFF633;" : string.Empty)">
+                                <td>
+                                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Buscar_Orden_De_Tabla(data))">
+                                        <i class="fa fa-solid fa-table-cells"></i>
+                                    </button>
+                                </td>
+                                <td>@data?.Referencia</td>
+                                <td>
+                                    <p class="text-break">
+                                        @data?.FechaPrograma
+                                    </p>
+                                </td>
+                                <td>@data?.Unidad_Negocio</td>
+                                <td>@data?.EstatusOrden</td>
+                                <td>@data?.FechaCarga</td>
+                                <td>@data?.Bol</td>
+                                <td>@data?.Precio</td>
+                                <td>@data?.MdVenta</td>
+                                <td>@data?.ModeloCompra</td>
+                                <td>@data?.Cliente</td>
+                                <td>@data?.Destino</td>
+                                <td>@data?.Producto</td>
+                                <td>@data?.Volms</td>
+                                <td>@data?.Vols</td>
+                                <td>@data?.Transportista</td>
+                                <td>@data?.Unidad</td>
+                                <td>@data?.Operador</td>
+                                <td>@data?.ETA</td>
+                                <td>@data?.Fecha_llegada</td>
+                                <td>@data?.Sellos</td>
+                                <td>@data?.Pedimentos</td>
+                                <td>@data?.NOrden</td>
+                                <td>@data?.Factura</td>
+                            </tr>
+                        </Columnas>
+                    </Tabla>
                 </div>
                 <div class="row justify-content-end me-3 mt-3 mb-3">
                     <div class="col-3 mt-3 mb-3">
@@ -400,23 +358,23 @@
     InputNumber<int?> inputNumber;
 
     EtaNTDTO etaDto = new EtaNTDTO();
-    private List<EtaNTDTO> ordens { get; set; } = new List<EtaNTDTO>();
+    private List<EtaNTDTO> Ordenes = new();
     FechasF fechas = new FechasF();
-    ElementReference infosIcon;
-    void ShowToolsTips(ElementReference elementReference, TooltipOptions optionss = null!) => ts.Open(elementReference, "En caso de obtener órdenes con Tipo de Venta RACK, solo filtre entre un rango de fechas", optionss);
 
     Folio_Activo_Vigente folio_ { get; set; } = new();
     OrdenEmbarque ordenEmbarque { get; set; } = new();
     Orden_BOL Datos_BOL = new();
     bool loading_guardar = false;
     bool loading_buscar = false;
+    bool loadingBuscarOrdenes = false;
     string URL_PDF = string.Empty;
     string URL_PDF_BOL = string.Empty;
     string URL_XML = string.Empty;
 
     Modal_Custom datos_eta { get; set; } = null!;
     List<Archivo> Archivos = new();
-    private List<EtaNTDTO> ordenesFiltradas;
+
+    Dictionary<string, string> Query = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -528,26 +486,55 @@
         }
     }
 
+    public async Task Filtrar(ChangeEventArgs args, string campo)
+    {
+        switch (campo)
+        {
+            case nameof(EtaNTDTO.MdVenta):
+                etaDto.MdVenta = (TipoVentaFiltro)Enum.Parse((typeof(TipoVentaFiltro)), args?.Value?.ToString() ?? string.Empty);
+                break;
+            case nameof(EtaNTDTO.ModeloCompra):
+                etaDto.ModeloCompra = (TipoCompraFiltro)Enum.Parse((typeof(TipoCompraFiltro)), args?.Value?.ToString() ?? string.Empty);
+                break;
+            default:
+                break;
+        }
+        await MostrarEtaFecha();
+    }
+
+    public Dictionary<string, string> SetFiltro()
+    {
+        Query[nameof(EtaNTDTO.Fecha_Inicio)] = etaDto.Fecha_Inicio.ToString("MM/dd/yyyy");
+        Query[nameof(EtaNTDTO.Fecha_Fin)] = etaDto.Fecha_Fin.ToString("MM/dd/yyyy");
+        Query[nameof(EtaNTDTO.MdVenta)] = etaDto.MdVenta.ToString() ?? string.Empty;
+        Query[nameof(EtaNTDTO.ModeloCompra)] = etaDto.ModeloCompra.ToString() ?? string.Empty;
+        return Query;
+    }
+
     public async Task MostrarEtaFecha()
     {
         try
         {
-
-            var responseHttp = await http.Post<FechasF, List<EtaNTDTO>>($"api/Eta/Reportesnotuxpan", fechas);
+            loadingBuscarOrdenes = true;
+            Query[nameof(EtaNTDTO.Excel)] = false.ToString();
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            var responseHttp = await http.Get<List<EtaNTDTO>>($"api/Eta/Reportesnotuxpan?{uri}");
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();
                 await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                loadingBuscarOrdenes = false;
             }
             else
             {
-                ordens = responseHttp.Response.Where(o => !string.IsNullOrEmpty(o.Producto) || !string.IsNullOrEmpty(o.MdVenta))
-                .ToList();
+                Ordenes = responseHttp.Response;
+                loadingBuscarOrdenes = false;
             }
         }
         catch (Exception e)
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            loadingBuscarOrdenes = false;
         }
     }
 
@@ -555,11 +542,14 @@
     {
         try
         {
-            var responseHttp = await http.Post<FechasF, byte[]>($"api/Eta/Reportesnotuxpan/excel", fechas);
+            Query[nameof(EtaNTDTO.Excel)] = true.ToString();
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            var responseHttp = await http.Get<byte[]>($"api/Eta/Reportesnotuxpan?{uri}");
             if (responseHttp.Error)
             {
-                var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+                var message = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                loadingBuscarOrdenes = false;
             }
             else
             {

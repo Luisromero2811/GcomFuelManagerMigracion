@@ -29,21 +29,6 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             this._terminal = _Terminal;
         }
 
-        //[HttpGet]//TODO: checar utilidad
-        //public ActionResult<List<Destino>> Get()
-        //{
-        //    try
-        //    {
-        //        var destinos = context.Destino
-        //            .ToList();
-        //        return Ok(destinos);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.Message);
-        //    }
-        //}
-
         [HttpGet("comprador")]
         public ActionResult GetClientComprador()
         {

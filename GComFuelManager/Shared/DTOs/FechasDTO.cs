@@ -11,7 +11,6 @@ namespace GComFuelManager.Shared.DTOs
 		public DateTime DateInicio { get; set; } = DateTime.Today.Date;
 		public DateTime DateFin { get; set; } = DateTime.Now;
 		public int Estado { get; set; } = 1;
-		public int Bol { get; set; } = 1;
 		public string TipVenta { get; set; } = string.Empty!;
 	}
 }

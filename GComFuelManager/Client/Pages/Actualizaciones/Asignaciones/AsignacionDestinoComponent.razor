@@ -20,8 +20,8 @@
                             @*<AuthorizeView Roles="Admin, Administrador Sistemas, Direccion, Gerencia" Context="Clients">*@
                             <div class="col">
                                 <label>Cliente:</label>
-                                <RadzenDropDown @bind-Value="ClienteDestinoDTO.cliente" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
-                                                AllowVirtualization="true" AllowFiltering="true"
+                                <RadzenDropDown @bind-Value="ClienteDestinoDTO.Codcte" Data="ClientesGrupo" TValue="int" TextProperty="Den"
+                                                AllowVirtualization="true" AllowFiltering="true" ValueProperty="Cod"
                                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
                                     <Template>
                                         @((context as Cliente)?.Den)
@@ -35,15 +35,15 @@
                             <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
                                 <div class="col">
                                     <label>Destino:</label>
-                                    <RadzenDropDown @bind-Value="ClienteDestinoDTO.destino" Data="DestinoClientes" TValue="CodDenDTO" TextProperty="Den"
-                                                    AllowVirtualization="true" AllowFiltering="true"
+                                    <RadzenDropDown @bind-Value="ClienteDestinoDTO.Coddes" Data="DestinoClientes" TValue="int" TextProperty="Den"
+                                                    AllowVirtualization="true" AllowFiltering="true" ValueProperty="Cod"
                                                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
                                         @*<Template>
-                                            @((context as CodDenDTO)?.Den)
-                                            </Template>
-                                            <ValueTemplate>
-                                            @((context as CodDenDTO)?.Den)
-                                            </ValueTemplate>*@
+                                        @((context as CodDenDTO)?.Den)
+                                        </Template>
+                                        <ValueTemplate>
+                                        @((context as CodDenDTO)?.Den)
+                                        </ValueTemplate>*@
                                     </RadzenDropDown>
                                 </div>
                             </AuthorizeView>
@@ -122,13 +122,13 @@
     {
         try
         {
-            if (ClienteDestinoDTO.cliente == null)
+            if (ClienteDestinoDTO.Codcte == 0)
             {
                 await Swal.FireAsync("Error", "Seleccione un cliente para poder filtrar", SweetAlertIcon.Warning);
             }
             else
             {
-                var response = await http.Get<IList<CodDenDTO>>($"api/estacion/{ClienteDestinoDTO.cliente.Cod}");
+                var response = await http.Get<IList<CodDenDTO>>($"api/estacion/{ClienteDestinoDTO.Codcte}");
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();
@@ -150,23 +150,15 @@
     {
         try
         {
-            if (ClienteDSeleccionado == null)
+            var response = await http.Put<bool>($"api/estacion/asignar?{nameof(ClienteDestinoDTO.Codcte)}={ClienteDestinoDTO.Codcte}&{nameof(ClienteDestinoDTO.Coddes)}={ClienteDestinoDTO.Coddes}", true);
+            if (response.Error)
             {
-                await Swal.FireAsync("Alerta", "Seleccione un cliente.", SweetAlertIcon.Warning);
-
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
-                var response = await http.Post<CodDenDTO>($"api/clientes/asignar/{ClienteDestinoDTO.cliente.Cod}", ClienteDestinoDTO.destino);
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    await Swal.FireAsync("Exito", $"Destino Asignado a {ClienteDestinoDTO.cliente.Den}", SweetAlertIcon.Success);
-                }
+                await Swal.FireAsync("Exito", $"Destino asignado", SweetAlertIcon.Success);
             }
         }
         catch (Exception e)
@@ -252,12 +244,12 @@
     private async Task Message(string Message, SweetAlertIcon icon)
     {
         await Swal.Mixin(new SweetAlertOptions
-        {
-            Position = "top-end",
-            ShowConfirmButton = false,
-            Timer = 1800,
-            Toast = true,
-        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
+            {
+                Position = "top-end",
+                ShowConfirmButton = false,
+                Timer = 1800,
+                Toast = true,
+            }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
     }
 
     public async Task ExportarExcell()
@@ -280,7 +272,7 @@
             tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
             //Guardado de Excell
-            await js.GuardarComo($"Destinos_Cliente_{ClienteDestinoDTO.cliente!.Den}_{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
+            await js.GuardarComo($"Destinos_Cliente_{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
         }
         catch (Exception e)
         {

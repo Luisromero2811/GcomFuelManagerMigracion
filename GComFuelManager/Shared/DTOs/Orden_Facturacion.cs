@@ -23,6 +23,7 @@ namespace GComFuelManager.Shared.DTOs
         public double? Precio { get; set; }
         [DisplayName("Tipo de venta")]
         public string? Tipo_Venta { get; set; } = string.Empty;
+        public string? TipoCompra { get; set; } = string.Empty;
         public string? Cliente { get; set; } = string.Empty;
         public string? Destino { get; set; } = string.Empty;
         public string? Producto { get; set; } = string.Empty;

@@ -12,6 +12,8 @@ using Newtonsoft.Json;
 //using ServiceReference6;//qa
 using System.Diagnostics;
 using BusinessEntityServiceProd;
+using GComFuelManager.Shared.ModelDTOs;
+using AutoMapper;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
@@ -24,13 +26,15 @@ namespace GComFuelManager.Server.Controllers.Cierres
         private readonly VerifyUserId verifyUser;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly User_Terminal _terminal;
+        private readonly IMapper mapper;
 
-        public ClientesController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> UserManager, User_Terminal _Terminal)
+        public ClientesController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> UserManager, User_Terminal _Terminal, IMapper mapper)
         {
             this.context = context;
             this.verifyUser = verifyUser;
             userManager = UserManager;
             this._terminal = _Terminal;
+            this.mapper = mapper;
         }
 
         private async Task SaveErrors(Exception e)
@@ -48,7 +52,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get([FromQuery] Folio_Activo_Vigente filtro_)
+        public async Task<ActionResult> Get([FromQuery] ClienteDTO filtro_)
         {
             try
             {
@@ -56,23 +60,35 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var clientes_filtrados = context.Cliente.IgnoreAutoIncludes().Where(x => x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).IgnoreAutoIncludes().AsQueryable();
+                var clientes_filtrados = context.Cliente
+                    .AsNoTracking()
+                    .Where(x => x.Id_Tad == id_terminal)
+                    .Include(x => x.Vendedor)
+                    .Include(x => x.Originador)
+                    .OrderBy(x => x.Den)
+                    .AsQueryable();
 
-                if (filtro_.ID_Grupo != 0)
-                    clientes_filtrados = clientes_filtrados.Where(x => x.Codgru == filtro_.ID_Grupo);
+                if (filtro_.Codgru != 0)
+                    clientes_filtrados = clientes_filtrados.Where(x => x.Codgru == filtro_.Codgru);
 
-                if (!string.IsNullOrEmpty(filtro_.Cliente_Filtrado))
-                    clientes_filtrados = clientes_filtrados.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(filtro_.Cliente_Filtrado));
+                if (!string.IsNullOrEmpty(filtro_.Den))
+                    clientes_filtrados = clientes_filtrados.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(filtro_.Den.ToLower()));
 
                 if (filtro_.Id_Vendedor != 0)
                     clientes_filtrados = clientes_filtrados.Where(x => x.Id_Vendedor == filtro_.Id_Vendedor);
 
                 if (filtro_.Id_Originador != 0)
                     clientes_filtrados = clientes_filtrados.Where(x => x.Id_Originador == filtro_.Id_Originador);
-                //var clientes = context.Cliente.AsEnumerable().Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! }).OrderBy(x => x.Den);
 
-                var clientes = clientes_filtrados.Include(x => x.Vendedor).IgnoreAutoIncludes().Include(x => x.Originador).IgnoreAutoIncludes().OrderBy(x => x.Den);
-                return Ok(clientes);
+                if (filtro_.Activo)
+                    clientes_filtrados = clientes_filtrados.Where(x => x.Activo);
+
+                if (filtro_.CodgruNotNull)
+                    clientes_filtrados = clientes_filtrados.Where(x => x.Codgru != null);
+
+                var clientesdtos = await clientes_filtrados.Select(x => mapper.Map<ClienteDTO>(x)).ToListAsync();
+
+                return Ok(clientesdtos);
             }
             catch (Exception e)
             {
@@ -166,30 +182,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Vendedor).IgnoreAutoIncludes()
                     .Include(x => x.Terminales).IgnoreAutoIncludes().OrderBy(x => x.Den);
                 return Ok(clientes);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpPost("asignar/{cod:int}")]
-        public async Task<ActionResult> PostAsignar([FromBody] CodDenDTO codden, [FromRoute] int cod)
-        {
-            try
-            {
-                var destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == codden.Cod);
-
-                if (destino == null)
-                {
-                    return NotFound();
-                }
-
-                destino.Codcte = cod;
-                context.Update(destino);
-                await context.SaveChangesAsync();
-
-                return Ok();
             }
             catch (Exception e)
             {

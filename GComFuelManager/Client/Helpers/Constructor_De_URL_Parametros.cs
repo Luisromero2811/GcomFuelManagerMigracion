@@ -29,5 +29,39 @@
                 return "";
             }
         }
+
+        public static int Obt_Total_Paginas(HttpResponseMessage response)
+        {
+            if (response.Headers.TryGetValues("paginas", out IEnumerable<string>? paginas_header))
+            {
+                if (paginas_header is not null)
+                    if (paginas_header.Any())
+                        return int.Parse(paginas_header.First().ToString());
+            }
+
+            return 0;
+        }
+
+        public static int Obt_Total_Registros(HttpResponseMessage response)
+        {
+            if (response.Headers.TryGetValues("conteo", out IEnumerable<string>? conteo_header))
+            {
+                if (conteo_header is not null)
+                    if (conteo_header.Any())
+                        return int.Parse(conteo_header.First().ToString());
+            }
+            return 0;
+        }
+
+        public static int Obt_Pagina_Actual(HttpResponseMessage response)
+        {
+            if (response.Headers.TryGetValues("pagina", out IEnumerable<string>? pagina_header))
+            {
+                if (pagina_header is not null)
+                    if (pagina_header.Any())
+                        return int.Parse(pagina_header.First().ToString());
+            }
+            return 0;
+        }
     }
 }

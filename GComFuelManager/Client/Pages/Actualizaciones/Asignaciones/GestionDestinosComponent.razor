@@ -1,6 +1,5 @@
-@inject IRepositorio repositorio
+@inject IRepositorio http
 @inject SweetAlertService Swal
-@inject IJSRuntime js
 @inject NotificationService Ns
 @inject GestionDestinoValidation gestionDestino
 @inject ClienteDestinoValidation validation
@@ -9,325 +8,211 @@
 
 <div class="card">
     <div class="card-header">
-        <b>Catalogo de Destinos</b>
+        Agregar destino
     </div>
     <div class="card-body">
-        <div class="col-12">
-            <EditForm Model="@Destino" class="col-12 row" OnValidSubmit="@CreateDestinos" Context="Validations">
-                <FluentValidationValidator Validator="gestionDestino" />
-                <ValidationSummary />
-                <div class="col-12 row mb-2">
-                    <div class="col-2 row">
-                        <label>Destino:</label>
-                        <InputText @bind-Value="Destino.Den" class="form-control" MaxLenght="80" />
-                    </div>
-                    <div class="col-3">
-                        <label>Dirección:</label>
-                        <InputText @bind-Value="Destino.Dir" class="form-control" MaxLenght="80"></InputText>
-                    </div>
-                    <div class="col-3">
-                        <label>Ciudad:</label>
-                        <InputText @bind-Value="Destino.Ciu" class="form-control" MaxLenght="10"></InputText>
-                    </div>
-                    <div class="col-2">
-                        <label>Estado:</label>
-                        <InputText @bind-Value="Destino.Est" class="form-control" MaxLenght="10"></InputText>
-                    </div>
-                    <div class="col-2">
-                        <label>ID Destino Gobierno</label>
-                        <InputText @bind-Value="Destino.Id_DestinoGobierno" class="form-control" MaxLenght="20" />
-                    </div>
-                    <div class="col-12 row justify-content-center">
-                        <div class="col-3 d-flex">
-                            <div class="form-check mt-auto">
-                                <input class="form-check-input" type="checkbox" value="@Destino.Es_Multidestino" id="multidestino"
-                                       checked="@Destino.Es_Multidestino" @onchange="@(()=>Destino.Es_Multidestino = !Destino.Es_Multidestino)">
-                                <label class="form-check-label" for="multidestino">
-                                    Es Multidestino
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-3 d-flex mt-2">
-                            @if (!isEdit)
-                            {
-                                <button class="col-12 btn gcom-bg-amarillo" type="submit">
-                                    <i class="fa fa-solid fa-plus"></i> Agregar Destino
-                                </button>
-                            }
-                            else
-                            {
-                                <button class="col mx-2 btn gcom-bg-amarillo" type="submit">
-                                    <i class="fa fa-solid fa-check"></i>
-                                </button>
-                                <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit" type="button">
-                                    <i class="fa fa-solid fa-xmark"></i>
-                                </button>
-                            }
-                        </div>
+        <EditForm Model="Destino" OnValidSubmit="GuardarDestino">
+            <DataAnnotationsValidator />
+            <FluentValidationValidator Validator="gestionDestino" />
+            <div class="col-12 row">
+                <div class="col-4">
+                    <label>Cliente</label>
+                    <DropDownFilter @bind-Valor="Destino.Codcte" TValue="int" TListado="ClienteDTO" Listado="Clientes" Propiedad_Valor="Cod"
+                                    Default_Placeholder="Cliente" Default_Placeholder_Filter="Buscar cliente" FiltrarValor="GetClientes">
+                        <Render Context="cliente">
+                            @cliente.Den
+                        </Render>
+                        <RenderValue Context="cliente">
+                            @cliente.Den
+                        </RenderValue>
+                    </DropDownFilter>
+                    <InputSelect class="d-none" @bind-Value="Destino.Codcte" />
+                    <ValidationMessage For="@(()=>Destino.Codcte)" />
+                </div>
+                <div class="col-4">
+                    <label>Nombre de destino</label>
+                    <InputText class="form-control form-control-sm" @bind-Value="Destino.Den" />
+                    <ValidationMessage For="@(()=>Destino.Den)" />
+                </div>
+                <div class="col-4">
+                    <label>Id de destino de gobierno</label>
+                    <InputText class="form-control form-control-sm" @bind-Value="Destino.Id_DestinoGobierno" />
+                    <ValidationMessage For="@(()=>Destino.Id_DestinoGobierno)" />
+                </div>
+                <div class="col-4">
+                    <label>Dirección</label>
+                    <InputTextArea class="form-control form-control-sm" @bind-Value="Destino.Dir" />
+                    <ValidationMessage For="@(()=>Destino.Dir)" />
+                </div>
+                <div class="col-4">
+                    <label>Ciudad</label>
+                    <InputText class="form-control form-control-sm" @bind-Value="Destino.Ciu" />
+                    <ValidationMessage For="@(()=>Destino.Ciu)" />
+                </div>
+                <div class="col-4">
+                    <label>Estado</label>
+                    <InputText class="form-control form-control-sm" @bind-Value="Destino.Est" />
+                    <ValidationMessage For="@(()=>Destino.Est)" />
+                </div>
+                <div class="col-4">
+                    <div class="form-check">
+                        <InputCheckbox class="form-check-input" id="CheckMultidestino" @bind-Value="Destino.Es_Multidestino" />
+                        <label class="form-check-label" for="CheckMultidestino">
+                            Es multidestino
+                        </label>
                     </div>
                 </div>
-            </EditForm>
-            <EditForm Model="@ClienteDestinoDTO" class="col-12" OnValidSubmit="@AsignarDestinosClientes" Context="validacion">
-                <FluentValidationValidator Validator="validation" />
-                <ValidationSummary />
-                <h6>Relacion Cliente-Destino</h6>
-                <div class="col-12 row">
-                    <div class="col-4 row">
-                        <label>Cliente:</label>
-                        <RadzenDropDown @bind-Value="ClienteDestinoDTO.cliente" Data="Clientes" TValue="Cliente" TextProperty="Den"
-                                        AllowVirtualization="true" AllowFiltering="true"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                            <Template>
-                                @((context as Cliente)?.Den)
-                            </Template>
-                            <ValueTemplate>
-                                @((context as Cliente)?.Den)
-                            </ValueTemplate>
-                        </RadzenDropDown>
-                    </div>
-                    <div class="col-4">
-                        <label>Destino:</label>
-                        <RadzenDropDown @bind-Value="ClienteDestinoDTO.destino" Data="DestinoClientes" TValue="CodDenDTO" TextProperty="Den"
-                                        AllowVirtualization="true" AllowFiltering="true"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                        </RadzenDropDown>
-                    </div>
-                    <div class="col-3 d-flex mt-auto">
-                        <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit">
-                            <i class="fa fa-solid fa-plus"></i> Relacionar Destino-Cliente
-                        </button>
-                    </div>
+                <div class="col-4">
+                    <label>Tipo de venta</label>
+                    <InputSelect @bind-Value="Destino.TipoVenta" class="form-select form-select-sm">
+                        @foreach (var item in Enum.GetValues(typeof(Tipo_Venta)))
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </InputSelect>
                 </div>
-            </EditForm>
-        </div>
+                <div class="col-4">
+                    <label>Modelo de venta</label>
+                    <InputSelect @bind-Value="Destino.ModeloVenta" class="form-select form-select-sm">
+                        @foreach (var item in Enum.GetValues(typeof(Modelo_Venta)))
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+            <div class="col-12 row bt-2">
+                <button class="btn btn-sm gcom-bg-amarillo col-4" type="submit">
+                    <i class="fa fa-solid fa-floppy-disk" /> Guardar
+                </button>
+            </div>
+        </EditForm>
     </div>
 </div>
-
-<div class="card mt-2" style="height: 500px; overflow: scroll;">
+<div class="card my-2">
     <div class="card-header">
-        <b>Gestión de Destinos</b>
+        Relacionar cliente - destino
     </div>
     <div class="card-body">
-        <div class="col-12 row">
-            <div class="col-3 mb-2">
-                <label>Clientes</label>
-                <DropDownFilter Listado="Clientes" TListado="Cliente" TValue="int?" Propiedad_Valor="Cod" On_Change_Method="@ChangeDestinos" @bind-Valor="Destino.Codcte"
-                                Default_Placeholder="Seleccione un cliente" FiltrarValor="Obtener_Clientes">
-                    <RenderValue>
-                        @context.Den
-                    </RenderValue>
-                    <Render>
-                        @context.Den
-                    </Render>
-                </DropDownFilter>
+        <EditForm Model="Relacion" OnValidSubmit="GuardarRelacionDestino">
+            <DataAnnotationsValidator />
+            <FluentValidationValidator Validator="validation" />
+            <div class="col-12 row">
+                <div class="col-4">
+                    <label>Cliente</label>
+                    <DropDownFilter @bind-Valor="Relacion.Codcte" TValue="int" TListado="ClienteDTO" Listado="ClientesRelacion" Propiedad_Valor="Cod"
+                                    Default_Placeholder="Cliente" Default_Placeholder_Filter="Buscar cliente" FiltrarValor="GetClientesRelacion">
+                        <Render Context="cliente">
+                            @cliente.Den
+                        </Render>
+                        <RenderValue Context="cliente">
+                            @cliente.Den
+                        </RenderValue>
+                    </DropDownFilter>
+                </div>
+                <div class="col-4">
+                    <label>Destino</label>
+                    <DropDownFilter @bind-Valor="Relacion.Coddes" TValue="int" TListado="DestinoDTO" Listado="DestinosRelacion" Propiedad_Valor="Cod"
+                                    Default_Placeholder="Destino" Default_Placeholder_Filter="Buscar destino" FiltrarValor="GetDestinosRelacion">
+                        <Render Context="cliente">
+                            @cliente.Den
+                        </Render>
+                        <RenderValue Context="cliente">
+                            @cliente.Den
+                        </RenderValue>
+                    </DropDownFilter>
+                </div>
+                <div class="col-4 d-flex">
+                    <button class="btn btn-sm gcom-bg-amarillo mt-auto col-12" type="submit">
+                        <i class="fa fa-solid fa-floppy-disk" /> Guardar
+                    </button>
+                </div>
             </div>
-            @*<div class="col-3">
-            <label>Unidad de Negocio</label>
-            <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
-            <RenderValue>
-            <div>@context.Den</div>
-            </RenderValue>
-            <Render>
-            <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-            <label class="form-check-label" for="@context.Cod">
-            @if (context is not null)
-            {
-            @context.Den
-            }
-            else
-            {
-            <p>@context.Den</p>
-            }
-            </label>
-            </div>
-            </Render>
-            </DropDownFilter>
-            </div>
-            <div class="col-3">
-            <label></label>
-            <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
-            <i class="fa fa-solid fa-plus"></i> Relacionar Destino-Unidad
-            </button>
-            </div>*@
-        </div>
-        <div class="col-12">
-            <table class="table table-sm table-striped table-bordered">
-                <thead class="fila">
-                    <tr>
-                        @*<th>
-                        <input type="checkbox" checked="@(Destinos.Any(i => Destinos_Seleccionados != null && Destinos_Seleccionados.Contains(i)))"
-                        @onchange="args => CheckItemAll(args?.Value)" />
-                        </th>*@
-                        <th>Destino</th>
-                        <th>Dirección</th>
-                        <th>Ciudad</th>
-                        <th>Estado</th>
-                        <th>ID Destino Gobierno</th>
-                        <th>Estado</th>
-                        <th>Editar</th>
-                        @*<th>Unidades de Negocio</th>*@
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="fila">
-                        <th>
-                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaCatalogo.nombredestino"/>
-                        </th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                    @if (Destinos.Count > 0)
-                    {
-                        <Virtualize Items="Destinos" TItem="Destino" Context="item">
-                            <tr>
-                                @*<th>
-                            <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Destinos_Seleccionados.Contains(item))" @onchange="args => { CheckDestinos(item, args?.Value); }" />
-                            </th>*@
-                                <td>@item.Den</td>
-                                <td>@item.Dir</td>
-                                <td>@item.Ciu</td>
-                                <td>@item.Est</td>
-                                <td>@item.Id_DestinoGobierno</td>
-                                <!--Estado-->
-                                <td>
-                                    <div class="form-check form-switch mx-2">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="@item.Cod" checked="@item.Activo"
-                                               @onchange="((ChangeEventArgs e) => HabilitarDeshabilitar(item, e))">
-                                    </div>
-                                </td>
-                                <!--Editar-->
-                                <td>
-                                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>@SetDestino(item))">
-                                        <i class="fa fa-solid fa-edit"></i>
-                                    </button>
-                                </td>
-                                @*<td>
-                            @if (item.Terminales is not null)
-                            {
-                            @foreach (var items in item.Terminales)
-                            {
-                            <span class="badge rounded-pill gcom-bg-rojo me-2">
-                            @items.Den
-
-                            <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
-                            <i class="fa fa-solid fa-xmark"></i>
-                            </button>
-
-                            </span>
-                            }
-
-                            }
-
-                            </td>*@
-                            </tr>
-                        </Virtualize>
-                    }
-                </tbody>
-            </table>
-        </div>
+        </EditForm>
     </div>
 </div>
-<style>
-    .button-circle { /* Green */
-        border: none;
-        color: white;
-        padding: .40rem .60rem;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: .75rem;
-        cursor: pointer;
-        border-radius: 2rem;
-    }
-    .fila th {
-        position: -webkit-sticky;
-        position: sticky;
-        text-align: center;
-        top: 0;
-        background-color: #f2f2f2;
-    }
+<div class="col-12">
+    <div class="col-4 my-2">
+        <DropDownFilter TListado="ClienteDTO" TValue="int" Listado="ClientesBusqueda" Default_Placeholder="Clientes" Propiedad_Valor="Cod"
+                        Default_Placeholder_Filter="Buscar clientes" @bind-Valor="Filtro.Codcte" On_Change_Method="@(()=>GetDestinos())" FiltrarValor="GetClientesBusqueda">
+            <Render>
+                @context.Den
+            </Render>
+            <RenderValue>
+                @context.Den
+            </RenderValue>
+        </DropDownFilter>
+    </div>
+</div>
+<div class="ancho-tabla" style="height:500px;">
+    <Tabla Datos="Destinos">
+        <Cabeceras>
+            <tr>
+                <th>Editar</th>
+                <th>Nombre de destino</th>
+                <th>Direccion</th>
+                <th>Ciudad</th>
+                <th>Estado</th>
+                <th>ID de destino de gobierno</th>
+                <th>Tipo de venta</th>
+                <th>Modelo de venta</th>
+                <th>Habilitar / Deshabilitar</th>
+            </tr>
+        </Cabeceras>
+        <Columnas Context="item">
+            <tr>
+                <td>
+                    <button class="btn btn-sm col-12 gcom-bg-amarillo" @onclick="@(()=>GetDestinoPost(item.Cod))">
+                        <i class="fa fa-solid fa-edit" />
+                    </button>
+                </td>
+                <td>@item.Den</td>
+                <td>@item.Dir</td>
+                <td>@item.Ciu</td>
+                <td>@item.Est</td>
+                <td>@item.Id_DestinoGobierno</td>
+                <td>@item.TipoVenta</td>
+                <td>@item.ModeloVenta</td>
+                <td>
+                    <div class="form-check form-switch mx-2">
+                        <input class="form-check-input" type="checkbox" role="switch" id="DestinoStatus" checked="@item.Activo" @onchange="@(()=>ChangeStatusDestino(item.Cod))">
+                    </div>
+                </td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
 
-    .fila td {
-        position: -webkit-sticky;
-        position: sticky;
-        text-align: center;
-        top: 28px;
-        background-color: #f2f2f2;
-    }
-
-    .sticky-column {
-        position: sticky;
-        left: 0;
-        z-index: 1;
-        background-color: white;
-    }
-
-    .sticky-column-header {
-        position: sticky;
-        top: 0;
-        left: 0;
-        z-index: 2;
-        background-color: white;
-    }
-
-    .sticky-column, .sticky-column + th, .sticky-column + td {
-        min-width: 180px;
-    }
-
-    .th-resizable {
-        position: relative;
-        cursor: col-resize;
-    }
-
-        .th-resizable::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 8px;
-            background: transparent;
-        }
-</style>
 @code {
-    //Listados
-    List<Tad> Tads_Seleccionados { get; set; } = new();
-    List<Destino> Destinos_Seleccionados { get; set; } = new();
-    List<Tad> Terminales { get; set; } = new List<Tad>();
-    private List<Cliente> Clientes { get; set; } = new List<Cliente>();
-    List<Destino> Destinos { get; set; } = new();
+    DestinoPostDTO Destino = new();
 
-    public IEnumerable<CodDenDTO> DestinoClientes { get; set; } = new List<CodDenDTO>();
+    ClienteDestinoDTO Relacion = new();
 
-    //Instancias
-    ClienteTadDTO clienteTadDTO { get; set; } = new ClienteTadDTO();
-    public Destino Destino { get; set; } = new Destino();
-    ClienteDestinoDTO ClienteDestinoDTO { get; set; } = new ClienteDestinoDTO();
-    public Destino_Tad destino_tad { get; set; } = new Destino_Tad();
+    DestinoDTO Filtro = new();
 
-    Dictionary<string, string> query = new Dictionary<string, string>();
-    ParametrosBusquedaCatalogo busquedaCatalogo = new ParametrosBusquedaCatalogo();
-    //Variables
-    bool isEdit = false;
+    List<ClienteDTO> Clientes = new();
+    List<DestinoDTO> Destinos = new();
+
+    List<ClienteDTO> ClientesBusqueda = new();
+
+    List<ClienteDTO> ClientesRelacion = new();
+    List<DestinoDTO> DestinosRelacion = new();
+
 
     protected override async Task OnInitializedAsync()
     {
-        await GetClientes();
-        await GetDestinos();
-        await Obtener_Terminales_Validas();
-        await Obtener_Clientes(string.Empty);
+        await Task.WhenAll(
+            GetClientes(),
+            GetClientesBusqueda(),
+            GetClientesRelacion(),
+            GetDestinosRelacion());
     }
 
-    private async Task CreateDestinos()
+    public async Task GuardarDestino()
     {
         try
         {
-            var response = await repositorio.Post<Destino>($"api/estacion/crear", Destino);
+            var response = await http.Post<DestinoPostDTO>($"api/estacion", Destino);
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -335,11 +220,14 @@
             }
             else
             {
-                await Swal.FireAsync("Exito", $"Destino {Destino.Den} creado exitosamente", SweetAlertIcon.Success);
-                StateHasChanged();
+                Ns.Notify(new()
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Destino guardado"
+                    });
+                Filtro.Codcte = Destino.Codcte;
                 await GetDestinos();
             }
-
         }
         catch (Exception e)
         {
@@ -347,16 +235,17 @@
         }
     }
 
-    private async Task Obtener_Clientes(string value)
+    public async Task GetClientes(string value = "")
     {
         try
         {
             Dictionary<string, string> query = new();
-            query["Den"] = value;
+            query[nameof(ClienteDTO.CodgruNotNull)] = true.ToString();
+            query[nameof(ClienteDTO.Den)] = value;
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
 
-            var response = await repositorio.Get<List<Cliente>>($"api/clientes/filtraractivos?{uri}");
+            var response = await http.Get<List<ClienteDTO>>($"api/clientes?{uri}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -364,30 +253,8 @@
             }
             else
             {
-                StateHasChanged();
                 Clientes = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    private async Task GetClientes()
-    {
-        try
-        {
-            var response = await repositorio.Get<List<Cliente>>($"api/clientes/allactives");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
                 StateHasChanged();
-                Clientes = response.Response;
             }
         }
         catch (Exception e)
@@ -396,58 +263,110 @@
         }
     }
 
-    private async Task GetDestinos()
+    public async Task GetClientesRelacion(string value = "")
     {
         try
         {
-            var response = await repositorio.Get<IList<CodDenDTO>>("api/estacion/estaciones");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                StateHasChanged();
-                DestinoClientes = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
+            Dictionary<string, string> query = new();
+            query[nameof(ClienteDTO.CodgruNotNull)] = true.ToString();
+            query[nameof(ClienteDTO.Den)] = value;
 
-    private async Task LoadData()
-    {
-        Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
-        if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
-        queryStringObject["nombredestino"] = busquedaCatalogo.nombredestino;
-
-        var DefaultValues = new List<string>() { "false", "", "0" };
-        var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
-        .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
-
-        await ChangeDestinos();
-    }
-
-    private async Task ChangeDestinos()
-    {
-        try
-        {
-            query = new Dictionary<string, string>();
-            query["nombredestino"] = busquedaCatalogo.nombredestino ?? string.Empty;
-            query["codcte"] = Clientes.FirstOrDefault(x => x.Cod == Destino.Codcte)?.Cod.ToString() ?? string.Empty;
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
-            var response = await repositorio.Get<List<Destino>>($"api/estacion/filtro?{uri}");
+
+            var response = await http.Get<List<ClienteDTO>>($"api/clientes?{uri}");
             if (response.Error)
             {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ClientesRelacion = response.Response;
+                StateHasChanged();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task GetClientesBusqueda(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query[nameof(ClienteDTO.CodgruNotNull)] = true.ToString();
+            query[nameof(ClienteDTO.Den)] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<ClienteDTO>>($"api/clientes?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ClientesBusqueda = response.Response;
+                StateHasChanged();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task GetDestinosRelacion(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query[nameof(DestinoDTO.Den)] = value;
+            query[nameof(DestinoDTO.Activo)] = true.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<DestinoDTO>>($"api/estacion?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                DestinosRelacion = response.Response;
+                StateHasChanged();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task GetDestinos(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query[nameof(DestinoDTO.Den)] = value;
+            query[nameof(DestinoDTO.Codcte)] = Filtro.Codcte.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<DestinoDTO>>($"api/estacion?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
                 Destinos = response.Response;
+                StateHasChanged();
             }
         }
         catch (Exception e)
@@ -456,11 +375,11 @@
         }
     }
 
-    private async Task AsignarDestinosClientes()
+    public async Task GetDestinoPost(int id)
     {
         try
         {
-            var response = await repositorio.Post<CodDenDTO>($"api/clientes/asignar/{ClienteDestinoDTO.cliente.Cod}", ClienteDestinoDTO.destino);
+            var response = await http.Get<DestinoPostDTO>($"api/estacion/{id}/post");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -468,7 +387,8 @@
             }
             else
             {
-                await Swal.FireAsync("Exito", $"Destino Asignado a {ClienteDestinoDTO.cliente.Den}", SweetAlertIcon.Success);
+                Destino = response.Response;
+                StateHasChanged();
             }
         }
         catch (Exception e)
@@ -477,70 +397,11 @@
         }
     }
 
-    private async Task Obtener_Terminales_Validas()
+    public async Task ChangeStatusDestino(int id)
     {
         try
         {
-            var response = await repositorio.Get<List<Tad>>("api/terminal/activas");
-            if (response.Error)
-            {
-                string? message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Terminales = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-
-        }
-    }
-
-    private async Task PostRelacion()
-    {
-        try
-        {
-            if (Tads_Seleccionados.Count != 0 && Destinos_Seleccionados.Count != 0)
-            {
-                clienteTadDTO.Tads = Tads_Seleccionados;
-                clienteTadDTO.Destinos = Destinos_Seleccionados;
-                var response = await repositorio.Post<ClienteTadDTO>($"api/estacion/relacion", clienteTadDTO);
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
-                    Destinos = new();
-                    Destinos_Seleccionados = new();
-                    await ChangeDestinos();
-                }
-            }
-            else
-            {
-                await Swal.FireAsync("Advertencia", "Debe de seleccionar una terminal y un destino", SweetAlertIcon.Warning);
-            }
-
-
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    private async Task Borrar_Relacion(Destino clientes, Tad tads)
-    {
-        try
-        {
-            destino_tad.Id_Terminal = tads.Cod;
-            destino_tad.Id_Destino = clientes.Cod;
-            var response = await repositorio.Post<Destino_Tad>($"api/estacion/borrar/relacion", destino_tad);
+            var response = await http.Put<bool>($"api/estacion/{id}", true);
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -548,139 +409,37 @@
             }
             else
             {
-                await Swal.FireAsync("Exito", "Relacion borrada con éxito", SweetAlertIcon.Success);
-                await Obtener_Clientes(string.Empty);
-                await ChangeDestinos();
+                await GetDestinos();
             }
         }
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
-
     }
 
-    private async Task CheckTads(Tad terminal, object check)
+    public async Task GuardarRelacionDestino()
     {
         try
         {
-            if ((bool)check)
+            var response = await http.Put<bool>($"api/estacion/asignar?{nameof(ClienteDestinoDTO.Codcte)}={Relacion.Codcte}&{nameof(ClienteDestinoDTO.Coddes)}={Relacion.Coddes}", true);
+            if (response.Error)
             {
-                if (!Tads_Seleccionados.Contains(terminal))
-                    Tads_Seleccionados.Add(terminal);
-            }
-            else
-            {
-                if (Tads_Seleccionados.Contains(terminal))
-                    Tads_Seleccionados.Remove(terminal);
-            }
-            StateHasChanged();
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-
-    }
-
-    private async Task CheckDestinos(Destino destino, object check)
-    {
-        try
-        {
-            if ((bool)check)
-            {
-                if (!Destinos_Seleccionados.Contains(destino))
-                    Destinos_Seleccionados.Add(destino);
-            }
-            else
-            {
-                if (Destinos_Seleccionados.Contains(destino))
-                    Destinos_Seleccionados.Remove(destino);
-            }
-            StateHasChanged();
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-
-    }
-
-    private async Task CheckItemAll(object check)
-    {
-        try
-        {
-            if ((bool)check)
-                Destinos_Seleccionados = Destinos;
-            else
-                Destinos_Seleccionados = new();
-            StateHasChanged();
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-
-    }
-
-    private async Task HabilitarDeshabilitar(Destino destino, ChangeEventArgs tp)
-    {
-        try
-        {
-            var status = (bool)tp.Value!;
-            var responseHttp = await repositorio.Put<bool>($"api/estacion/{destino.Cod}", status);
-            if (responseHttp.Error)
-            {
-                var message = await responseHttp.ObtenerMensajeError();
+                var message = await response.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
-                if (status)
-                {
-                    await Message($"{destino.Den} ha sido habilitado", SweetAlertIcon.Info);
-                }
-                else
-                {
-                    await Message($"{destino.Den} ha sido deshabilitado", SweetAlertIcon.Info);
-                }
+                Ns.Notify(new()
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Destino relacionado"
+                    });
             }
-
         }
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
-
-    private async Task Message(string Message, SweetAlertIcon icon)
-    {
-        await Swal.Mixin(new SweetAlertOptions
-        {
-            Position = "top-end",
-            ShowConfirmButton = false,
-            Timer = 1800,
-            Toast = true,
-        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
-    }
-
-    private void SetDestino(Destino destino)
-    {
-        try
-        {
-            isEdit = true;
-            Destino = destino;
-        }
-        catch (Exception e)
-        {
-            throw e;
-        }
-    }
-
-    private async void cancelEdit()
-    {
-        isEdit = false;
-        Destino = new Destino();
-    }
-
 }

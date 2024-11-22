@@ -1,6 +1,9 @@
-﻿using GComFuelManager.Server.Helpers;
+﻿using AutoMapper;
+using FluentValidation;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.ModelDTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -19,19 +22,27 @@ namespace GComFuelManager.Server.Controllers
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly VerifyUserId verifyUser;
-        private readonly User_Terminal terminal;
+        private readonly IMapper mapper;
+        private readonly IValidator<DestinoPostDTO> validator;
         private readonly User_Terminal _terminal;
 
-        public EstacionController(ApplicationDbContext context, User_Terminal _Terminal, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUser)
+        public EstacionController(ApplicationDbContext context,
+            User_Terminal _Terminal,
+            UserManager<IdentityUsuario> userManager,
+            VerifyUserId verifyUser,
+            IMapper mapper,
+            IValidator<DestinoPostDTO> validator)
         {
             this.context = context;
             this._terminal = _Terminal;
             this.userManager = userManager;
             this.verifyUser = verifyUser;
+            this.mapper = mapper;
+            this.validator = validator;
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get([FromQuery] Folio_Activo_Vigente filtro_)
+        public async Task<ActionResult> Get([FromQuery] DestinoDTO destino)
         {
             try
             {
@@ -39,17 +50,45 @@ namespace GComFuelManager.Server.Controllers
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var estaciones_filtradas = context.Destino.IgnoreAutoIncludes().Where(x => x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).IgnoreAutoIncludes().AsQueryable();
+                var estaciones_filtradas = context.Destino
+                    .AsNoTracking()
+                    .Where(x => x.Id_Tad == id_terminal)
+                    .OrderBy(x => x.Den)
+                    .AsQueryable();
 
-                if (filtro_.ID_Cliente != 0)
-                    estaciones_filtradas = estaciones_filtradas.Where(x => x.Codcte == filtro_.ID_Cliente);
+                if (destino.Codcte != 0)
+                    estaciones_filtradas = estaciones_filtradas.Where(x => x.Codcte == destino.Codcte);
 
-                if (!string.IsNullOrEmpty(filtro_.Destino_Filtrado))
-                    estaciones_filtradas = estaciones_filtradas.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(filtro_.Destino_Filtrado.ToLower()));
+                if (!string.IsNullOrEmpty(destino.Den))
+                    estaciones_filtradas = estaciones_filtradas.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(destino.Den.ToLower()));
 
-                var estaciones = estaciones_filtradas.OrderBy(x => x.Den);
+                if (destino.Activo)
+                    estaciones_filtradas = estaciones_filtradas.Where(x => x.Activo);
 
-                return Ok(estaciones);
+                var destinosdtos = await estaciones_filtradas.Select(x => mapper.Map<DestinoDTO>(x)).ToListAsync();
+
+                return Ok(destinosdtos);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{destino:int}/post")]
+        public async Task<ActionResult> GetPostById([FromRoute] int destino)
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var estacion = await context.Destino.AsNoTracking().FirstOrDefaultAsync(x => x.Cod == destino);
+                if (estacion is null) { return NotFound(); }
+
+                return Ok(mapper.Map<DestinoPostDTO>(estacion));
             }
             catch (Exception e)
             {
@@ -73,33 +112,6 @@ namespace GComFuelManager.Server.Controllers
                     .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
                     .OrderBy(x => x.Den)
                     .ToListAsync();
-                return Ok(estaciones);
-            }
-            catch (Exception e)
-            {
-
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpGet("filtro")]
-        public async Task<ActionResult> GetCliente([FromQuery] ParametrosBusquedaCatalogo cliente)
-        {
-            try
-            {
-                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0)
-                    return BadRequest();
-
-                var estaciones = context.Destino
-                    .Where(x => x.Codcte == cliente.codcte && x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal))
-                    .Include(x => x.Terminales)
-                    .OrderBy(x => x.Den)
-                    .AsQueryable();
-
-                if (!string.IsNullOrEmpty(cliente.nombredestino))
-                    estaciones = estaciones.Where(x => x.Den != null && !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(cliente.nombredestino.ToLower()));
-
                 return Ok(estaciones);
             }
             catch (Exception e)
@@ -150,31 +162,8 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpPost()]
-        public async Task<ActionResult> EditDestino([FromBody] Destino destino)
-        {
-            try
-            {
-                if (destino is null)
-                    return BadRequest();
-
-                destino.Destino_Tads = null!;
-                destino.Terminales = null!;
-
-                context.Update(destino);
-                await context.SaveChangesAsync();
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpGet("estaciones")]
-        public async Task<ActionResult> GetAll()
+        [HttpPost]
+        public async Task<ActionResult> EditDestino([FromBody] DestinoPostDTO destinodto)
         {
             try
             {
@@ -182,12 +171,37 @@ namespace GComFuelManager.Server.Controllers
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var estaciones = await context.Destino
-                    .Where(x => x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal))
-                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
-                    .OrderBy(x => x.Den)
-                    .ToListAsync();
-                return Ok(estaciones);
+                var result = validator.Validate(destinodto);
+                if (!result.IsValid) { return BadRequest(result.Errors.Select(x => x.ErrorMessage)); }
+
+                var destino = mapper.Map<Destino>(destinodto);
+
+                if (!string.IsNullOrEmpty(destino.Id_DestinoGobierno) && !string.IsNullOrWhiteSpace(destino.Id_DestinoGobierno))
+                {
+                    var exist = context.Destino.Any(x => x.Id_DestinoGobierno == destino.Id_DestinoGobierno && x.Id_Tad == id_terminal && x.Cod != destino.Cod);
+                    if (exist) { return BadRequest("El ID de Gobierno ya existe, por favor ingrese otro identificador"); }
+                }
+
+                if (destino.Cod != 0)
+                {
+                    var destinodb = await context.Destino.FindAsync(destino.Cod);
+                    if (destinodb is null) { return NotFound(); }
+
+                    var newdestino = mapper.Map(destino, destinodb);
+
+                    context.Update(newdestino);
+                }
+                else
+                {
+                    destino.Id_Tad = id_terminal;
+                    destino.Codsyn = destino.GetHashCode().ToString();
+
+                    await context.AddAsync(destino);
+                }
+
+                await context.SaveChangesAsync();
+
+                return Ok();
             }
             catch (Exception e)
             {
@@ -243,7 +257,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     destino.Id_Tad = id_terminal;
                     destino.Terminales = null!;
-                    
+
                     if (!string.IsNullOrEmpty(destino.Id_DestinoGobierno) && !string.IsNullOrWhiteSpace(destino.Id_DestinoGobierno))
                     {
                         //Verifico si es diferente al ID que ya tenía
@@ -276,19 +290,17 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpPost("asignar/{cod:int}")]
-        public async Task<ActionResult> PostAsignar([FromBody] Destino codden, [FromRoute] int cod)
+        [HttpPut("asignar")]
+        public async Task<ActionResult> PostAsignar([FromQuery] ClienteDestinoDTO dTO)
         {
             try
             {
-                var destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == codden.Cod);
+                var destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == dTO.Coddes);
 
-                if (destino == null)
-                {
+                if (destino is null)
                     return NotFound();
-                }
 
-                destino.Codcte = cod;
+                destino.Codcte = dTO.Codcte;
                 context.Update(destino);
                 await context.SaveChangesAsync();
 
@@ -364,7 +376,7 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPut("{cod:int}")]
-        public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
+        public async Task<ActionResult> ChangeStatus([FromRoute] int cod)
         {
             try
             {
@@ -377,7 +389,7 @@ namespace GComFuelManager.Server.Controllers
                     return NotFound();
                 }
 
-                destino.Activo = status;
+                destino.Activo = !destino.Activo;
 
                 context.Update(destino);
                 var acc = destino.Activo ? 26 : 27;

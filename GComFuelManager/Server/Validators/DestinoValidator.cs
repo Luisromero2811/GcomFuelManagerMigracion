@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 using GComFuelManager.Shared.ModelDTOs;
-using GComFuelManager.Shared.Modelos;
 
-namespace GComFuelManager.Client.Helpers.Validations
+namespace GComFuelManager.Server.Validators
 {
-    public class GestionDestinoValidation : AbstractValidator<DestinoPostDTO>
+    public class DestinoValidator : AbstractValidator<DestinoPostDTO>
     {
-        public GestionDestinoValidation()
+        public DestinoValidator()
         {
             RuleFor(x => x.Den)
                 .MaximumLength(128).WithName("Nombre del destino").WithMessage("El nombre del destino no puede tener mas de 128 caracteres")
@@ -32,4 +31,3 @@ namespace GComFuelManager.Client.Helpers.Validations
         }
     }
 }
-
