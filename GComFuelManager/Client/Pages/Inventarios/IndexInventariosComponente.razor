@@ -215,7 +215,7 @@
                 </div>
                 <div class="col-4">
                     <label>Chofer</label>
-                    <DropDownFilter TValue="int" TListado="Chofer" @bind-Valor="@Inventario.ChoferId" Default_Placeholder="-- Tonel --"
+                    <DropDownFilter TValue="int" TListado="Chofer" @bind-Valor="@Inventario.ChoferId" Default_Placeholder="-- Chofer --"
                                     Default_Placeholder_Filter="Buscar tracto" Propiedad_Valor="Cod" Listado="Choferes"
                                     FiltrarValor="GetChoferes" On_Cancel_Method="@(()=>{Inventario.ChoferId = 0;})">
                         <RenderValue Context="tra">
@@ -296,7 +296,7 @@
                 <th style="width: 150px;" class="resizable-column">Tirilla final</th>
                 <th style="width: 150px;" class="resizable-column">Cantidad</th>
                 <th style="width: 150px;" class="resizable-column">Cantidad facturada</th>
-                <th style="width: 150px;" class="resizable-column">Sobrante / faltante</th>
+                <th style="width: 150px;" class="resizable-column">Sobrante / Faltante</th>
                 <th style="width: 150px;" class="resizable-column">Unidad de medida</th>
                 <th style="width: 150px;" class="resizable-column">Temperatura</th>
                 <th style="width: 150px;" class="resizable-column">Fecha de ejecucion de cierre</th>
