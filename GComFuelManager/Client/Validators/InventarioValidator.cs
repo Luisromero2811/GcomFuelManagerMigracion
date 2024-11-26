@@ -38,7 +38,15 @@ namespace GComFuelManager.Client.Validators
             RuleFor(x => x.Numero)
                 .MaximumLength(50).WithMessage("El numero no puede tener mas de 50 caracteres");
 
-            RuleFor(x => x.Cantidad)
+            //RuleFor(x => x.Cantidad)
+            //    .NotNull().WithMessage("La cantidad es obligatoria")
+            //    .GreaterThanOrEqualTo(0).WithMessage("La cantidad no puede ser menor a 0");
+
+            RuleFor(x => x.TirillaInicial)
+                .NotNull().WithMessage("La cantidad es obligatoria")
+                .GreaterThanOrEqualTo(0).WithMessage("La cantidad no puede ser menor a 0");
+
+            RuleFor(x => x.TirillaFinal)
                 .NotNull().WithMessage("La cantidad es obligatoria")
                 .GreaterThanOrEqualTo(0).WithMessage("La cantidad no puede ser menor a 0");
 

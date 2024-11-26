@@ -1,7 +1,6 @@
 ﻿using GComFuelManager.Shared.Enums;
 using GComFuelManager.Shared.Filtro;
 using OfficeOpenXml.Attributes;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GComFuelManager.Shared.ModelDTOs
 {
@@ -20,10 +19,18 @@ namespace GComFuelManager.Shared.ModelDTOs
         public int TipoMovimientoId { get; set; }
         public string Referencia { get; set; } = string.Empty;
         public string Numero { get; set; } = string.Empty;
+        public DateTime FechaInicioMovimiento { get; set; } = DateTime.Now;
+        public DateTime FechaFinMovimiento { get; set; } = DateTime.Now;
+        public double CantidadFacturada { get; set; }
+        public double TirillaInicial { get; set; }
+        public double TirillaFinal { get; set; }
+        public double Temperatura { get; set; }
         public double Cantidad { get; set; }
+        public double Diferencia { get; set; }
         public int CierreId { get; set; }
         public string Transportista { get; set; } = string.Empty;
         public string Tonel { get; set; } = string.Empty;
+        public string Chofer { get; set; } = string.Empty;
         public TipoInventario TipoInventario { get; set; }
         public string OrigenDestino { get; set; } = string.Empty;
         [EpplusIgnore] public bool FechaNULL { get; set; } = false;

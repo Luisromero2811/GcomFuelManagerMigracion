@@ -65,6 +65,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.TipoMovimiento)
                     .Include(x => x.Transportista)
                     .Include(x => x.Tonel)
+                    .Include(x => x.Chofer)
                     .Include(x => x.OrigenDestino)
                     .OrderByDescending(x => x.FechaRegistro)
                     .AsQueryable();
@@ -120,6 +121,10 @@ namespace GComFuelManager.Server.Controllers
                 if (!string.IsNullOrEmpty(inventario.Tonel) && !string.IsNullOrWhiteSpace(inventario.Tonel))
                     inventarios = inventarios.Where(x => x.Tonel != null && !string.IsNullOrEmpty(x.Tonel.Tracto) && x.Tonel.Tracto.ToLower().Contains(inventario.Tonel.ToLower()));
 
+                if (!string.IsNullOrEmpty(inventario.Chofer) && !string.IsNullOrWhiteSpace(inventario.Chofer))
+                    inventarios = inventarios.Where(x => x.Chofer != null && !string.IsNullOrEmpty(x.Chofer.Den) && x.Chofer.Den.ToLower().Contains(inventario.Chofer.ToLower()) ||
+                                                         x.Chofer != null && !string.IsNullOrEmpty(x.Chofer.Shortden) && x.Chofer.Shortden.ToLower().Contains(inventario.Chofer.ToLower()));
+
                 if (!string.IsNullOrEmpty(inventario.OrigenDestino) && !string.IsNullOrWhiteSpace(inventario.OrigenDestino))
                     inventarios = inventarios.Where(x => !string.IsNullOrEmpty(x.OrigenDestino.Valor) && x.OrigenDestino.Valor.ToLower().Contains(inventario.OrigenDestino.ToLower()));
 
@@ -134,8 +139,9 @@ namespace GComFuelManager.Server.Controllers
                         op.PrintHeaders = true;
                     });
 
-                    ws.Cells[1, 9, ws.Dimension.End.Row, 9].Style.Numberformat.Format = "#,##0.00";
-                    ws.Cells[1, 1, ws.Dimension.End.Row, 2].Style.Numberformat.Format = "dd/MM/yyyy";
+                    ws.Cells[1, 11, ws.Dimension.End.Row, 13].Style.Numberformat.Format = "#,##0.00";
+                    ws.Cells[1, 15, ws.Dimension.End.Row, 15].Style.Numberformat.Format = "# °";
+                    ws.Cells[1, 1, ws.Dimension.End.Row, 2].Style.Numberformat.Format = "dd/MM/yyyy hh:mm:ss";
 
                     ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
                     return Ok(excel.GetAsByteArray());
@@ -192,6 +198,9 @@ namespace GComFuelManager.Server.Controllers
                 //        if (tipo >= 20)
                 //            inventariodto.Cantidad *= -1;
 
+                if (inventariodto.Cantidad < 0)
+                    inventariodto.Cantidad *= -1;
+
                 if (inventariodto.UnidadMedidaId == lts.Id)
                     inventariodto.CantidadLTS = inventariodto.Cantidad;
                 else
@@ -208,7 +217,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     cierre = await context.InventarioCierres
                             .AsNoTracking()
-                            .FirstOrDefaultAsync(x => x.SitioId.Equals(inventariodto.SitioId) &&
+                            .FirstOrDefaultAsync(x => x.ProductoId.Equals(inventariodto.ProductoId) &&
                             x.AlmacenId.Equals(inventariodto.AlmacenId) && x.SitioId.Equals(inventariodto.SitioId) &&
                             x.LocalidadId.Equals(inventariodto.LocalidadId) && x.Activo && x.Abierto && x.FechaCierre == null);
                 }
@@ -309,7 +318,7 @@ namespace GComFuelManager.Server.Controllers
                     {
                         var cierredb = await context.InventarioCierres
                             .AsNoTracking()
-                            .FirstOrDefaultAsync(x => x.SitioId.Equals(inventariodto.SitioId) &&
+                            .FirstOrDefaultAsync(x => x.ProductoId.Equals(inventariodto.ProductoId) &&
                             x.AlmacenId.Equals(inventariodto.AlmacenId) && x.SitioId.Equals(inventariodto.SitioId) &&
                             x.LocalidadId.Equals(inventariodto.LocalidadId) && x.Activo && x.Abierto && x.FechaCierre == null);
 
@@ -538,7 +547,7 @@ namespace GComFuelManager.Server.Controllers
                     x.Activo)
                     .ToListAsync();
 
-                var inventariosdecierre = inventarios.Select(x => { x.FechaCierre = nuevocierre.FechaCierre; return x; });
+                var inventariosdecierre = inventarios.Select(x => { x.FechaCierre = cierre.FechaCierre; return x; });
 
                 context.UpdateRange(inventariosdecierre);
                 await context.SaveChangesAsync(userid, 61);
@@ -896,6 +905,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var movimientosPermitidos = new List<int>() { 1, 7, 9, 21, 22, 23, 25, 26, 27 };
                 var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
                 if (id_terminal == 0)
                     return BadRequest();
@@ -924,9 +934,13 @@ namespace GComFuelManager.Server.Controllers
 
                             menu.Destinos = destinos?.Valores.Select(y => mapper.Map<CatalogoValorDTO>(y)).ToList() ?? new();
 
+                            if (movimientosPermitidos.Contains(tm))
+                            {
+                                menu.PuedeCapturarCantidad = true;
+                            }
+
                             if (tm.Equals(20))
                             {
-                                menu.EsVenta = true;
                                 menu.MostrarMenuInventarios = true;
                             }
                         }
@@ -939,9 +953,13 @@ namespace GComFuelManager.Server.Controllers
 
                             menu.Origenes = origenes?.Valores.Select(y => mapper.Map<CatalogoValorDTO>(y)).ToList() ?? new();
 
+                            if (movimientosPermitidos.Contains(tm))
+                            {
+                                menu.PuedeCapturarCantidad = true;
+                            }
+
                             if (tm.Equals(9))
                             {
-                                menu.EsDevolucion = true;
                                 menu.MostrarMenuInventarios = true;
                             }
                         }

@@ -119,11 +119,54 @@
                     <InputText @bind-Value="Inventario.Numero" class="form-control form-control-sm" />
                     <ValidationMessage For="@(()=>Inventario.Numero)" />
                 </div>
+                @if (!Menu.PuedeCapturarCantidad)
+                {
+                    <div class="col-4">
+                        <label>Hora inicial del movimiento</label>
+                        <InputDate @bind-Value="Inventario.FechaInicioMovimiento" Type="InputDateType.Time" class="form-control form-control-sm" />
+                        <ValidationMessage For="@(()=>Inventario.FechaInicioMovimiento)" />
+                    </div>
+                    <div class="col-4">
+                        <label>Hora final del movimiento</label>
+                        <InputDate @bind-Value="Inventario.FechaFinMovimiento" Type="InputDateType.Time" class="form-control form-control-sm" />
+                        <ValidationMessage For="@(()=>Inventario.FechaFinMovimiento)" />
+                    </div>
+                    <div class="col-4">
+                        <label>Tirilla inicial</label>
+                        <InputNumber @bind-Value="Inventario.TirillaInicial" class="form-control form-control-sm" @bind-Value:after="CalcularCantidadTirillas" />
+                        <ValidationMessage For="@(()=>Inventario.TirillaInicial)" />
+                    </div>
+
+                    <div class="col-4">
+                        <label>Tirilla Final</label>
+                        <InputNumber @bind-Value="Inventario.TirillaFinal" class="form-control form-control-sm" @bind-Value:after="CalcularCantidadTirillas" />
+                        <ValidationMessage For="@(()=>Inventario.TirillaFinal)" />
+                    </div>
+                }
                 <div class="col-4">
                     <label>Cantidad</label>
-                    <InputNumber @bind-Value="Inventario.Cantidad" class="form-control form-control-sm" @bind-Value:format="#,##0.00" />
-                    <ValidationMessage For="@(()=>Inventario.Cantidad)" />
+                    @if (Menu.PuedeCapturarCantidad)
+                    {
+                        <InputNumber @bind-Value="Inventario.Cantidad" class="form-control form-control-sm" />
+                        <ValidationMessage For="@(()=>Inventario.Cantidad)" />
+                    }
+                    else
+                    {
+                        <p>@Inventario.Cantidad.ToString("N2", CultureInfo.InvariantCulture)</p>
+                    }
                 </div>
+                @if (!Menu.PuedeCapturarCantidad)
+                {
+                    <div class="col-4">
+                        <label>Cantidad facturada</label>
+                        <InputNumber @bind-Value="Inventario.CantidadFacturada" class="form-control form-control-sm" @bind-Value:after="CalcularDiferenciaCantidad" />
+                        <ValidationMessage For="@(()=>Inventario.CantidadFacturada)" />
+                    </div>
+                    <div class="col-4">
+                        <label>Sobrante / Faltante</label>
+                        <p class="@(Inventario.Diferencia < 0 ? "text-danger" : "text-success")">@Inventario.Diferencia.ToString("N2", CultureInfo.InvariantCulture)</p>
+                    </div>
+                }
                 <div class="col-4">
                     <label>Unidad de medida</label>
                     <InputSelect @bind-Value="Inventario.UnidadMedidaId" class="form-select form-select-sm">
@@ -136,9 +179,14 @@
                     <ValidationMessage For="@(()=>Inventario.UnidadMedidaId)" />
                 </div>
                 <div class="col-4">
+                    <label>Temperatura del producto</label>
+                    <InputNumber @bind-Value="Inventario.Temperatura" class="form-control form-control-sm" />
+                    <ValidationMessage For="@(()=>Inventario.Temperatura)" />
+                </div>
+                <div class="col-4">
                     <label>Transportista</label>
                     <DropDownFilter TValue="Transportista" TListado="Transportista" @bind-Valor="@Transportista" Default_Placeholder="-- Transportista --"
-                                    Default_Placeholder_Filter="Buscar transportista" Listado="Transportistas" On_Change_Method="@(()=>GetToneles())"
+                                    Default_Placeholder_Filter="Buscar transportista" Listado="Transportistas" On_Change_Method="@(()=>GetDataTransportista())"
                                     FiltrarValor="GetTransportista" On_Cancel_Method="@(()=>{Inventario.TransportistaId = 0;})">
                         <RenderValue Context="tra">
                             @tra.Den
@@ -160,6 +208,21 @@
                         </RenderValue>
                         <Render Context="tra">
                             @tra.Nombre_Placas
+                        </Render>
+                    </DropDownFilter>
+                    <InputSelect @bind-Value="Inventario.TonelId" class="d-none" />
+                    <ValidationMessage For="@(()=>Inventario.TonelId)" />
+                </div>
+                <div class="col-4">
+                    <label>Chofer</label>
+                    <DropDownFilter TValue="int" TListado="Chofer" @bind-Valor="@Inventario.ChoferId" Default_Placeholder="-- Tonel --"
+                                    Default_Placeholder_Filter="Buscar tracto" Propiedad_Valor="Cod" Listado="Choferes"
+                                    FiltrarValor="GetChoferes" On_Cancel_Method="@(()=>{Inventario.ChoferId = 0;})">
+                        <RenderValue Context="tra">
+                            @tra.FullName
+                        </RenderValue>
+                        <Render Context="tra">
+                            @tra.FullName
                         </Render>
                     </DropDownFilter>
                     <InputSelect @bind-Value="Inventario.TonelId" class="d-none" />
@@ -226,12 +289,20 @@
                 <th style="width: 150px;" class="resizable-column">Fecha Fisica</th>
                 <th style="width: 150px;" class="resizable-column">Tipo de movimiento</th>
                 <th style="width: 150px;" class="resizable-column">Referencia</th>
-                <th style="width: 150px;" class="resizable-column">ID Documento</th>
+                <th style="width: 150px;" class="resizable-column">ID documento</th>
+                <th style="width: 150px;" class="resizable-column">Hora inicial de movimiento</th>
+                <th style="width: 150px;" class="resizable-column">Hora final de movimiento</th>
+                <th style="width: 150px;" class="resizable-column">Tirilla inicial</th>
+                <th style="width: 150px;" class="resizable-column">Tirilla final</th>
                 <th style="width: 150px;" class="resizable-column">Cantidad</th>
+                <th style="width: 150px;" class="resizable-column">Cantidad facturada</th>
+                <th style="width: 150px;" class="resizable-column">Sobrante / faltante</th>
                 <th style="width: 150px;" class="resizable-column">Unidad de medida</th>
+                <th style="width: 150px;" class="resizable-column">Temperatura</th>
                 <th style="width: 150px;" class="resizable-column">Fecha de ejecucion de cierre</th>
                 <th style="width: 150px;" class="resizable-column">Transportista</th>
                 <th style="width: 150px;" class="resizable-column">Tonel</th>
+                <th style="width: 150px;" class="resizable-column">Chofer</th>
                 <th style="width: 150px;" class="resizable-column">Inventario</th>
                 <th style="width: 150px;" class="resizable-column">Origen / Destino</th>
             </tr>
@@ -293,6 +364,12 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
                 <td>
                     <select class="form-select form-select-sm"
                             onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.UnidadMedidaId)))">
@@ -304,8 +381,10 @@
                     </select>
                 </td>
                 <td></td>
+                <td></td>
                 <td><input class="form-control form-control-sm" @bind-value="Filtro.Transportista" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Transportista)))" /></td>
                 <td><input class="form-control form-control-sm" @bind-value="Filtro.Tonel" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Tonel)))" /></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.Chofer" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Chofer)))" /></td>
                 <td></td>
                 <td><input class="form-control form-control-sm" @bind-value="Filtro.OrigenDestino" @oninput="@((args)=>Filtrar(args, nameof(Filtro.OrigenDestino)))" /></td>
             </tr>
@@ -329,15 +408,23 @@
                 <td>@item.Sitio</td>
                 <td>@item.Almacen</td>
                 <td>@item.Localidad</td>
-                <td>@item.FechaRegistro.ToShortDateString()</td>
+                <td>@item.FechaRegistro.ToString("dd/MM/yyyy hh:mm tt")</td>
                 <td>@item.TipoMovimiento</td>
                 <td>@item.Referencia</td>
                 <td>@item.Numero</td>
+                <td>@item.FechaInicioMovimiento.ToString("hh:mm tt")</td>
+                <td>@item.FechaFinMovimiento.ToString("hh:mm tt")</td>
+                <td>@item.TirillaInicial</td>
+                <td>@item.TirillaFinal</td>
                 <td>@item.Cantidad.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td>@item.CantidadFacturada.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td class="@(item.Diferencia < 0 ? "text-danger" : "text-success")">@item.Diferencia.ToString("N2", CultureInfo.InvariantCulture)</td>
                 <td>@item.UnidadMedida</td>
-                <td>@(item.FechaCierre?.ToShortDateString() ?? "----")</td>
+                <td>@item.Temperatura.ToString("#.## °", CultureInfo.InvariantCulture)</td>
+                <td>@(item.FechaCierre?.ToString("dd/MM/yyyy hh:mm tt") ?? "----")</td>
                 <td>@item.Transportista</td>
                 <td>@item.Tonel</td>
+                <td>@item.Chofer</td>
                 <td>@item.TipoInventario.Description()</td>
                 <td>@item.OrigenDestino</td>
             </tr>
@@ -376,6 +463,7 @@
     List<Transportista> Transportistas = new();
     Transportista Transportista = new();
     List<Tonel> Toneles = new();
+    List<Chofer> Choferes = new();
 
     MenuInventarioDTO Menu = new();
 
@@ -412,6 +500,7 @@
         query[nameof(Filtro.UnidadMedidaId)] = Filtro.UnidadMedidaId.ToString();
         query[nameof(Filtro.Transportista)] = Filtro.Transportista;
         query[nameof(Filtro.Tonel)] = Filtro.Tonel;
+        query[nameof(Filtro.Chofer)] = Filtro.Chofer;
         query[nameof(Filtro.OrigenDestino)] = Filtro.OrigenDestino;
         query[nameof(Filtro.Pagina)] = Filtro.Pagina.ToString();
         query[nameof(Filtro.Registros_por_pagina)] = Filtro.Registros_por_pagina.ToString();
@@ -647,6 +736,9 @@
             case nameof(Filtro.Tonel):
                 Filtro.Tonel = args.Value?.ToString() ?? string.Empty;
                 break;
+            case nameof(Filtro.Chofer):
+                Filtro.Chofer = args.Value?.ToString() ?? string.Empty;
+                break;
             case nameof(Filtro.OrigenDestino):
                 Filtro.OrigenDestino = args.Value?.ToString() ?? string.Empty;
                 break;
@@ -764,7 +856,7 @@
         }
     }
 
-    public async Task GetTransportista(string valor = "")
+    private async Task GetTransportista(string valor = "")
     {
         try
         {
@@ -789,15 +881,13 @@
         }
     }
 
-    public async Task GetToneles(string valor = "")
+    private async Task GetToneles(string valor = "")
     {
         try
         {
             Dictionary<string, string> query = new();
             query[nameof(Tonel.Tracto)] = valor;
             var url = Constructor_De_URL_Parametros.Generar_URL(query);
-
-            Inventario.TransportistaId = Transportista.Cod;
 
             var response = await http.Get<List<Tonel>>($"api/vehiculo/{Transportista.CarrId}?{url}");
             if (response.Error)
@@ -814,6 +904,37 @@
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+    }
+
+    private async Task GetChoferes(string valor = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query[nameof(Chofer.Den)] = valor;
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Chofer>>($"api/chofer/{Transportista.Busentid}?{url}");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Choferes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetDataTransportista()
+    {
+        Inventario.TransportistaId = Transportista.Cod;
+        await Task.WhenAll(GetToneles(), GetChoferes());
     }
 
     private async Task CargarCierreInventario()
@@ -857,7 +978,7 @@
         {
             loading = true;
             Cierre.Abierto = false;
-            var response = await http.Get<bool>($"api/inventario/cierre/cerrar/{Id}");
+            var response = await http.Get<bool>($"api/inventario/cierre/changestatus/{Id}");
             if (response.Error)
             {
                 loading = false;
@@ -897,6 +1018,13 @@
             {
                 loading = false;
                 Menu = response.Response;
+                if (Menu.PuedeCapturarCantidad)
+                {
+                    Inventario.TirillaInicial = 0;
+                    Inventario.TirillaFinal = 0;
+                    Inventario.Diferencia = 0;
+                    Inventario.CantidadFacturada = 0;
+                }
             }
         }
         catch (Exception e)
@@ -910,5 +1038,29 @@
     {
         Inventario = new();
         IsEdit = false;
+    }
+
+    private void CalcularCantidadTirillas()
+    {
+        Inventario.Cantidad = Inventario.TirillaInicial - Inventario.TirillaFinal;
+        Inventario.Cantidad = Inventario.Cantidad;
+
+        if (Inventario.Cantidad != 0)
+            Inventario.Cantidad *= -1;
+
+        CalcularDiferenciaCantidad();
+    }
+
+    private void CalcularDiferenciaCantidad()
+    {
+        if (Inventario.Cantidad > 0)
+        {
+            Inventario.Diferencia = Inventario.Cantidad - Inventario.CantidadFacturada;
+        }
+        else
+        {
+            Inventario.Diferencia = Inventario.Cantidad + Inventario.CantidadFacturada;
+        }
+        // DiferenciaCalculada = Inventario.Diferencia;
     }
 }

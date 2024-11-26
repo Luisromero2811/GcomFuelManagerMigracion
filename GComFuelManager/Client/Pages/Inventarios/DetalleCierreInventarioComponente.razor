@@ -1,6 +1,5 @@
 ﻿@inject IRepositorio http
 @inject IJSRuntime js
-@inject InventarioValidator validator
 @inject SweetAlertService Swal
 
 <div class="col-12 my-1">
@@ -13,19 +12,27 @@
     <Tabla Datos="Inventarios">
         <Cabeceras>
             <tr>
-                <th style="width: 100px;" class="resizable-column">Producto</th>
-                <th style="width: 100px;" class="resizable-column">Sitio</th>
-                <th style="width: 100px;" class="resizable-column">Almacen</th>
-                <th style="width: 100px;" class="resizable-column">Localidad</th>
-                <th style="width: 100px;" class="resizable-column">Fecha Fisica</th>
-                <th style="width: 100px;" class="resizable-column">Tipo de movimiento</th>
-                <th style="width: 100px;" class="resizable-column">Referencia</th>
-                <th style="width: 100px;" class="resizable-column">ID Documento</th>
-                <th style="width: 100px;" class="resizable-column">Cantidad</th>
-                <th style="width: 100px;" class="resizable-column">Unidad de medida</th>
-                <th style="width: 100px;" class="resizable-column">Fecha de ejecucion de cierre</th>
+                <th style="width: 150px;" class="resizable-column">Producto</th>
+                <th style="width: 150px;" class="resizable-column">Sitio</th>
+                <th style="width: 150px;" class="resizable-column">Almacen</th>
+                <th style="width: 150px;" class="resizable-column">Localidad</th>
+                <th style="width: 150px;" class="resizable-column">Fecha Fisica</th>
+                <th style="width: 150px;" class="resizable-column">Tipo de movimiento</th>
+                <th style="width: 150px;" class="resizable-column">Referencia</th>
+                <th style="width: 150px;" class="resizable-column">ID documento</th>
+                <th style="width: 150px;" class="resizable-column">Hora inicial de movimiento</th>
+                <th style="width: 150px;" class="resizable-column">Hora final de movimiento</th>
+                <th style="width: 150px;" class="resizable-column">Tirilla inicial</th>
+                <th style="width: 150px;" class="resizable-column">Tirilla final</th>
+                <th style="width: 150px;" class="resizable-column">Cantidad</th>
+                <th style="width: 150px;" class="resizable-column">Cantidad facturada</th>
+                <th style="width: 150px;" class="resizable-column">Sobrante / faltante</th>
+                <th style="width: 150px;" class="resizable-column">Unidad de medida</th>
+                <th style="width: 150px;" class="resizable-column">Temperatura</th>
+                <th style="width: 150px;" class="resizable-column">Fecha de ejecucion de cierre</th>
                 <th style="width: 150px;" class="resizable-column">Transportista</th>
                 <th style="width: 150px;" class="resizable-column">Tonel</th>
+                <th style="width: 150px;" class="resizable-column">Chofer</th>
                 <th style="width: 150px;" class="resizable-column">Inventario</th>
                 <th style="width: 150px;" class="resizable-column">Origen / Destino</th>
             </tr>
@@ -50,6 +57,12 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
                 <td>
                     <select class="form-select form-select-sm"
                             onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.UnidadMedidaId)))">
@@ -61,8 +74,10 @@
                     </select>
                 </td>
                 <td></td>
+                <td></td>
                 <td><input class="form-control form-control-sm" @bind-value="Filtro.Transportista" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Transportista)))" /></td>
                 <td><input class="form-control form-control-sm" @bind-value="Filtro.Tonel" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Tonel)))" /></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.Chofer" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Chofer)))" /></td>
                 <td></td>
                 <td><input class="form-control form-control-sm" @bind-value="Filtro.OrigenDestino" @oninput="@((args)=>Filtrar(args, nameof(Filtro.OrigenDestino)))" /></td>
             </tr>
@@ -73,16 +88,24 @@
                 <td>@item.Sitio</td>
                 <td>@item.Almacen</td>
                 <td>@item.Localidad</td>
-                <td>@item.FechaRegistro.ToShortDateString()</td>
+                <td>@item.FechaRegistro.ToString("dd/MM/yyyy hh:mm tt")</td>
                 <td>@item.TipoMovimiento</td>
                 <td>@item.Referencia</td>
                 <td>@item.Numero</td>
+                <td>@item.FechaInicioMovimiento.ToString("hh:mm tt")</td>
+                <td>@item.FechaFinMovimiento.ToString("hh:mm tt")</td>
+                <td>@item.TirillaInicial</td>
+                <td>@item.TirillaFinal</td>
                 <td>@item.Cantidad.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td>@item.CantidadFacturada.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td class="@(item.Diferencia < 0 ? "text-danger" : "text-success")">@item.Diferencia.ToString("N2", CultureInfo.InvariantCulture)</td>
                 <td>@item.UnidadMedida</td>
-                <td>@(item.FechaCierre?.ToShortDateString() ?? "----")</td>
+                <td>@item.Temperatura.ToString("#.## °", CultureInfo.InvariantCulture)</td>
+                <td>@(item.FechaCierre?.ToString("dd/MM/yyyy hh:mm tt") ?? "----")</td>
                 <td>@item.Transportista</td>
                 <td>@item.Tonel</td>
-                <td>@item.TipoInventario</td>
+                <td>@item.Chofer</td>
+                <td>@item.TipoInventario.Description()</td>
                 <td>@item.OrigenDestino</td>
             </tr>
         </Columnas>
@@ -121,6 +144,7 @@
         query[nameof(Filtro.UnidadMedidaId)] = Filtro.UnidadMedidaId.ToString();
         query[nameof(Filtro.Transportista)] = Filtro.Transportista;
         query[nameof(Filtro.Tonel)] = Filtro.Tonel;
+        query[nameof(Filtro.Chofer)] = Filtro.Chofer;
         query[nameof(Filtro.OrigenDestino)] = Filtro.OrigenDestino;
         query[nameof(Filtro.CierreId)] = Cierre.Id.ToString();
         query[nameof(Filtro.FechaNULL)] = Cierre.Id.IsZero() ? true.ToString() : false.ToString();
@@ -194,6 +218,9 @@
                 break;
             case nameof(Filtro.Tonel):
                 Filtro.Tonel = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(Filtro.Chofer):
+                Filtro.Chofer = args.Value?.ToString() ?? string.Empty;
                 break;
             case nameof(Filtro.OrigenDestino):
                 Filtro.OrigenDestino = args.Value?.ToString() ?? string.Empty;
