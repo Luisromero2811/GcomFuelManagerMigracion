@@ -9,255 +9,252 @@
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Inventarios, Inventarios Lectura")]
 
 <Card HeaderText="Inventarios" LoadingContent="loading" />
-<Card HeaderText="Registrar inventario">
-    <Body>
-        <EditForm Model="Inventario" OnValidSubmit="GuardarInventario">
-            <DataAnnotationsValidator />
-            <FluentValidationValidator Validator="validator" />
-            <div class="col-12 row g-2">
-                <div class="col-4">
-                    <label>Producto</label>
-                    <InputSelect @bind-Value="Inventario.ProductoId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
-                        <option>-- Productos --</option>
-                        @foreach (var item in Productos)
-                        {
-                            <option value="@item.Cod">@item.Nombre_Producto</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(()=>Inventario.ProductoId)" />
-                </div>
-                <div class="col-4">
-                    <label>Sitio</label>
-                    <InputSelect @bind-Value="Inventario.SitioId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
-                        <option>-- Sitios --</option>
-                        @foreach (var item in Sitios)
-                        {
-                            <option value="@item.Id">@item.Valor</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(()=>Inventario.SitioId)" />
-                </div>
-                <div class="col-4">
-                    <label>Almacen</label>
-                    <InputSelect @bind-Value="Inventario.AlmacenId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
-                        <option>-- Almacenes --</option>
-                        @foreach (var item in Almacenes)
-                        {
-                            <option value="@item.Id">@item.Valor</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(()=>Inventario.AlmacenId)" />
-                </div>
-                <div class="col-4">
-                    <label>Localidad</label>
-                    <InputSelect @bind-Value="Inventario.LocalidadId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
-                        <option>-- Localidades --</option>
-                        @foreach (var item in Localidades)
-                        {
-                            <option value="@item.Id">@item.Valor</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(()=>Inventario.LocalidadId)" />
-                </div>
-                <div class="col-4">
-                    <label>Tipo de movimiento</label>
-                    <InputSelect @bind-Value="Inventario.TipoMovimientoId" class="form-select form-select-sm" @bind-Value:after="CargarMenuInventario">
-                        <option>-- Tipo de movimiento --</option>
-                        @foreach (var item in TiposMovimientos)
-                        {
-                            <option value="@item.Id">@($"{item.Abreviacion} - {item.Valor}")</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
-                </div>
-                @if (Menu.MostrarMenuInventarios)
-                {
-
-                    <div class="col-4">
-                        <label>Inventario</label>
-                        <InputSelect @bind-Value="Inventario.TipoInventario" class="form-select form-select-sm">
-                            <option>-- Tipo de inventario --</option>
-                            @foreach (var item in Enum.GetValues(typeof(TipoInventario)))
-                            {
-                                <option value="@item">@(((TipoInventario)item).Description())</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
-                    </div>
-                }
-                @if (!Inventario.TipoMovimientoId.IsZero())
-                {
-                    <div class="col-4">
-                        <label>@Menu.LabelMenu</label>
-                        <InputSelect @bind-Value="Inventario.OrigenDestinoID" class="form-select form-select-sm">
-                            <option>-- @Menu.LabelMenu.ToLower() --</option>
-                            @if (Menu.Destinos.Count > 0)
-                            {
-                                @foreach (var item in Menu.Destinos)
+<AuthorizeView Roles="Admin, Administrador Sistema, Inventarios" Context="INVENTARIOSFORM">
+    <Authorized>
+        <Card HeaderText="Registrar inventario">
+            <Body>
+                <EditForm Model="Inventario" OnValidSubmit="GuardarInventario">
+                    <DataAnnotationsValidator />
+                    <FluentValidationValidator Validator="validator" />
+                    <div class="col-12 row g-2">
+                        <div class="col-4">
+                            <label>Producto</label>
+                            <InputSelect @bind-Value="Inventario.ProductoId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
+                                <option>-- Productos --</option>
+                                @foreach (var item in Productos)
+                                {
+                                    <option value="@item.Cod">@item.Nombre_Producto</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>Inventario.ProductoId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Sitio</label>
+                            <InputSelect @bind-Value="Inventario.SitioId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
+                                <option>-- Sitios --</option>
+                                @foreach (var item in Sitios)
                                 {
                                     <option value="@item.Id">@item.Valor</option>
                                 }
-                            }
-                            else if (Menu.Origenes.Count > 0)
-                            {
-                                @foreach (var item in Menu.Origenes)
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>Inventario.SitioId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Almacen</label>
+                            <InputSelect @bind-Value="Inventario.AlmacenId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
+                                <option>-- Almacenes --</option>
+                                @foreach (var item in Almacenes)
                                 {
                                     <option value="@item.Id">@item.Valor</option>
                                 }
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
-                    </div>
-                }
-                <div class="col-4">
-                    <label>Referencia</label>
-                    <InputTextArea @bind-Value="Inventario.Referencia" class="form-control form-control-sm" />
-                    <ValidationMessage For="@(()=>Inventario.Referencia)" />
-                </div>
-                <div class="col-4">
-                    <label>ID Documento</label>
-                    <InputText @bind-Value="Inventario.Numero" class="form-control form-control-sm" />
-                    <ValidationMessage For="@(()=>Inventario.Numero)" />
-                </div>
-                @if (!Menu.PuedeCapturarCantidad)
-                {
-                    <div class="col-4">
-                        <label>Hora inicial del movimiento</label>
-                        <InputDate @bind-Value="Inventario.FechaInicioMovimiento" Type="InputDateType.Time" class="form-control form-control-sm" />
-                        <ValidationMessage For="@(()=>Inventario.FechaInicioMovimiento)" />
-                    </div>
-                    <div class="col-4">
-                        <label>Hora final del movimiento</label>
-                        <InputDate @bind-Value="Inventario.FechaFinMovimiento" Type="InputDateType.Time" class="form-control form-control-sm" />
-                        <ValidationMessage For="@(()=>Inventario.FechaFinMovimiento)" />
-                    </div>
-                    <div class="col-4">
-                        <label>Tirilla inicial</label>
-                        <InputNumber @bind-Value="Inventario.TirillaInicial" class="form-control form-control-sm" @bind-Value:after="CalcularCantidadTirillas" />
-                        <ValidationMessage For="@(()=>Inventario.TirillaInicial)" />
-                    </div>
-
-                    <div class="col-4">
-                        <label>Tirilla Final</label>
-                        <InputNumber @bind-Value="Inventario.TirillaFinal" class="form-control form-control-sm" @bind-Value:after="CalcularCantidadTirillas" />
-                        <ValidationMessage For="@(()=>Inventario.TirillaFinal)" />
-                    </div>
-                }
-                <div class="col-4">
-                    <label>Cantidad</label>
-                    @if (Menu.PuedeCapturarCantidad)
-                    {
-                        <InputNumber @bind-Value="Inventario.Cantidad" class="form-control form-control-sm" />
-                        <ValidationMessage For="@(()=>Inventario.Cantidad)" />
-                    }
-                    else
-                    {
-                        <p>@Inventario.Cantidad.ToString("N2", CultureInfo.InvariantCulture)</p>
-                    }
-                </div>
-                @if (!Menu.PuedeCapturarCantidad)
-                {
-                    <div class="col-4">
-                        <label>Cantidad facturada</label>
-                        <InputNumber @bind-Value="Inventario.CantidadFacturada" class="form-control form-control-sm" @bind-Value:after="CalcularDiferenciaCantidad" />
-                        <ValidationMessage For="@(()=>Inventario.CantidadFacturada)" />
-                    </div>
-                    <div class="col-4">
-                        <label>Sobrante / Faltante</label>
-                        <p class="@(Inventario.Diferencia < 0 ? "text-danger" : "text-success")">@Inventario.Diferencia.ToString("N2", CultureInfo.InvariantCulture)</p>
-                    </div>
-                }
-                <div class="col-4">
-                    <label>Unidad de medida</label>
-                    <InputSelect @bind-Value="Inventario.UnidadMedidaId" class="form-select form-select-sm">
-                        <option>-- Unidades de medida --</option>
-                        @foreach (var item in UnidadesMedida)
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>Inventario.AlmacenId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Localidad</label>
+                            <InputSelect @bind-Value="Inventario.LocalidadId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
+                                <option>-- Localidades --</option>
+                                @foreach (var item in Localidades)
+                                {
+                                    <option value="@item.Id">@item.Valor</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>Inventario.LocalidadId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Tipo de movimiento</label>
+                            <InputSelect @bind-Value="Inventario.TipoMovimientoId" class="form-select form-select-sm" @bind-Value:after="CargarMenuInventario">
+                                <option>-- Tipo de movimiento --</option>
+                                @foreach (var item in TiposMovimientos)
+                                {
+                                    <option value="@item.Id">@($"{item.Abreviacion} - {item.Valor}")</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
+                        </div>
+                        @if (Menu.MostrarMenuInventarios)
                         {
-                            <option value="@item.Id">@item.Valor</option>
+
+                            <div class="col-4">
+                                <label>Inventario</label>
+                                <InputSelect @bind-Value="Inventario.TipoInventario" class="form-select form-select-sm">
+                                    <option>-- Tipo de inventario --</option>
+                                    @foreach (var item in Enum.GetValues(typeof(TipoInventario)))
+                                    {
+                                        <option value="@item">@(((TipoInventario)item).Description())</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
+                            </div>
                         }
-                    </InputSelect>
-                    <ValidationMessage For="@(()=>Inventario.UnidadMedidaId)" />
-                </div>
-                <div class="col-4">
-                    <label>Temperatura del producto</label>
-                    <InputNumber @bind-Value="Inventario.Temperatura" class="form-control form-control-sm" />
-                    <ValidationMessage For="@(()=>Inventario.Temperatura)" />
-                </div>
-                <div class="col-4">
-                    <label>Transportista</label>
-                    <DropDownFilter TValue="Transportista" TListado="Transportista" @bind-Valor="@Transportista" Default_Placeholder="-- Transportista --"
-                                    Default_Placeholder_Filter="Buscar transportista" Listado="Transportistas" On_Change_Method="@(()=>GetDataTransportista())"
-                                    FiltrarValor="GetTransportista" On_Cancel_Method="@(()=>{Inventario.TransportistaId = 0;})">
-                        <RenderValue Context="tra">
-                            @tra.Den
-                        </RenderValue>
-                        <Render Context="tra">
-                            @tra.Den
-                        </Render>
-                    </DropDownFilter>
-                    <InputSelect @bind-Value="Inventario.TransportistaId" class="d-none" />
-                    <ValidationMessage For="@(()=>Inventario.TransportistaId)" />
-                </div>
-                <div class="col-4">
-                    <label>Vehiculo</label>
-                    <DropDownFilter TValue="int" TListado="Tonel" @bind-Valor="@Inventario.TonelId" Default_Placeholder="-- Tonel --"
-                                    Default_Placeholder_Filter="Buscar tracto" Propiedad_Valor="Cod" Listado="Toneles"
-                                    FiltrarValor="GetToneles" On_Cancel_Method="@(()=>{Inventario.TonelId = 0;})">
-                        <RenderValue Context="tra">
-                            @tra.Nombre_Placas
-                        </RenderValue>
-                        <Render Context="tra">
-                            @tra.Nombre_Placas
-                        </Render>
-                    </DropDownFilter>
-                    <InputSelect @bind-Value="Inventario.TonelId" class="d-none" />
-                    <ValidationMessage For="@(()=>Inventario.TonelId)" />
-                </div>
-                <div class="col-4">
-                    <label>Chofer</label>
-                    <DropDownFilter TValue="int" TListado="Chofer" @bind-Valor="@Inventario.ChoferId" Default_Placeholder="-- Chofer --"
-                                    Default_Placeholder_Filter="Buscar tracto" Propiedad_Valor="Cod" Listado="Choferes"
-                                    FiltrarValor="GetChoferes" On_Cancel_Method="@(()=>{Inventario.ChoferId = 0;})">
-                        <RenderValue Context="tra">
-                            @tra.FullName
-                        </RenderValue>
-                        <Render Context="tra">
-                            @tra.FullName
-                        </Render>
-                    </DropDownFilter>
-                    <InputSelect @bind-Value="Inventario.TonelId" class="d-none" />
-                    <ValidationMessage For="@(()=>Inventario.TonelId)" />
-                </div>
-            </div>
-            <div class="col-12 row mt-2 g-2">
-                <div class="col-2">
-                    <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit">
-                        <i class="fa fa-solid fa-floppy-disk" />
-                        Guardar
-                    </button>
-                </div>
-                @if (IsEdit)
-                {
-                    <div class="col-2">
-                        <button class="btn btn-sm btn-danger col-12" type="button" @onclick="CancelEdit">
-                            <i class="fa fa-solid fa-floppy-disk" />
-                            Cancelar
-                        </button>
+                        @if (!Inventario.TipoMovimientoId.IsZero())
+                        {
+                            <div class="col-4">
+                                <label>@Menu.LabelMenu</label>
+                                <InputSelect @bind-Value="Inventario.OrigenDestinoID" class="form-select form-select-sm">
+                                    <option>-- @Menu.LabelMenu.ToLower() --</option>
+                                    @if (Menu.Destinos.Count > 0)
+                                    {
+                                        @foreach (var item in Menu.Destinos)
+                                        {
+                                            <option value="@item.Id">@item.Valor</option>
+                                        }
+                                    }
+                                    else if (Menu.Origenes.Count > 0)
+                                    {
+                                        @foreach (var item in Menu.Origenes)
+                                        {
+                                            <option value="@item.Id">@item.Valor</option>
+                                        }
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
+                            </div>
+                        }
+                        <div class="col-4">
+                            <label>Referencia</label>
+                            <InputTextArea @bind-Value="Inventario.Referencia" class="form-control form-control-sm" />
+                            <ValidationMessage For="@(()=>Inventario.Referencia)" />
+                        </div>
+                        <div class="col-4">
+                            <label>ID Documento</label>
+                            <InputText @bind-Value="Inventario.Numero" class="form-control form-control-sm" />
+                            <ValidationMessage For="@(()=>Inventario.Numero)" />
+                        </div>
+                        @if (!Menu.PuedeCapturarCantidad)
+                        {
+                            <div class="col-4">
+                                <label>Hora inicial del movimiento</label>
+                                <InputDate @bind-Value="Inventario.FechaInicioMovimiento" Type="InputDateType.Time" class="form-control form-control-sm" />
+                                <ValidationMessage For="@(()=>Inventario.FechaInicioMovimiento)" />
+                            </div>
+                            <div class="col-4">
+                                <label>Hora final del movimiento</label>
+                                <InputDate @bind-Value="Inventario.FechaFinMovimiento" Type="InputDateType.Time" class="form-control form-control-sm" />
+                                <ValidationMessage For="@(()=>Inventario.FechaFinMovimiento)" />
+                            </div>
+                            <div class="col-4">
+                                <label>Tirilla inicial</label>
+                                <InputNumber @bind-Value="Inventario.TirillaInicial" class="form-control form-control-sm" @bind-Value:after="CalcularCantidadTirillas" />
+                                <ValidationMessage For="@(()=>Inventario.TirillaInicial)" />
+                            </div>
+
+                            <div class="col-4">
+                                <label>Tirilla Final</label>
+                                <InputNumber @bind-Value="Inventario.TirillaFinal" class="form-control form-control-sm" @bind-Value:after="CalcularCantidadTirillas" />
+                                <ValidationMessage For="@(()=>Inventario.TirillaFinal)" />
+                            </div>
+                        }
+                        <div class="col-4">
+                            <label>Cantidad</label>
+                            <InputNumber @bind-Value="Inventario.Cantidad" class="form-control form-control-sm" />
+                            <ValidationMessage For="@(()=>Inventario.Cantidad)" />
+                        </div>
+                        @if (!Menu.PuedeCapturarCantidad)
+                        {
+                            <div class="col-4">
+                                <label>Cantidad facturada</label>
+                                <InputNumber @bind-Value="Inventario.CantidadFacturada" class="form-control form-control-sm" @bind-Value:after="CalcularDiferenciaCantidad" />
+                                <ValidationMessage For="@(()=>Inventario.CantidadFacturada)" />
+                            </div>
+                            <div class="col-4">
+                                <label>Sobrante / Faltante</label>
+                                <p class="@(Inventario.Diferencia < 0 ? "text-danger" : "text-success")">@Inventario.Diferencia.ToString("N2", CultureInfo.InvariantCulture)</p>
+                            </div>
+                        }
+                        <div class="col-4">
+                            <label>Unidad de medida</label>
+                            <InputSelect @bind-Value="Inventario.UnidadMedidaId" class="form-select form-select-sm">
+                                <option>-- Unidades de medida --</option>
+                                @foreach (var item in UnidadesMedida)
+                                {
+                                    <option value="@item.Id">@item.Valor</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>Inventario.UnidadMedidaId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Temperatura del producto</label>
+                            <InputNumber @bind-Value="Inventario.Temperatura" class="form-control form-control-sm" />
+                            <ValidationMessage For="@(()=>Inventario.Temperatura)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Transportista</label>
+                            <DropDownFilter TValue="Transportista" TListado="Transportista" @bind-Valor="@Transportista" Default_Placeholder="-- Transportista --"
+                                            Default_Placeholder_Filter="Buscar transportista" Listado="Transportistas" On_Change_Method="@(()=>GetDataTransportista())"
+                                            FiltrarValor="GetTransportista" On_Cancel_Method="@(()=>{Inventario.TransportistaId = 0;})">
+                                <RenderValue Context="tra">
+                                    @tra.Den
+                                </RenderValue>
+                                <Render Context="tra">
+                                    @tra.Den
+                                </Render>
+                            </DropDownFilter>
+                            <InputSelect @bind-Value="Inventario.TransportistaId" class="d-none" />
+                            <ValidationMessage For="@(()=>Inventario.TransportistaId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Vehiculo</label>
+                            <DropDownFilter TValue="int" TListado="Tonel" @bind-Valor="@Inventario.TonelId" Default_Placeholder="-- Tonel --"
+                                            Default_Placeholder_Filter="Buscar tracto" Propiedad_Valor="Cod" Listado="Toneles"
+                                            FiltrarValor="GetToneles" On_Cancel_Method="@(()=>{Inventario.TonelId = 0;})">
+                                <RenderValue Context="tra">
+                                    @tra.Nombre_Placas
+                                </RenderValue>
+                                <Render Context="tra">
+                                    @tra.Nombre_Placas
+                                </Render>
+                            </DropDownFilter>
+                            <InputSelect @bind-Value="Inventario.TonelId" class="d-none" />
+                            <ValidationMessage For="@(()=>Inventario.TonelId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Chofer</label>
+                            <DropDownFilter TValue="int" TListado="Chofer" @bind-Valor="@Inventario.ChoferId" Default_Placeholder="-- Chofer --"
+                                            Default_Placeholder_Filter="Buscar tracto" Propiedad_Valor="Cod" Listado="Choferes"
+                                            FiltrarValor="GetChoferes" On_Cancel_Method="@(()=>{Inventario.ChoferId = 0;})">
+                                <RenderValue Context="tra">
+                                    @tra.FullName
+                                </RenderValue>
+                                <Render Context="tra">
+                                    @tra.FullName
+                                </Render>
+                            </DropDownFilter>
+                            <InputSelect @bind-Value="Inventario.TonelId" class="d-none" />
+                            <ValidationMessage For="@(()=>Inventario.TonelId)" />
+                        </div>
                     </div>
-                }
-                @if (Cierre.Abierto && !Cierre.Id.IsZero())
-                {
-                    <div class="col-2">
-                        <button class="btn btn-sm gcom-bg-amarillo col-12" type="button" @onclick="CerrarCierreInventario">
-                            <i class="fa fa-solid fa-lock" />
-                            Cerrar Cierre
-                        </button>
+                    <div class="col-12 row mt-2 g-2">
+                        <div class="col-2">
+                            <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit">
+                                <i class="fa fa-solid fa-floppy-disk" />
+                                Guardar
+                            </button>
+                        </div>
+                        @if (IsEdit)
+                        {
+                            <div class="col-2">
+                                <button class="btn btn-sm btn-danger col-12" type="button" @onclick="CancelEdit">
+                                    <i class="fa fa-solid fa-floppy-disk" />
+                                    Cancelar
+                                </button>
+                            </div>
+                        }
+                        @if (Cierre.Abierto && !Cierre.Id.IsZero())
+                        {
+                            <div class="col-2">
+                                <button class="btn btn-sm gcom-bg-amarillo col-12" type="button" @onclick="CerrarCierreInventario">
+                                    <i class="fa fa-solid fa-lock" />
+                                    Cerrar Cierre
+                                </button>
+                            </div>
+                        }
                     </div>
-                }
-            </div>
-        </EditForm>
-    </Body>
-</Card>
+                </EditForm>
+            </Body>
+        </Card>
+    </Authorized>
+</AuthorizeView>
 <div class="col-12 mt-2 d-flex justify-content-between">
     <div class="col-6 d-flex justify-content-start gap-2">
         <div>
@@ -281,7 +278,11 @@
     <Tabla Datos="Inventarios">
         <Cabeceras>
             <tr>
-                <th style="width: 80px;"></th>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Inventarios">
+                    <Authorized>
+                        <th style="width: 80px;"></th>
+                    </Authorized>
+                </AuthorizeView>
                 <th style="width: 150px;" class="resizable-column">Producto</th>
                 <th style="width: 150px;" class="resizable-column">Sitio</th>
                 <th style="width: 150px;" class="resizable-column">Almacen</th>
@@ -309,7 +310,11 @@
         </Cabeceras>
         <Filtros>
             <tr>
-                <td></td>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Inventarios">
+                    <Authorized>
+                        <td></td>
+                    </Authorized>
+                </AuthorizeView>
                 <td>
                     <select class="form-select form-select-sm"
                             onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.ProductoId)))">
@@ -391,19 +396,23 @@
         </Filtros>
         <Columnas Context="item">
             <tr>
-                <td>
-                    @if (item.FechaCierre is null)
-                    {
-                        <div class="btn-group">
-                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>EditarInventario(item.Id))">
-                                <i class="fa fa-solid fa-edit" />
-                            </button>
-                            <button class="btn btn-sm btn-danger" @onclick="@(()=>EliminarInventario(item.Id))">
-                                <i class="fa fa-solid fa-trash" />
-                            </button>
-                        </div>
-                    }
-                </td>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Inventarios">
+                    <Authorized>
+                        <td>
+                            @if (item.FechaCierre is null)
+                            {
+                                <div class="btn-group">
+                                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>EditarInventario(item.Id))">
+                                        <i class="fa fa-solid fa-edit" />
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" @onclick="@(()=>EliminarInventario(item.Id))">
+                                        <i class="fa fa-solid fa-trash" />
+                                    </button>
+                                </div>
+                            }
+                        </td>
+                    </Authorized>
+                </AuthorizeView>
                 <td>@item.Producto</td>
                 <td>@item.Sitio</td>
                 <td>@item.Almacen</td>

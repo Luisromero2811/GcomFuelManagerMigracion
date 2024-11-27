@@ -193,6 +193,9 @@ namespace GComFuelManager.Server.Controllers
                 if (lts is null) return NotFound();
 
                 var tm = await context.CatalogoValores.AsNoTracking().FirstOrDefaultAsync(x => x.Id == inventariodto.TipoMovimientoId);
+                if (tm is null)
+                    return BadRequest("No se enconro el tipo de movimiento");
+
                 //if (tm is not null)
                 //    if (int.TryParse(tm.Abreviacion, out int tipo))
                 //        if (tipo >= 20)
@@ -221,6 +224,12 @@ namespace GComFuelManager.Server.Controllers
                             x.AlmacenId.Equals(inventariodto.AlmacenId) && x.SitioId.Equals(inventariodto.SitioId) &&
                             x.LocalidadId.Equals(inventariodto.LocalidadId) && x.Activo && x.Abierto && x.FechaCierre == null);
                 }
+
+                if (cierre is null)
+                    if (tm is not null)
+                        if (int.TryParse(tm.Abreviacion, out int tipo))
+                            if (tipo >= 20)
+                                return BadRequest("No hay volumen disponible");
 
                 if (cierre is not null)
                     if (tm is not null)
@@ -268,16 +277,6 @@ namespace GComFuelManager.Server.Controllers
                                     return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en inventario");
                             }
                             else if (tipo.Equals(25))
-                            {
-                                if (inventariodto.CantidadLTS > cierre.Reservado)
-                                    return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en Fisico reservado");
-                            }
-                            else if (tipo.Equals(26))
-                            {
-                                if (inventariodto.CantidadLTS > cierre.OrdenReservado)
-                                    return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en Orden reservado");
-                            }
-                            else if (tipo.Equals(27))
                             {
                                 if (inventariodto.CantidadLTS > cierre.EnOrden && inventariodto.CantidadLTS > cierre.Fisico && inventariodto.CantidadLTS > cierre.Reservado)
                                     return BadRequest("La cantidad solicitada no puede ser mayor a la cantidad disponible en inventario");
@@ -412,16 +411,6 @@ namespace GComFuelManager.Server.Controllers
                                         cierre.OrdenReservado -= inventariodto.CantidadLTS;
                                     }
                                     else if (tipo.Equals(25))
-                                    {
-                                        cierre.OrdenReservado += inventariodto.CantidadLTS;
-                                        cierre.ReservadoDisponible -= inventariodto.CantidadLTS;
-                                    }
-                                    else if (tipo.Equals(26))
-                                    {
-                                        cierre.OrdenReservado -= inventariodto.CantidadLTS;
-                                        cierre.EnOrden += inventariodto.CantidadLTS;
-                                    }
-                                    else if (tipo.Equals(27))
                                     {
                                         cierre.EnOrden -= inventariodto.CantidadLTS;
                                         cierre.Reservado -= inventariodto.CantidadLTS;
@@ -905,7 +894,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var movimientosPermitidos = new List<int>() { 1, 7, 9, 21, 22, 23, 25, 26, 27 };
+                var movimientosPermitidos = new List<int>() { 1, 7, 9, 21, 22, 23, 25 };
                 var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
                 if (id_terminal == 0)
                     return BadRequest();
@@ -1137,16 +1126,6 @@ namespace GComFuelManager.Server.Controllers
                                 cierre.EnOrden -= inventariodto.CantidadLTS;
                             }
                             else if (tipo.Equals(25))
-                            {
-                                cierre.ReservadoDisponible += inventariodto.CantidadLTS;
-                                cierre.OrdenReservado -= inventariodto.CantidadLTS;
-                            }
-                            else if (tipo.Equals(26))
-                            {
-                                cierre.OrdenReservado += inventariodto.CantidadLTS;
-                                cierre.EnOrden -= inventariodto.CantidadLTS;
-                            }
-                            else if (tipo.Equals(27))
                             {
                                 cierre.Fisico += inventariodto.CantidadLTS;
                                 cierre.Cargado -= inventariodto.CantidadLTS;
