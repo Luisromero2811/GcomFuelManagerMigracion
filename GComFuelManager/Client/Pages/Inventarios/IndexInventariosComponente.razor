@@ -1,0 +1,1075 @@
+﻿@page "/inventarios"
+@page "/inventarios/{Id:int}"
+@inject IRepositorio http
+@inject IJSRuntime js
+@inject InventarioValidator validator
+@inject SweetAlertService Swal
+@inject NotificationService ns
+@inject NavigationManager navigation
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Inventarios, Inventarios Lectura")]
+
+<Card HeaderText="Inventarios" LoadingContent="loading" />
+<AuthorizeView Roles="Admin, Administrador Sistema, Inventarios" Context="INVENTARIOSFORM">
+    <Authorized>
+        <Card HeaderText="Registrar inventario">
+            <Body>
+                <EditForm Model="Inventario" OnValidSubmit="GuardarInventario">
+                    <DataAnnotationsValidator />
+                    <FluentValidationValidator Validator="validator" />
+                    <div class="col-12 row g-2">
+                        <div class="col-4">
+                            <label>Producto</label>
+                            <InputSelect @bind-Value="Inventario.ProductoId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
+                                <option>-- Productos --</option>
+                                @foreach (var item in Productos)
+                                {
+                                    <option value="@item.Cod">@item.Nombre_Producto</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>Inventario.ProductoId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Sitio</label>
+                            <InputSelect @bind-Value="Inventario.SitioId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
+                                <option>-- Sitios --</option>
+                                @foreach (var item in Sitios)
+                                {
+                                    <option value="@item.Id">@item.Valor</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>Inventario.SitioId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Almacen</label>
+                            <InputSelect @bind-Value="Inventario.AlmacenId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
+                                <option>-- Almacenes --</option>
+                                @foreach (var item in Almacenes)
+                                {
+                                    <option value="@item.Id">@item.Valor</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>Inventario.AlmacenId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Localidad</label>
+                            <InputSelect @bind-Value="Inventario.LocalidadId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
+                                <option>-- Localidades --</option>
+                                @foreach (var item in Localidades)
+                                {
+                                    <option value="@item.Id">@item.Valor</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>Inventario.LocalidadId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Tipo de movimiento</label>
+                            <InputSelect @bind-Value="Inventario.TipoMovimientoId" class="form-select form-select-sm" @bind-Value:after="CargarMenuInventario">
+                                <option>-- Tipo de movimiento --</option>
+                                @foreach (var item in TiposMovimientos)
+                                {
+                                    <option value="@item.Id">@($"{item.Abreviacion} - {item.Valor}")</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
+                        </div>
+                        @if (Menu.MostrarMenuInventarios)
+                        {
+
+                            <div class="col-4">
+                                <label>Inventario</label>
+                                <InputSelect @bind-Value="Inventario.TipoInventario" class="form-select form-select-sm">
+                                    <option>-- Tipo de inventario --</option>
+                                    @foreach (var item in Enum.GetValues(typeof(TipoInventario)))
+                                    {
+                                        <option value="@item">@(((TipoInventario)item).Description())</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
+                            </div>
+                        }
+                        @if (!Inventario.TipoMovimientoId.IsZero())
+                        {
+                            <div class="col-4">
+                                <label>@Menu.LabelMenu</label>
+                                <InputSelect @bind-Value="Inventario.OrigenDestinoID" class="form-select form-select-sm">
+                                    <option>-- @Menu.LabelMenu.ToLower() --</option>
+                                    @if (Menu.Destinos.Count > 0)
+                                    {
+                                        @foreach (var item in Menu.Destinos)
+                                        {
+                                            <option value="@item.Id">@item.Valor</option>
+                                        }
+                                    }
+                                    else if (Menu.Origenes.Count > 0)
+                                    {
+                                        @foreach (var item in Menu.Origenes)
+                                        {
+                                            <option value="@item.Id">@item.Valor</option>
+                                        }
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Inventario.TipoMovimientoId)" />
+                            </div>
+                        }
+                        <div class="col-4">
+                            <label>Referencia</label>
+                            <InputTextArea @bind-Value="Inventario.Referencia" class="form-control form-control-sm" />
+                            <ValidationMessage For="@(()=>Inventario.Referencia)" />
+                        </div>
+                        <div class="col-4">
+                            <label>ID Documento</label>
+                            <InputText @bind-Value="Inventario.Numero" class="form-control form-control-sm" />
+                            <ValidationMessage For="@(()=>Inventario.Numero)" />
+                        </div>
+                        @if (!Menu.PuedeCapturarCantidad)
+                        {
+                            <div class="col-4">
+                                <label>Hora inicial del movimiento</label>
+                                <InputDate @bind-Value="Inventario.FechaInicioMovimiento" Type="InputDateType.Time" class="form-control form-control-sm" />
+                                <ValidationMessage For="@(()=>Inventario.FechaInicioMovimiento)" />
+                            </div>
+                            <div class="col-4">
+                                <label>Hora final del movimiento</label>
+                                <InputDate @bind-Value="Inventario.FechaFinMovimiento" Type="InputDateType.Time" class="form-control form-control-sm" />
+                                <ValidationMessage For="@(()=>Inventario.FechaFinMovimiento)" />
+                            </div>
+                            <div class="col-4">
+                                <label>Tirilla inicial</label>
+                                <InputNumber @bind-Value="Inventario.TirillaInicial" class="form-control form-control-sm" @bind-Value:after="CalcularCantidadTirillas" />
+                                <ValidationMessage For="@(()=>Inventario.TirillaInicial)" />
+                            </div>
+
+                            <div class="col-4">
+                                <label>Tirilla Final</label>
+                                <InputNumber @bind-Value="Inventario.TirillaFinal" class="form-control form-control-sm" @bind-Value:after="CalcularCantidadTirillas" />
+                                <ValidationMessage For="@(()=>Inventario.TirillaFinal)" />
+                            </div>
+                        }
+                        <div class="col-4">
+                            <label>Cantidad</label>
+                            <InputNumber @bind-Value="Inventario.Cantidad" class="form-control form-control-sm" />
+                            <ValidationMessage For="@(()=>Inventario.Cantidad)" />
+                        </div>
+                        @if (!Menu.PuedeCapturarCantidad)
+                        {
+                            <div class="col-4">
+                                <label>Cantidad facturada</label>
+                                <InputNumber @bind-Value="Inventario.CantidadFacturada" class="form-control form-control-sm" @bind-Value:after="CalcularDiferenciaCantidad" />
+                                <ValidationMessage For="@(()=>Inventario.CantidadFacturada)" />
+                            </div>
+                            <div class="col-4">
+                                <label>Sobrante / Faltante</label>
+                                <p class="@(Inventario.Diferencia < 0 ? "text-danger" : "text-success")">@Inventario.Diferencia.ToString("N2", CultureInfo.InvariantCulture)</p>
+                            </div>
+                        }
+                        <div class="col-4">
+                            <label>Unidad de medida</label>
+                            <InputSelect @bind-Value="Inventario.UnidadMedidaId" class="form-select form-select-sm">
+                                <option>-- Unidades de medida --</option>
+                                @foreach (var item in UnidadesMedida)
+                                {
+                                    <option value="@item.Id">@item.Valor</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>Inventario.UnidadMedidaId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Temperatura del producto</label>
+                            <InputNumber @bind-Value="Inventario.Temperatura" class="form-control form-control-sm" />
+                            <ValidationMessage For="@(()=>Inventario.Temperatura)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Transportista</label>
+                            <DropDownFilter TValue="Transportista" TListado="Transportista" @bind-Valor="@Transportista" Default_Placeholder="-- Transportista --"
+                                            Default_Placeholder_Filter="Buscar transportista" Listado="Transportistas" On_Change_Method="@(()=>GetDataTransportista())"
+                                            FiltrarValor="GetTransportista" On_Cancel_Method="@(()=>{Inventario.TransportistaId = 0;})">
+                                <RenderValue Context="tra">
+                                    @tra.Den
+                                </RenderValue>
+                                <Render Context="tra">
+                                    @tra.Den
+                                </Render>
+                            </DropDownFilter>
+                            <InputSelect @bind-Value="Inventario.TransportistaId" class="d-none" />
+                            <ValidationMessage For="@(()=>Inventario.TransportistaId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Vehiculo</label>
+                            <DropDownFilter TValue="int" TListado="Tonel" @bind-Valor="@Inventario.TonelId" Default_Placeholder="-- Tonel --"
+                                            Default_Placeholder_Filter="Buscar tracto" Propiedad_Valor="Cod" Listado="Toneles"
+                                            FiltrarValor="GetToneles" On_Cancel_Method="@(()=>{Inventario.TonelId = 0;})">
+                                <RenderValue Context="tra">
+                                    @tra.Nombre_Placas
+                                </RenderValue>
+                                <Render Context="tra">
+                                    @tra.Nombre_Placas
+                                </Render>
+                            </DropDownFilter>
+                            <InputSelect @bind-Value="Inventario.TonelId" class="d-none" />
+                            <ValidationMessage For="@(()=>Inventario.TonelId)" />
+                        </div>
+                        <div class="col-4">
+                            <label>Chofer</label>
+                            <DropDownFilter TValue="int" TListado="Chofer" @bind-Valor="@Inventario.ChoferId" Default_Placeholder="-- Chofer --"
+                                            Default_Placeholder_Filter="Buscar tracto" Propiedad_Valor="Cod" Listado="Choferes"
+                                            FiltrarValor="GetChoferes" On_Cancel_Method="@(()=>{Inventario.ChoferId = 0;})">
+                                <RenderValue Context="tra">
+                                    @tra.FullName
+                                </RenderValue>
+                                <Render Context="tra">
+                                    @tra.FullName
+                                </Render>
+                            </DropDownFilter>
+                            <InputSelect @bind-Value="Inventario.TonelId" class="d-none" />
+                            <ValidationMessage For="@(()=>Inventario.TonelId)" />
+                        </div>
+                    </div>
+                    <div class="col-12 row mt-2 g-2">
+                        <div class="col-2">
+                            <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit">
+                                <i class="fa fa-solid fa-floppy-disk" />
+                                Guardar
+                            </button>
+                        </div>
+                        @if (IsEdit)
+                        {
+                            <div class="col-2">
+                                <button class="btn btn-sm btn-danger col-12" type="button" @onclick="CancelEdit">
+                                    <i class="fa fa-solid fa-floppy-disk" />
+                                    Cancelar
+                                </button>
+                            </div>
+                        }
+                        @if (Cierre.Abierto && !Cierre.Id.IsZero())
+                        {
+                            <div class="col-2">
+                                <button class="btn btn-sm gcom-bg-amarillo col-12" type="button" @onclick="CerrarCierreInventario">
+                                    <i class="fa fa-solid fa-lock" />
+                                    Cerrar Cierre
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </EditForm>
+            </Body>
+        </Card>
+    </Authorized>
+</AuthorizeView>
+<div class="col-12 mt-2 d-flex justify-content-between">
+    <div class="col-6 d-flex justify-content-start gap-2">
+        <div>
+            <label>De:</label>
+            <input type="date" class="form-control form-control-sm" @bind="Filtro.Fecha_Inicio" />
+        </div>
+        <div>
+            <label>A:</label>
+            <input type="date" class="form-control form-control-sm" @bind="Filtro.Fecha_Fin" />
+        </div>
+        <button class="col-2 btn btn-sm gcom-bg-amarillo mt-auto" type="button" @onclick="BuscarInventario">
+            <i class="fa fa-solid fa-magnifying-glass" />
+        </button>
+    </div>
+    <button class="btn bt-sm col-3 gcom-bg-amarillo mt-auto" @onclick="Exportar">
+        <i class="fa fa-solid fa-file-excel" />
+        Exportar
+    </button>
+</div>
+<div class="ancho-tabla mt-2">
+    <Tabla Datos="Inventarios">
+        <Cabeceras>
+            <tr>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Inventarios">
+                    <Authorized>
+                        <th style="width: 80px;"></th>
+                    </Authorized>
+                </AuthorizeView>
+                <th style="width: 150px;" class="resizable-column">Producto</th>
+                <th style="width: 150px;" class="resizable-column">Sitio</th>
+                <th style="width: 150px;" class="resizable-column">Almacen</th>
+                <th style="width: 150px;" class="resizable-column">Localidad</th>
+                <th style="width: 150px;" class="resizable-column">Fecha Fisica</th>
+                <th style="width: 150px;" class="resizable-column">Tipo de movimiento</th>
+                <th style="width: 150px;" class="resizable-column">Referencia</th>
+                <th style="width: 150px;" class="resizable-column">ID documento</th>
+                <th style="width: 150px;" class="resizable-column">Hora inicial de movimiento</th>
+                <th style="width: 150px;" class="resizable-column">Hora final de movimiento</th>
+                <th style="width: 150px;" class="resizable-column">Tirilla inicial</th>
+                <th style="width: 150px;" class="resizable-column">Tirilla final</th>
+                <th style="width: 150px;" class="resizable-column">Cantidad</th>
+                <th style="width: 150px;" class="resizable-column">Cantidad facturada</th>
+                <th style="width: 150px;" class="resizable-column">Sobrante / Faltante</th>
+                <th style="width: 150px;" class="resizable-column">Unidad de medida</th>
+                <th style="width: 150px;" class="resizable-column">Temperatura</th>
+                <th style="width: 150px;" class="resizable-column">Fecha de ejecucion de cierre</th>
+                <th style="width: 150px;" class="resizable-column">Transportista</th>
+                <th style="width: 150px;" class="resizable-column">Tonel</th>
+                <th style="width: 150px;" class="resizable-column">Chofer</th>
+                <th style="width: 150px;" class="resizable-column">Inventario</th>
+                <th style="width: 150px;" class="resizable-column">Origen / Destino</th>
+            </tr>
+        </Cabeceras>
+        <Filtros>
+            <tr>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Inventarios">
+                    <Authorized>
+                        <td></td>
+                    </Authorized>
+                </AuthorizeView>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.ProductoId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Productos)
+                        {
+                            <option value="@item.Cod">@item.Den</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.SitioId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Sitios)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.AlmacenId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Almacenes)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.LocalidadId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Localidades)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td></td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.TipoMovimientoId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in TiposMovimientos)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.UnidadMedidaId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in UnidadesMedida)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td></td>
+                <td></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.Transportista" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Transportista)))" /></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.Tonel" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Tonel)))" /></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.Chofer" @oninput="@((args)=>Filtrar(args, nameof(Filtro.Chofer)))" /></td>
+                <td></td>
+                <td><input class="form-control form-control-sm" @bind-value="Filtro.OrigenDestino" @oninput="@((args)=>Filtrar(args, nameof(Filtro.OrigenDestino)))" /></td>
+            </tr>
+        </Filtros>
+        <Columnas Context="item">
+            <tr>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Inventarios">
+                    <Authorized>
+                        <td>
+                            @if (item.FechaCierre is null)
+                            {
+                                <div class="btn-group">
+                                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>EditarInventario(item.Id))">
+                                        <i class="fa fa-solid fa-edit" />
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" @onclick="@(()=>EliminarInventario(item.Id))">
+                                        <i class="fa fa-solid fa-trash" />
+                                    </button>
+                                </div>
+                            }
+                        </td>
+                    </Authorized>
+                </AuthorizeView>
+                <td>@item.Producto</td>
+                <td>@item.Sitio</td>
+                <td>@item.Almacen</td>
+                <td>@item.Localidad</td>
+                <td>@item.FechaRegistro.ToString("dd/MM/yyyy hh:mm tt")</td>
+                <td>@item.TipoMovimiento</td>
+                <td>@item.Referencia</td>
+                <td>@item.Numero</td>
+                <td>@item.FechaInicioMovimiento.ToString("hh:mm tt")</td>
+                <td>@item.FechaFinMovimiento.ToString("hh:mm tt")</td>
+                <td>@item.TirillaInicial</td>
+                <td>@item.TirillaFinal</td>
+                <td>@item.Cantidad.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td>@item.CantidadFacturada.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td class="@(item.Diferencia < 0 ? "text-danger" : "text-success")">@item.Diferencia.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td>@item.UnidadMedida</td>
+                <td>@item.Temperatura.ToString("#.## °", CultureInfo.InvariantCulture)</td>
+                <td>@(item.FechaCierre?.ToString("dd/MM/yyyy hh:mm tt") ?? "----")</td>
+                <td>@item.Transportista</td>
+                <td>@item.Tonel</td>
+                <td>@item.Chofer</td>
+                <td>@item.TipoInventario.Description()</td>
+                <td>@item.OrigenDestino</td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+<div class="col-12">
+    <PaginacionComponent PaginaActual="Filtro.Pagina_ACtual" PaginasTotales="Filtro.Total_paginas" PaginaSeleccionada="SeleccionarPagina" />
+    <div class="col-12">
+        <p>Total de registros: @Filtro.Total_registros</p>
+    </div>
+</div>
+@code {
+
+    [Parameter] public int Id { get; set; }
+
+    InventarioPostDTO Inventario = new();
+    InventarioDTO Filtro = new();
+    InventarioCierreDTO Cierre = new();
+    bool loading = false;
+    bool IsEdit = false;
+    bool CierreAbierto = false;
+    Dictionary<string, string> query = new();
+
+    List<InventarioDTO> Inventarios = new List<InventarioDTO>();
+
+    IEnumerable<Producto> Productos = new List<Producto>();
+    IEnumerable<CatalogoValorDTO> Sitios = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> Almacenes = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> Localidades = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> UnidadesMedida = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> TiposMovimientos = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> Origenes = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> Destinos = new List<CatalogoValorDTO>();
+
+    List<Transportista> Transportistas = new();
+    Transportista Transportista = new();
+    List<Tonel> Toneles = new();
+    List<Chofer> Choferes = new();
+
+    MenuInventarioDTO Menu = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Filtro.Fecha_Fin = Filtro.Fecha_Fin.AddDays(1);
+
+        await Task.WhenAll(
+            GetProductos(),
+            CatalogoSitio(),
+            CatalogoAlmacen(),
+            CatalogoLocalidad(),
+            CatalogoTipoMovimiento(),
+            CatalogoUnidadMedida(),
+            GetTransportista()
+        );
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!Id.IsZero())
+            await CargarCierreInventario();
+        else
+            await BuscarInventario();
+    }
+
+    private Dictionary<string, string> SetFiltro()
+    {
+        query[nameof(Filtro.ProductoId)] = Filtro.ProductoId.ToString();
+        query[nameof(Filtro.SitioId)] = Filtro.SitioId.ToString();
+        query[nameof(Filtro.AlmacenId)] = Filtro.AlmacenId.ToString();
+        query[nameof(Filtro.LocalidadId)] = Filtro.LocalidadId.ToString();
+        query[nameof(Filtro.TipoMovimientoId)] = Filtro.TipoMovimientoId.ToString();
+        query[nameof(Filtro.UnidadMedidaId)] = Filtro.UnidadMedidaId.ToString();
+        query[nameof(Filtro.Transportista)] = Filtro.Transportista;
+        query[nameof(Filtro.Tonel)] = Filtro.Tonel;
+        query[nameof(Filtro.Chofer)] = Filtro.Chofer;
+        query[nameof(Filtro.OrigenDestino)] = Filtro.OrigenDestino;
+        query[nameof(Filtro.Pagina)] = Filtro.Pagina.ToString();
+        query[nameof(Filtro.Registros_por_pagina)] = Filtro.Registros_por_pagina.ToString();
+        query[nameof(Filtro.Fecha_Inicio)] = Filtro.Fecha_Inicio.ToString("MM-dd-yyyy");
+        query[nameof(Filtro.Fecha_Fin)] = Filtro.Fecha_Fin.ToString("MM-dd-yyyy");
+
+        return query;
+    }
+
+    private async Task CargarInventario()
+    {
+        try
+        {
+            loading = true;
+            query[nameof(Filtro.Excel)] = false.ToString();
+            var url = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            var response = await http.Get<List<InventarioDTO>>($"api/inventario?{url}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                Inventarios = response.Response;
+                Filtro.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+                Filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                Filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    private async Task SeleccionarPagina(int pagina)
+    {
+        Filtro.Pagina = pagina;
+        Filtro.Pagina_ACtual = pagina;
+        await CargarInventario();
+    }
+
+    private async Task GetProductos()
+    {
+
+        try
+        {
+            var response = await http.Get<IEnumerable<Producto>>("api/producto");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Productos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    private async Task CatalogoSitio()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/sitio");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Sitios = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CatalogoAlmacen()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/almacen");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Almacenes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CatalogoLocalidad()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/localidad");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Localidades = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CatalogoUnidadMedida()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/unidadmedida");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                UnidadesMedida = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CatalogoTipoMovimiento()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/tipomovimiento");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                TiposMovimientos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GuardarInventario()
+    {
+        try
+        {
+            if (!Cierre.Abierto && !Cierre.Id.IsZero()) { }
+            var response = await http.Post<InventarioPostDTO>("api/inventario", Inventario);
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+
+                if (IsEdit)
+                {
+                    IsEdit = false;
+                    Inventario = new();
+                    // Inventario.Id = 0;
+                }
+
+                if (!Id.IsZero())
+                    await CargarCierreInventario();
+                else
+                    await CargarInventario();
+
+                ns.Notify(new()
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Registro guardado",
+                        Detail = "Registro guardado con exito"
+                    });
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Filtrar(ChangeEventArgs args, string pro)
+    {
+        switch (pro)
+        {
+            case nameof(Filtro.ProductoId):
+                Filtro.ProductoId = int.Parse(args.Value?.ToString() ?? string.Empty);
+                break;
+            case nameof(Filtro.SitioId):
+                Filtro.SitioId = int.Parse(args.Value?.ToString() ?? string.Empty);
+                break;
+            case nameof(Filtro.AlmacenId):
+                Filtro.AlmacenId = int.Parse(args.Value?.ToString() ?? string.Empty);
+                break;
+            case nameof(Filtro.LocalidadId):
+                Filtro.LocalidadId = int.Parse(args.Value?.ToString() ?? string.Empty);
+                break;
+            case nameof(Filtro.TipoMovimientoId):
+                Filtro.TipoMovimientoId = int.Parse(args.Value?.ToString() ?? string.Empty);
+                break;
+            case nameof(Filtro.UnidadMedidaId):
+                Filtro.UnidadMedidaId = int.Parse(args.Value?.ToString() ?? string.Empty);
+                break;
+            case nameof(Filtro.Transportista):
+                Filtro.Transportista = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(Filtro.Tonel):
+                Filtro.Tonel = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(Filtro.Chofer):
+                Filtro.Chofer = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(Filtro.OrigenDestino):
+                Filtro.OrigenDestino = args.Value?.ToString() ?? string.Empty;
+                break;
+            default:
+                break;
+        }
+        await CargarInventario();
+    }
+
+    private async Task Exportar()
+    {
+        try
+        {
+            loading = true;
+            query[nameof(Filtro.Excel)] = true.ToString();
+            var url = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            var response = await http.Get<byte[]>($"api/inventario?{url}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                await js.GuardarComo($"Inventarios_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    private async Task BuscarInventario()
+    {
+        try
+        {
+            loading = true;
+            query[nameof(Filtro.Excel)] = false.ToString();
+            query[nameof(Filtro.PorFecha)] = true.ToString();
+            var url = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            var response = await http.Get<List<InventarioDTO>>($"api/inventario?{url}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                Inventarios = response.Response;
+                Filtro.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+                Filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                Filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    private async Task EditarInventario(int id)
+    {
+        try
+        {
+            loading = true;
+            var response = await http.Get<InventarioPostDTO>($"api/inventario/{id}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                IsEdit = true;
+                Inventario = response.Response;
+                await CargarMenuInventario();
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task EliminarInventario(int id)
+    {
+        try
+        {
+            loading = true;
+            var response = await http.Delete($"api/inventario/{id}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                await CargarInventario();
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetTransportista(string valor = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query[nameof(Transportista.Den)] = valor;
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Transportista>>($"api/transportista?{url}");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Transportistas = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetToneles(string valor = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query[nameof(Tonel.Tracto)] = valor;
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Tonel>>($"api/vehiculo/{Transportista.CarrId}?{url}");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Toneles = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetChoferes(string valor = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query[nameof(Chofer.Den)] = valor;
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Chofer>>($"api/chofer/{Transportista.Busentid}?{url}");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Choferes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetDataTransportista()
+    {
+        Inventario.TransportistaId = Transportista.Cod;
+        await Task.WhenAll(GetToneles(), GetChoferes());
+    }
+
+    private async Task CargarCierreInventario()
+    {
+        try
+        {
+            loading = true;
+            var response = await http.Get<InventarioCierreDTO>($"api/inventario/cierre/{Id}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                Cierre = response.Response;
+
+                Inventario.ProductoId = Cierre.ProductoId;
+                Inventario.SitioId = Cierre.SitioId;
+                Inventario.AlmacenId = Cierre.AlmacenId;
+                Inventario.LocalidadId = Cierre.LocalidadId;
+                Inventario.CierreId = Cierre.Id;
+
+                query[nameof(Filtro.PorFecha)] = false.ToString();
+                query[nameof(Filtro.CierreId)] = Cierre.Id.ToString();
+
+                await CargarInventario();
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CerrarCierreInventario()
+    {
+        try
+        {
+            loading = true;
+            Cierre.Abierto = false;
+            var response = await http.Get<bool>($"api/inventario/cierre/changestatus/{Id}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                ns.Notify(new()
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Cierre guardado",
+                        Detail = "Cierre guarado exitosamente"
+                    });
+                navigation.NavigateTo("inventarios/cierres", false);
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CargarMenuInventario()
+    {
+        try
+        {
+            loading = true;
+            var response = await http.Get<MenuInventarioDTO>($"api/inventario/tipomovimiento/{Inventario.TipoMovimientoId}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                Menu = response.Response;
+                if (Menu.PuedeCapturarCantidad)
+                {
+                    Inventario.TirillaInicial = 0;
+                    Inventario.TirillaFinal = 0;
+                    Inventario.Diferencia = 0;
+                    Inventario.CantidadFacturada = 0;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void CancelEdit()
+    {
+        Inventario = new();
+        IsEdit = false;
+    }
+
+    private void CalcularCantidadTirillas()
+    {
+        Inventario.Cantidad = Inventario.TirillaInicial - Inventario.TirillaFinal;
+        Inventario.Cantidad = Inventario.Cantidad;
+
+        if (Inventario.Cantidad != 0)
+            Inventario.Cantidad *= -1;
+
+        CalcularDiferenciaCantidad();
+    }
+
+    private void CalcularDiferenciaCantidad()
+    {
+        if (Inventario.Cantidad > 0)
+        {
+            Inventario.Diferencia = Inventario.Cantidad - Inventario.CantidadFacturada;
+        }
+        else
+        {
+            Inventario.Diferencia = Inventario.Cantidad + Inventario.CantidadFacturada;
+        }
+        // DiferenciaCalculada = Inventario.Diferencia;
+    }
+}

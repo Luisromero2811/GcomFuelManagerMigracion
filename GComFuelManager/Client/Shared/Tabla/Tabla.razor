@@ -21,7 +21,7 @@
                 </tr>
             }
         }
-        @if(Filtros is not null)
+        @if (Filtros is not null)
         {
             @Filtros
         }
@@ -35,6 +35,12 @@
                     }
                 </Virtualize>
             </CascadingValue>
+        }
+        else if (Datos is not null && Datos.Count.Equals(0))
+        {
+            <tr>
+                <td>No hay registros</td>
+            </tr>
         }
         else
         {

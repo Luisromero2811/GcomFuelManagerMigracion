@@ -6,73 +6,79 @@
     <a href="javascript:void(0)" class="closebtn" @onclick="CloseMenuLateral">×</a>
     @foreach (var level_0 in Menus)
     {
-        <AuthorizeView Roles="@level_0.roles" Context="level_0_context">
-            <Authorized>
-                @if (!level_0.isMenu)
-                {
-                    <NavLink href="@level_0.path" Match="NavLinkMatch.All" ActiveClass="sidepanel-item-active">
-                        <div class="sidepanel-item">
-                            <i class="fa fa-solid fa-@level_0.icon" aria-hidden="true"></i>
-                            @level_0.name
-                        </div>
-                    </NavLink>
-                }
-                else
-                {
-                    <DropDownMenu Show="@level_0.showDropDown">
-                        <Button>
-                            <DropDownMenuButton @bind-ShowDropDown="@level_0.showDropDown">
-                                <ButtonTemplate>
-                                    <i class="fa fa-solid fa-@level_0.icon" aria-hidden="true"></i>
-                                    @level_0.name
-                                </ButtonTemplate>
-                            </DropDownMenuButton>
-                        </Button>
-                        <Items>
-                            @foreach (var level_1 in level_0.Menus)
-                            {
-
-                                @if (!level_1.isMenu)
+        @if (level_0.isVisible)
+        {
+            <AuthorizeView Roles="@level_0.roles" Context="level_0_context">
+                <Authorized>
+                    @if (!level_0.isMenu)
+                    {
+                        <NavLink href="@level_0.path" Match="NavLinkMatch.Prefix" ActiveClass="sidepanel-item-active">
+                            <div class="sidepanel-item">
+                                <i class="fa fa-solid fa-@level_0.icon" aria-hidden="true"></i>
+                                @level_0.name
+                            </div>
+                        </NavLink>
+                    }
+                    else
+                    {
+                        <DropDownMenu Show="@level_0.showDropDown">
+                            <Button>
+                                <DropDownMenuButton @bind-ShowDropDown="@level_0.showDropDown">
+                                    <ButtonTemplate>
+                                        <i class="fa fa-solid fa-@level_0.icon" aria-hidden="true"></i>
+                                        @level_0.name
+                                    </ButtonTemplate>
+                                </DropDownMenuButton>
+                            </Button>
+                            <Items>
+                                @foreach (var level_1 in level_0.Menus)
                                 {
-                                    <DropDownMenuItem Path="@level_1.path" Use_Roles="@true" Roles="@level_1.roles">
-                                        <ItemTemplate>
-                                            <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
-                                            @level_1.name
-                                        </ItemTemplate>
-                                    </DropDownMenuItem>
-                                }
-                                else
-                                {
-                                    <DropDownMenu Show="@level_1.showDropDown">
-                                        <Button>
-                                            <DropDownMenuButton @bind-ShowDropDown="level_1.showDropDown">
-                                                <ButtonTemplate>
+                                    @if (level_1.isVisible)
+                                    {
+                                        @if (!level_1.isMenu)
+                                        {
+                                            <DropDownMenuItem Path="@level_1.path" Use_Roles="@true" Roles="@level_1.roles">
+                                                <ItemTemplate>
                                                     <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
                                                     @level_1.name
-                                                </ButtonTemplate>
-                                            </DropDownMenuButton>
-                                        </Button>
-                                        <Items>
-                                            @foreach (var level_2 in level_1.Menus)
-                                            {
-                                                <DropDownMenuItem Path="@level_2.path" Use_Roles="@true" Roles="@level_2.roles">
-                                                    <ItemTemplate>
-                                                        <i class="fa fa-solid fa-@level_2.icon" aria-hidden="true"></i>
-                                                        @level_2.name
-                                                    </ItemTemplate>
-                                                </DropDownMenuItem>
-
-                                            }
-                                        </Items>
-                                    </DropDownMenu>
+                                                </ItemTemplate>
+                                            </DropDownMenuItem>
+                                        }
+                                        else
+                                        {
+                                            <DropDownMenu Show="@level_1.showDropDown">
+                                                <Button>
+                                                    <DropDownMenuButton @bind-ShowDropDown="level_1.showDropDown">
+                                                        <ButtonTemplate>
+                                                            <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
+                                                            @level_1.name
+                                                        </ButtonTemplate>
+                                                    </DropDownMenuButton>
+                                                </Button>
+                                                <Items>
+                                                    @foreach (var level_2 in level_1.Menus)
+                                                    {
+                                                        @if (level_2.isVisible)
+                                                        {
+                                                            <DropDownMenuItem Path="@level_2.path" Use_Roles="@true" Roles="@level_2.roles">
+                                                                <ItemTemplate>
+                                                                    <i class="fa fa-solid fa-@level_2.icon" aria-hidden="true"></i>
+                                                                    @level_2.name
+                                                                </ItemTemplate>
+                                                            </DropDownMenuItem>
+                                                        }
+                                                    }
+                                                </Items>
+                                            </DropDownMenu>
+                                        }
+                                    }
                                 }
-
-                            }
-                        </Items>
-                    </DropDownMenu>
-                }
-            </Authorized>
-        </AuthorizeView>
+                            </Items>
+                        </DropDownMenu>
+                    }
+                </Authorized>
+            </AuthorizeView>
+        }
     }
 </div>
 
@@ -82,20 +88,18 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await Checar_Terminal();
         //usuarios
         Menus.Add(new Menu() { name = "Usuarios", icon = "user", path = "/usuarios", roles = "Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" });
         //configuracion
-        await Checar_Terminal();
-        if (Esta_En_Tuxpan)
-        {
-            Menus.Add(new Menu()
+        Menus.Add(new Menu()
+            {
+                isMenu = true,
+                name = "Configuración",
+                icon = "gear",
+                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Precios, Inventarios",
+                Menus = new()
                 {
-                    isMenu = true,
-                    name = "Configuración",
-                    icon = "gear",
-                    roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Precios",
-                    Menus = new()
-{
                     new()
                     {
                         isMenu = true,
@@ -103,141 +107,7 @@
                         icon = "server",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
                         Menus = new()
-{
-                            new()
-                            {
-                                name = "Tonel",
-                                icon = "truck-moving",
-                                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Gestion de Transporte",
-                                path = "datos/tonel"
-                            },
-                            new()
-                            {
-                                name = "Chofer",
-                                icon = "id-card",
-                                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte",
-                                path = "datos/Catalogo/Chofer"
-                            },
-                            new()
-                            {
-                                name = "Destino",
-                                icon = "location-dot",
-                                roles = "Admin, Administrador Sistema, Direccion, Gerencia",
-                                path = "datos/codigos/destino"
-                            }
-                        }
-                    },
-                    new()
-                    {
-                        isMenu = true,
-                        name = "Actualización de registros",
-                        icon = "rotate",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial",
-                        Menus = new()
-{
-                            new()
-
-                            {
-                                name = "Actualizar datos",
-                                icon = "store-slash",
-                                roles = "Admin, Administrador Sistema, Gestion de Transporte, Programador",
-                                path = "actualizacion"
-                            },
-                            new()
-                            {
-                                name = "Relacionar datos",
-                                icon = "user-tie",
-                                roles = "Admin, Administrador Sistema, Direccion, Programador, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial",
-                                path = "asignar-cliente-destino"
-                            },
-
-                            new()
-                            {
-                                path = "terminales",
-                                name = "Creación de Unidades de negocio",
-                                icon = "gas-pump",
-                                roles = "Admin, Administrador Sistema, Analista Credito, Programador, Ejecutivo de Cuenta Comercial",
-                            },
-
-                            //new()
-                            //{
-                            //    name = "Asociación de Catálogos UN",
-                            //    icon = "user-tie",
-                            //    roles = "Admin, Administrador Sistema, Gestion de Transporte, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial, Analista Suministros",
-                            //    path = "catalogoterminales"
-                            //}
-                        }
-                    },
-                    new()
-                    {
-                        path = "configuracion-email",
-                        name = "Correo Interno",
-                        icon = "envelope",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
-                    },
-                    new()
-                    {
-                        path = "configuracion/moneda",
-                        name = "Moneda",
-                        icon = "coins",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Precios, Analista Credito",
-                    },
-                    new()
-                    {
-                        path = "configuracion/generacion/folios",
-                        name = "Generación de folios",
-                        icon = "marker",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
-                    },
-                    new()
-                    {
-                        path = "configuracion/vendedores",
-                        name = "Configurar vendedores",
-                        icon = "id-card",
-                        roles = "Admin, Administrador Sistema",
-                    },
-                    new()
-                    {
-                        path = "configuracion/originador",
-                        name = "Configurar originadores",
-                        icon = "id-card",
-                        roles = "Admin, Administrador Sistema",
-                    },
-                     new()
-                     {
-                         path = "obtencion/catalogos",
-                         name = "Descarga de Catálogos",
-                         icon = "file-excel",
-                         roles = "Admin, Administrador Sistema, Programador, Analista Credito, Precios, Ejecutivo de Cuenta Comercial, Gestion de Transportes",
-                     },
-                      new()
-                      {
-                          path = "autorizadores",
-                          name = "Gestión de Autorizadores",
-                          icon = "person-circle-check",
-                          roles = "Admin, Administrador Sistema, Programador",
-                      },
-                }
-                });
-        }
-        else
-        {
-            Menus.Add(new Menu()
-                {
-                    isMenu = true,
-                    name = "Configuración",
-                    icon = "gear",
-                    roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Precios",
-                    Menus = new()
-{
-                    new()
-                    {
-                        isMenu = true,
-                        name = "Datos",
-                        icon = "server",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
-                        Menus = new()
-{
+                        {
                             new()
                             {
                                 name = "Tonel",
@@ -267,9 +137,17 @@
                         isMenu = true,
                         name = "Actualización de Registros",
                         icon = "rotate",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial, Inventarios",
                         Menus = new()
-{
+                        {
+                            new()
+                            {
+                                name = "Actualizar datos",
+                                icon = "store-slash",
+                                roles = "Admin, Administrador Sistema, Gestion de Transporte, Programador",
+                                path = "actualizacion",
+                                isVisible = Esta_En_Tuxpan
+                            },
                             new()
                             {
                                 name = "Relacionar datos",
@@ -290,10 +168,18 @@
                             {
                                 name = "Asociación de Catálogos UN",
                                 icon = "user-tie",
-                                roles = "Admin, Administrador Sistema, Gestion de Transporte, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial, Analista Suministros",
-                                path = "catalogoterminales"
+                                roles = "Admin, Administrador Sistema, Gestion de Transporte, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial, Analista Suministros, Inventarios",
+                                path = "catalogoterminales",
+                                isVisible = !Esta_En_Tuxpan
                             }
                         }
+                    },
+                    new()
+                    {
+                        path = "catalogos",
+                        name = "Catalogos",
+                        icon = "book",
+                        roles = "Admin, Administrador Sistema, Catalogos",
                     },
                     new()
                     {
@@ -346,9 +232,7 @@
                           roles = "Admin, Administrador Sistema, Programador",
                       },
                 }
-                });
-        }
-
+            });
         //precios
         Menus.Add(new Menu()
             {
@@ -370,18 +254,15 @@
                     }
                 }
             });
-
-        await Checar_Terminal();
-        if (Esta_En_Tuxpan)
-        {
-            //cierres
-            Menus.Add(new Menu()
-                {
-                    isMenu = true,
-                    name = "Cierres",
-                    icon = "store-slash",
-                    roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Cierre Pedidos, Revision Precios",
-                    Menus = new()
+        //cierres
+        Menus.Add(new Menu()
+            {
+                isVisible = Esta_En_Tuxpan,
+                isMenu = true,
+                name = "Cierres",
+                icon = "store-slash",
+                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Cierre Pedidos, Revision Precios",
+                Menus = new()
 {
                     new()
                     {
@@ -434,9 +315,7 @@
                     }
                 }
 
-                });
-        }
-
+            });
         //ordenes
         Menus.Add(new Menu()
             {
@@ -604,7 +483,6 @@
                     },
                 }
             });
-
         //ventas
         Menus.Add(new Menu()
             {
@@ -630,7 +508,6 @@
                     },
                 }
             });
-
         //tarifario
         //Menus.Add(new Menu()
         //{
@@ -656,24 +533,48 @@
         //            },
         //        }
         //});
-        await Checar_Terminal();
-        if (Esta_En_Tuxpan)
-        {
-            Menus.Add(new Menu()
+        //activos fijos
+        Menus.Add(new Menu()
+            {
+                isVisible = Esta_En_Tuxpan,
+                name = "Activos fijos",
+                icon = "chart-line",
+                roles = "Admin, Administrador Sistema, Activos Fijos",
+                isMenu = false,
+                path = "activos"
+            });
+        //inventarios
+        Menus.Add(new Menu()
+            {
+                name = "Inventario",
+                icon = "warehouse",
+                roles = "Admin, Administrador Sistema, Inventarios, Inventarios Lectura",
+                isMenu = true,
+                Menus = new()
                 {
-                    name = "Activos fijos",
-                    icon = "chart-line",
-                    roles = "Admin, Administrador Sistema, Activos Fijos",
-                    isMenu = false,
-                    path = "activos"
-                });
-        }
-        else
-        {
-
-        }
-
-
+                    new()
+                    {
+                        name = "Registro de inventario",
+                        icon = "warehouse",
+                        roles = "Admin, Administrador Sistema, Inventarios, Inventarios Lectura",
+                        path = "inventarios",
+                    },
+                    new()
+                    {
+                        name = "Resumen de inventario",
+                        icon = "warehouse",
+                        roles = "Admin, Administrador Sistema, Inventarios, Inventarios Lectura",
+                        path = "inventarios/resumen",
+                    },
+                    new()
+                    {
+                        name = "Inventarios cerrados",
+                        icon = "warehouse",
+                        roles = "Admin, Administrador Sistema, Inventarios, Inventarios Lectura",
+                        path = "inventarios/cierres",
+                    }
+                }
+            });
     }
 
     bool Esta_En_Tuxpan = true;
@@ -682,7 +583,6 @@
         try
         {
             var response = await repositorio.Get<Tad>($"api/terminal/check");
-            //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
 
             if (response.Error)
             {
@@ -715,7 +615,7 @@
         public bool isMenu { get; set; } = false;
         public bool showDropDown { get; set; } = false;
         public List<Menu> Menus { get; set; } = new();
-
+        public bool isVisible { get; set; } = true;
         public void ToggleShow()
         {
             showDropDown = !showDropDown;

@@ -17,6 +17,8 @@ using System;
 using System.Diagnostics;
 using System.Transactions;
 using static Org.BouncyCastle.Asn1.Cmp.Challenge;
+using iText.Forms.Fields;
+using AutoMapper;
 
 namespace GComFuelManager.Server.Controllers.Services
 {
@@ -30,14 +32,17 @@ namespace GComFuelManager.Server.Controllers.Services
         private readonly RequestToFile toFile;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly User_Terminal _terminal;
+        private readonly IMapper mapper;
 
-        public ServicesController(ApplicationDbContext context, VerifyUserToken verify, RequestToFile toFile, UserManager<IdentityUsuario> userManager, User_Terminal _Terminal)
+        public ServicesController(ApplicationDbContext context, VerifyUserToken verify, RequestToFile toFile, UserManager<IdentityUsuario> userManager, User_Terminal _Terminal,
+            IMapper mapper)
         {
             this.context = context;
             this.verify = verify;
             this.toFile = toFile;
             this.userManager = userManager;
             _terminal = _Terminal;
+            this.mapper = mapper;
         }
 
         private async Task SaveErrors(Exception e, string accion)
@@ -1227,8 +1232,18 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var transportistas = await context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.CarrId)).ToListAsync();
-                var toneles = await context.Tonel.IgnoreAutoIncludes().Where(x => x.Id_Tad == terminal && x.Codsyn != null).ToListAsync();
+                var transportistas = await context.Transportista
+                    .AsNoTracking()
+                    .IgnoreAutoIncludes()
+                    .Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.CarrId))
+                    .Select(x => new { x.Identificacion, x.CarrId })
+                    .ToListAsync();
+
+                var toneles = await context.Tonel
+                    .AsNoTracking()
+                    .IgnoreAutoIncludes()
+                    .Where(x => x.Id_Tad == terminal && x.Codsyn != null)
+                    .ToListAsync();
 
                 List<Unidad_Tad> unidad_Tads = new();
                 List<Tonel> unidad_editada = new();
@@ -1237,7 +1252,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 {
                     if (context.Transportista.Any(x => x.Identificacion != null && x.Identificacion == transportistas[i].Identificacion && x.Id_Tad == terminal_destino))
                     {
-                        var transportista = await context.Transportista.IgnoreAutoIncludes()
+                        var transportista = await context.Transportista.AsNoTracking()
                             .Where(x => x.Identificacion != null && x.Identificacion == transportistas[i].Identificacion && x.Id_Tad == terminal_destino)
                             .Select(x => x.CarrId)
                             .FirstOrDefaultAsync();
@@ -1356,6 +1371,65 @@ namespace GComFuelManager.Server.Controllers.Services
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("copiar/catalogo/{terminal}/{terminal_destino}")]
+        public async Task<ActionResult> CopiarCatalogos([FromRoute] short terminal, [FromRoute] short terminal_destino)
+        {
+            try
+            {
+                var valores = await context.CatalogoValores
+                    .AsNoTracking()
+                    .Where(x => x.TadId.Equals(terminal) && x.Activo)
+                    .ToListAsync();
+
+                if (valores is null) return NotFound();
+
+                var valoresdestino = await context.CatalogoValores
+                    .AsNoTracking()
+                    .Where(x => x.TadId.Equals(terminal_destino) && x.Activo)
+                    .ToListAsync();
+
+                List<CatalogoValor> valoreseditados = new();
+
+                if (!valoresdestino.SequenceEqual(valores))
+                {
+                    var nuevosvalores = valores.ExceptBy(valoresdestino.Select(x => x.Code), x => x.Code);
+
+                    var nvalores = nuevosvalores.Select(x => { x.Id = 0; x.TadId = terminal_destino; return x; });
+
+                    await context.AddRangeAsync(nvalores);
+
+                    var valoresexistentes = valoresdestino.IntersectBy(valores.Select(x => x.Code), x => x.Code);
+
+                    foreach (var item in valoresexistentes)
+                    {
+                        var valor = valores.FirstOrDefault(x => x.Code.Equals(item.Code));
+                        if (valor is not null)
+                        {
+                            if (!valor.Equals(item))
+                            {
+                                var idsold = new { item.Id, item.TadId };
+                                var valoreditado = mapper.Map(valor, item);
+                                valoreditado.Id = idsold.Id;
+                                valoreditado.TadId = idsold.TadId;
+                                valoreseditados.Add(valoreditado);
+                            }
+                        }
+                    }
+
+                    await context.AddRangeAsync(nvalores);
+                    context.UpdateRange(valoreseditados);
+                    await context.SaveChangesAsync();
+                }
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
 
         #endregion
 

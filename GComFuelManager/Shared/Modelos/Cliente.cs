@@ -112,5 +112,10 @@ namespace GComFuelManager.Shared.Modelos
                 Id_Originador = Id_Originador
             };
         }
+
+        public override string ToString()
+        {
+            return Den ?? string.Empty;
+        }
     }
 }

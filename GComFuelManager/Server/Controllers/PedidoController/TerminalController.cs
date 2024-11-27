@@ -1,6 +1,9 @@
-﻿using GComFuelManager.Server.Helpers;
+﻿using AutoMapper;
+using FluentValidation;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.ModelDTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -21,13 +24,22 @@ namespace GComFuelManager.Server.Controllers
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly VerifyUserId verifyUser;
         private readonly User_Terminal _terminal;
+        private readonly IMapper mapper;
+        private readonly IValidator<TerminalPostDTO> validator;
 
-        public TerminalController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUser, User_Terminal _Terminal)
+        public TerminalController(ApplicationDbContext context,
+            UserManager<IdentityUsuario> userManager,
+            VerifyUserId verifyUser,
+            User_Terminal _Terminal,
+            IMapper mapper,
+            IValidator<TerminalPostDTO> validator)
         {
             this.context = context;
             this.userManager = userManager;
             this.verifyUser = verifyUser;
             this._terminal = _Terminal;
+            this.mapper = mapper;
+            this.validator = validator;
         }
         [HttpGet]
         public ActionResult Get()
@@ -47,7 +59,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var terminales = context.Tad.OrderBy((x => x.Den)).ToList();
+                var terminales = context.Tad.Include(x=>x.TipoTerminal).OrderBy(x => x.Den).Select(x => mapper.Map<TerminalDTO>(x)).ToList();
                 return Ok(terminales);
             }
             catch (Exception e)
@@ -72,7 +84,7 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Tad terminal)
+        public async Task<ActionResult> Post([FromBody] TerminalPostDTO tad)
         {
             try
             {
@@ -80,47 +92,32 @@ namespace GComFuelManager.Server.Controllers
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
-                if (terminal is null) { return NotFound(); }
+                var result = validator.Validate(tad);
+                if (!result.IsValid) { return BadRequest(result.Errors.Select(x => x.ErrorMessage)); }
 
-                if (string.IsNullOrEmpty(terminal.Den) || string.IsNullOrWhiteSpace(terminal.Den)) { return BadRequest("La terminal no puede tener un nombre vacio."); }
-                if (string.IsNullOrEmpty(terminal.Codigo) || string.IsNullOrWhiteSpace(terminal.Codigo)) { return BadRequest("La terminal no puede tener una abreviacion vacia."); }
-                if (string.IsNullOrEmpty(terminal.CodigoOrdenes) || string.IsNullOrWhiteSpace(terminal.CodigoOrdenes)) { return BadRequest("La terminal no puede tener un identificador de ordenes vacio."); }
+                var terminal = mapper.Map<Tad>(tad);
+
+                if (await context.Tad.AnyAsync(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Equals(terminal.Den!.ToLower()) && x.Cod != terminal.Cod))
+                    return BadRequest("Ya existe una terminal con el mismo nombre");
+
+                if (await context.Tad.AnyAsync(x => !string.IsNullOrEmpty(x.Codigo) && x.Codigo.ToLower().Equals(terminal.Codigo!.ToLower()) && x.Cod != terminal.Cod))
+                    return BadRequest("Ya existe una terminal con la misma abreviacion");
+
+                if (await context.Tad.AnyAsync(x => !string.IsNullOrEmpty(x.CodigoOrdenes) && x.CodigoOrdenes.ToLower().Equals(terminal.CodigoOrdenes!.ToLower()) && x.Cod != terminal.Cod))
+                    return BadRequest("Ya existe una terminal con el mismo identificador de orden");
 
                 if (terminal.Cod != 0)
                 {
-                    if (context.Tad.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Equals(terminal.Den.ToLower()) && x.Cod != terminal.Cod))
-                    { return BadRequest("Ya existe una terminal con el mismo nombre"); }
+                    //var taddb = await context.Tad.AsNoTracking().FirstOrDefaultAsync(x => x.Cod.Equals(terminal.Cod));
+                    //if (taddb is null) { return NotFound(); }
 
-                    if (context.Tad.Any(x => !string.IsNullOrEmpty(x.Codigo) && x.Codigo.ToLower().Equals(terminal.Codigo.ToLower()) && x.Cod != terminal.Cod))
-                    { return BadRequest("Ya existe una terminal con la misma abreviacion"); }
-
-                    if (context.Tad.Any(x => !string.IsNullOrEmpty(x.CodigoOrdenes) && x.CodigoOrdenes.ToLower().Equals(terminal.CodigoOrdenes.ToLower()) && x.Cod != terminal.Cod))
-                    { return BadRequest("Ya existe una terminal con el mismo identificador de orden"); }
-
-                    if (terminal.Activo == false)
-                    {
-                        if (context.OrdenEmbarque.Any(x => x.Codtad == terminal.Cod) ||
-                            context.OrdenCierre.Any(x => x.Id_Tad == terminal.Cod) ||
-                            context.Orden.Any(x => x.Id_Tad == terminal.Cod))
-                        {
-                            return BadRequest("No se puede desactivar esta terinal, cuanta con registros de ordenes en la base de datos");
-                        }
-                    }
+                    //var tadupdate = mapper.Map(terminal, taddb);
 
                     context.Update(terminal);
                     await context.SaveChangesAsync(id, 44);
                 }
                 else
                 {
-                    if (context.Tad.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Equals(terminal.Den.ToLower())))
-                    { return BadRequest("Ya existe una terminal con el mismo nombre"); }
-
-                    if (context.Tad.Any(x => !string.IsNullOrEmpty(x.Codigo) && x.Codigo.ToLower().Equals(terminal.Codigo.ToLower())))
-                    { return BadRequest("Ya existe una terminal con la misma abreviacion"); }
-
-                    if (context.Tad.Any(x => !string.IsNullOrEmpty(x.CodigoOrdenes) && x.CodigoOrdenes.ToLower().Equals(terminal.CodigoOrdenes.ToLower())))
-                    { return BadRequest("Ya existe una terminal con el mismo identificador de orden"); }
-
                     var tipo_vale = context.Catalogo_Fijo.FirstOrDefault(x => x.Valor.ToLower() == "pemex");
                     if (tipo_vale != null) { terminal.Tipo_Vale = tipo_vale.Id; }
 
@@ -129,6 +126,62 @@ namespace GComFuelManager.Server.Controllers
                 }
 
                 return Ok(terminal);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("{Id}")]
+        public async Task<ActionResult> ChangeStatus([FromRoute] short Id)
+        {
+            try
+            {
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                var terminal = await context.Tad.FindAsync(Id);
+                if (terminal is null) return NotFound();
+
+                if (terminal.Activo is true)
+                {
+                    if (context.OrdenEmbarque.Any(x => x.Codtad == terminal.Cod) ||
+                            context.OrdenCierre.Any(x => x.Id_Tad == terminal.Cod) ||
+                            context.Orden.Any(x => x.Id_Tad == terminal.Cod))
+                    {
+                        return BadRequest("No se puede desactivar esta terinal, cuanta con registros de ordenes en la base de datos");
+                    }
+                }
+
+                terminal.Activo = !terminal.Activo;
+
+                context.Update(terminal);
+                await context.SaveChangesAsync(id, 44);
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{Id}")]
+        public async Task<ActionResult> GetById([FromRoute] short Id)
+        {
+            try
+            {
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                var terminal = await context.Tad.AsNoTracking().FirstOrDefaultAsync(x => x.Cod.Equals(Id));
+                if (terminal is null) return NotFound();
+
+                var terminaldto = mapper.Map<TerminalPostDTO>(terminal);
+                return Ok(terminaldto);
             }
             catch (Exception e)
             {
@@ -193,26 +246,6 @@ namespace GComFuelManager.Server.Controllers
                 var terminal = await context.Tad.FirstOrDefaultAsync(x => x.Cod == id);
                 if (terminal is null) { return NotFound(); }
 
-                //int? consecutivo = 1;
-                //var folio = context.OrdenEmbarque.Where(x => x.Codtad == id).OrderByDescending(X => X.Folio).Select(x => x.Folio).FirstOrDefault();
-                //var consecutivo_orden = await context.Consecutivo.FirstOrDefaultAsync(x => x.Id_Tad == id && x.Nombre == "Consecutivo");
-
-                //if (consecutivo_orden is not null)
-                //{
-                //    consecutivo = consecutivo_orden.Numeracion;
-                //}
-                //else
-                //{
-                //    if (folio is not null)
-                //    {
-                //        consecutivo = folio;
-                //    }
-                //    else
-                //    {
-                //        consecutivo = 1;
-                //    }
-                //}
-
                 var consecutivo_vale = await context.Consecutivo.FirstOrDefaultAsync(x => x.Id_Tad == id && x.Nombre == "Vale");
 
                 var catalogo = await context.Catalogo_Fijo.FirstOrDefaultAsync(x => x.Id == terminal.Tipo_Vale);
@@ -249,32 +282,6 @@ namespace GComFuelManager.Server.Controllers
                 context.Update(terminal);
                 await context.SaveChangesAsync();
 
-                //var folio = context.OrdenEmbarque.Where(x => x.Codtad == configuracion_.Id_Terminal).OrderByDescending(X => X.Folio).Select(x => x.Folio).FirstOrDefault();
-
-                //var consecutivo = await context.Consecutivo.FirstOrDefaultAsync(x => x.Id_Tad == configuracion_.Id_Terminal && x.Nombre == "Consecutivo");
-                //if (consecutivo is null)
-                //{
-                //    if (folio is not null)
-                //        if (folio != configuracion_.Consecutivo)
-                //            if (folio > configuracion_.Consecutivo)
-                //                return BadRequest("El consecutivo no puede ser menor al consecutivo actual. Esto podria causar duplicidad de referencias en ordenes.");
-
-                //    Consecutivo Nuevo_Consecutivo = new() { Numeracion = configuracion_.Consecutivo, Nombre = "Consecutivo", Id_Tad = configuracion_.Id_Terminal };
-                //    context.Add(Nuevo_Consecutivo);
-                //    await context.SaveChangesAsync();
-                //}
-                //else
-                //{
-                //    if (folio is not null)
-                //        if (folio != configuracion_.Consecutivo)
-                //            if (folio > configuracion_.Consecutivo)
-                //                return BadRequest("El consecutivo no puede ser menor al consecutivo actual. Esto podria causar duplicidad de referencias en ordenes.");
-
-                //    consecutivo.Numeracion = configuracion_.Consecutivo;
-                //    context.Update(consecutivo);
-                //    await context.SaveChangesAsync();
-                //}
-
                 var consecutivo_vale = await context.Consecutivo.FirstOrDefaultAsync(x => x.Id_Tad == configuracion_.Id_Terminal && x.Nombre == "Vale");
                 if (consecutivo_vale is null)
                 {
@@ -308,6 +315,24 @@ namespace GComFuelManager.Server.Controllers
                 var catalogo_fijo = context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToList();
 
                 return Ok(catalogo_fijo);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("catalogo/tipoterminal")]
+        public async Task<ActionResult> CatalogoTipoTerminal()
+        {
+            try
+            {
+                var catalogo = await context.Catalogos.FirstOrDefaultAsync(x => x.Clave.Equals("Catalogo_Terminal_Tipo_Terminal"));
+                if (catalogo is null) { return BadRequest("No se encontro un catalogo para los tipos de terminales"); }
+
+                var valores = await context.Catalogo_Fijo.Where(x => x.Catalogo == catalogo.Id).ToListAsync();
+
+                return Ok(valores);
             }
             catch (Exception e)
             {

@@ -4,7 +4,7 @@
 @inject NotificationService Ns
 @inject GestionUnidadValidation gestionUnidad
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Inventarios")]
 
 <div class="card">
     <div class="card-header">
@@ -16,7 +16,7 @@
                 <FluentValidationValidator Validator="gestionUnidad" />
                 <ValidationSummary />
                 <div class="col-12 row mb-3">
-                    <div class="col-3">
+                    <div class="col-3"> 
                         <label>Transportista(Empresa):</label>
                         <RadzenDropDown @bind-Value="Unidad.Carid" TValue="string" Data="Grupos" TextProperty="Den" ValueProperty="CarrId"
                                         AllowVirtualization="true" AllowFiltering="true"
