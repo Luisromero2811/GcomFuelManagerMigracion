@@ -31,6 +31,7 @@ namespace GComFuelManager.Shared.Modelos
         public DateTime FechaFinMovimiento { get; set; } = DateTime.Now;
         public int OrigenDestinoId { get; set; }
         public TipoInventario TipoInventario { get; set; } = TipoInventario.Inicial;
+        public DateTime FechaMovimiento { get; set; } = DateTime.Now;
         public bool Activo { get; set; } = true;
 
         public Producto Producto { get; set; } = null!;

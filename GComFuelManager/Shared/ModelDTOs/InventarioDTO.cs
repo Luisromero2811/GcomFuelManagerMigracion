@@ -33,6 +33,7 @@ namespace GComFuelManager.Shared.ModelDTOs
         public string Chofer { get; set; } = string.Empty;
         public TipoInventario TipoInventario { get; set; }
         public string OrigenDestino { get; set; } = string.Empty;
+        public DateTime FechaMovimiento { get; set; } = DateTime.Now;
         [EpplusIgnore] public bool FechaNULL { get; set; } = false;
 
         public string UnidadMedida { get; set; } = string.Empty;
