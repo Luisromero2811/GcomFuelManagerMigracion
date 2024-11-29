@@ -207,6 +207,7 @@ namespace GComFuelManager.Server.Controllers
                     inventariodto.Cantidad *= -1;
 
                 inventariodto.UnidadMedidaId = lts.Id;
+                inventariodto.CantidadLTS = inventariodto.Cantidad;
                 //if (inventariodto.UnidadMedidaId == lts.Id)
                 //    inventariodto.CantidadLTS = inventariodto.Cantidad;
                 //else
