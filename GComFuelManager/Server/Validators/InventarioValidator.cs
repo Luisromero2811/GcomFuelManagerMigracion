@@ -27,9 +27,9 @@ namespace GComFuelManager.Server.Validators
                 .NotNull().WithMessage("El tipo de moviento es obligatorio")
                 .GreaterThan(0).WithMessage("Debe seleccionar un tipo de moviento");
 
-            RuleFor(x => x.UnidadMedidaId)
-                .NotNull().WithMessage("La unidad de medida es obligatoria")
-                .GreaterThan(0).WithMessage("Debe seleccionar una unidad de medida");
+            //RuleFor(x => x.UnidadMedidaId)
+            //    .NotNull().WithMessage("La unidad de medida es obligatoria")
+            //    .GreaterThan(0).WithMessage("Debe seleccionar una unidad de medida");
 
             RuleFor(x => x.OrigenDestinoID)
                 .NotNull().WithMessage("El destino/origen es obligatorio")

@@ -27,5 +27,6 @@ namespace GComFuelManager.Shared.ModelDTOs
         public int ChoferId { get; set; }
         public DateTime FechaInicioMovimiento { get; set; } = DateTime.Now;
         public DateTime FechaFinMovimiento { get; set; } = DateTime.Now;
+        public DateTime FechaMovimiento { get; set; } = DateTime.Today;
     }
 }
