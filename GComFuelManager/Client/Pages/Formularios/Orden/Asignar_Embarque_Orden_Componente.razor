@@ -176,8 +176,8 @@
                                 <th style="width:200px;">Fecha de Carga</th>
                                 <th style="width:200px;">BOL</th>
                                 <th style="width:200px;">Precio</th>
-                                <th style="width:200px;">Modelo de Venta</th>
                                 <th style="width:200px;">Modelo de Compra</th>
+                                <th style="width:200px;">Tipo de Venta</th>
                                 <th style="width:200px;">Cliente</th>
                                 <th style="width:200px;">Destino</th>
                                 <th style="width:200px;">Producto</th>
@@ -205,18 +205,18 @@
                                 <td></td>
                                 <td></td>
                                 <td>
-                                    <select class="form-select form-select-sm" @bind="etaDto.MdVenta" @bind:event="onchange" @bind:after="@MostrarEtaFecha">
-                                        @foreach (var item in Enum.GetValues(typeof(TipoVentaFiltro)))
-                                        {
-                                            <option value="@item">@(((TipoVentaFiltro)item).Description())</option>
-                                        }
-                                    </select>
-                                </td>
-                                <td>
                                     <select class="form-select form-select-sm" @bind="etaDto.ModeloCompra" @bind:event="onchange" @bind:after="@MostrarEtaFecha">
                                         @foreach (var item in Enum.GetValues(typeof(TipoCompraFiltro)))
                                         {
                                             <option value="@item">@item</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-select form-select-sm" @bind="etaDto.MdVenta" @bind:event="onchange" @bind:after="@MostrarEtaFecha">
+                                        @foreach (var item in Enum.GetValues(typeof(TipoVentaFiltro)))
+                                        {
+                                            <option value="@item">@(((TipoVentaFiltro)item).Description())</option>
                                         }
                                     </select>
                                 </td>
@@ -254,8 +254,8 @@
                                 <td>@data?.FechaCarga</td>
                                 <td>@data?.Bol</td>
                                 <td>@data?.Precio</td>
-                                <td>@data?.MdVenta</td>
                                 <td>@data?.ModeloCompra</td>
+                                <td>@data?.MdVenta</td>
                                 <td>@data?.Cliente</td>
                                 <td>@data?.Destino</td>
                                 <td>@data?.Producto</td>
