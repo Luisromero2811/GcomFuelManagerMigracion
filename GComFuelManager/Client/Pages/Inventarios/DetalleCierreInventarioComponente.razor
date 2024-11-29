@@ -76,6 +76,7 @@
                         <th style="width: 150px;" class="resizable-column">Tipo de movimiento</th>
                         <th style="width: 150px;" class="resizable-column">Referencia</th>
                         <th style="width: 150px;" class="resizable-column">ID documento</th>
+                        <th style="width: 150px;" class="resizable-column">Fecha de movimiento</th>
                         <th style="width: 150px;" class="resizable-column">Hora inicial de movimiento</th>
                         <th style="width: 150px;" class="resizable-column">Hora final de movimiento</th>
                         <th style="width: 150px;" class="resizable-column">Tirilla inicial</th>
@@ -119,6 +120,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
                         <td>
                             <select class="form-select form-select-sm"
                                     onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.UnidadMedidaId)))">
@@ -148,6 +150,7 @@
                         <td>@item.TipoMovimiento</td>
                         <td>@item.Referencia</td>
                         <td>@item.Numero</td>
+                        <td>@item.FechaMovimiento.ToShortDateString()</td>
                         <td>@item.FechaInicioMovimiento.ToString("hh:mm tt")</td>
                         <td>@item.FechaFinMovimiento.ToString("hh:mm tt")</td>
                         <td>@item.TirillaInicial</td>

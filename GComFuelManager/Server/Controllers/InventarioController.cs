@@ -133,15 +133,17 @@ namespace GComFuelManager.Server.Controllers
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;
                     ExcelPackage excel = new();
                     ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Inventarios");
-                    ws.Cells["A1"].LoadFromCollection(inventarios.Select(x => mapper.Map<InventarioExcelDTO>(x)), op =>
+                    ws.Cells["A1"].LoadFromCollection(inventarios.Select(mapper.Map<InventarioExcelDTO>), op =>
                     {
                         op.TableStyle = TableStyles.Medium2;
                         op.PrintHeaders = true;
                     });
 
-                    ws.Cells[1, 11, ws.Dimension.End.Row, 13].Style.Numberformat.Format = "#,##0.00";
-                    ws.Cells[1, 15, ws.Dimension.End.Row, 15].Style.Numberformat.Format = "# °";
+                    ws.Cells[1, 12, ws.Dimension.End.Row, 16].Style.Numberformat.Format = "#,##0.00";
+                    ws.Cells[1, 18, ws.Dimension.End.Row, 18].Style.Numberformat.Format = "# °";
                     ws.Cells[1, 1, ws.Dimension.End.Row, 2].Style.Numberformat.Format = "dd/MM/yyyy hh:mm:ss";
+                    ws.Cells[1, 9, ws.Dimension.End.Row, 9].Style.Numberformat.Format = "dd/MM/yyyy";
+                    ws.Cells[1, 10, ws.Dimension.End.Row, 11].Style.Numberformat.Format = "hh:mm";
 
                     ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
                     return Ok(excel.GetAsByteArray());
@@ -151,7 +153,7 @@ namespace GComFuelManager.Server.Controllers
                 inventario.Pagina = HttpContext.ObtenerPagina();
 
                 var inventariodto = inventarios
-                    .Select(x => mapper.Map<InventarioDTO>(x))
+                    .Select(mapper.Map<InventarioDTO>)
                     .Skip((inventario.Pagina - 1) * inventario.Registros_por_pagina)
                     .Take(inventario.Registros_por_pagina);
 
@@ -204,10 +206,11 @@ namespace GComFuelManager.Server.Controllers
                 if (inventariodto.Cantidad < 0)
                     inventariodto.Cantidad *= -1;
 
-                if (inventariodto.UnidadMedidaId == lts.Id)
-                    inventariodto.CantidadLTS = inventariodto.Cantidad;
-                else
-                    inventariodto.CantidadLTS = inventariodto.Cantidad * 1000;
+                inventariodto.UnidadMedidaId = lts.Id;
+                //if (inventariodto.UnidadMedidaId == lts.Id)
+                //    inventariodto.CantidadLTS = inventariodto.Cantidad;
+                //else
+                //    inventariodto.CantidadLTS = inventariodto.Cantidad * 1000;
 
                 InventarioCierre? cierre = null!;
 
