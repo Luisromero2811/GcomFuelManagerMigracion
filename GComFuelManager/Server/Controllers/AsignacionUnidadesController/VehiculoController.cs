@@ -625,7 +625,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                 var toneles = await context.Tonel.Where(x => x.Id_Tad == idtad)
                                                  .Include(x => x.Transportista)
-                                                 .OrderBy(x => x.Den)
+                                                 .OrderBy(x => x.Tracto)
                                                  .ToListAsync();
 
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
