@@ -18,6 +18,7 @@ namespace GComFuelManager.Shared.ModelDTOs
         public string Id_DestinoGobierno { get; set; } = string.Empty;
         public Tipo_Venta? TipoVenta { get; set; }
         public Modelo_Venta? ModeloVenta { get; set; }
+        public TipoCompra? ModeloCompra { get; set; }
         public bool Activo { get; set; } = false;
     }
 }

@@ -42,6 +42,7 @@ namespace GComFuelManager.Shared.Modelos
 
         public Tipo_Venta? TipoVenta { get; set; }
         public Modelo_Venta? ModeloVenta { get; set; }
+        public TipoCompra? ModeloCompra { get; set; }
 
         [NotMapped, DisplayName("Nombre Completo del Destino")]
         public string FULLDEN
