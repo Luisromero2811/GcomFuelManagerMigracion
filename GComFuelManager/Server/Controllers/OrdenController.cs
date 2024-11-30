@@ -536,7 +536,6 @@ namespace GComFuelManager.Server.Controllers
                         Chofer = x.Chofer?.FullName ?? string.Empty,
                         Sellos = x.SealNumber,
                         Pedimento = x.Pedimento,
-                        Tipo_Venta = x.Destino.Cliente.Tipven ?? string.Empty,
                         Volumen_Cargado = x.Vol,
                         Importe_Compra = x.Importe ?? string.Empty,
                         Precio_CompraSImpuesto = x.ValorUnitario,
