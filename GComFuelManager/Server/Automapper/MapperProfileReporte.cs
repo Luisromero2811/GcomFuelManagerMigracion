@@ -45,6 +45,14 @@ namespace GComFuelManager.Server.Automapper
                     op.MapFrom(x => x.Reservado * -1);
                 }); ;
             CreateMap<InventarioCierreDTO, InventarioActualExcelDTO>();
+
+            CreateMap<Cliente, CatalogoClienteDTO>();
+            CreateMap<Destino, CatalogoDestinoDTO>();
+            CreateMap<GrupoTransportista, CatalogoGrupoTransportistaDTO>();
+            CreateMap<Transportista, CatalogoTransportistaDTO>();
+            CreateMap<Chofer, CatalogoChoferDTO>();
+            CreateMap<Tonel, CatalogoVehiculoDTO>();
+
         }
     }
 }

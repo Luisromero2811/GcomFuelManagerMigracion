@@ -1,12 +1,16 @@
-﻿using GComFuelManager.Server.Helpers;
+﻿using AutoMapper;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
+using GComFuelManager.Shared.ReportesDTO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+
 //using ServiceReference1;//qa
 //using ServiceReference9;//prod
 using VehicleServiceProd;
@@ -22,13 +26,22 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         private readonly UserManager<IdentityUsuario> UserManager;
         private readonly VerifyUserId verifyUser;
         private readonly User_Terminal _terminal;
+        private readonly IMapper mapper;
+        private readonly IUsuarioHelper helper;
 
-        public VehiculoController(ApplicationDbContext context, UserManager<IdentityUsuario> UserManager, VerifyUserId verifyUser, User_Terminal _Terminal)
+        public VehiculoController(ApplicationDbContext context,
+                                  UserManager<IdentityUsuario> UserManager,
+                                  VerifyUserId verifyUser,
+                                  User_Terminal _Terminal,
+                                  IMapper mapper,
+                                  IUsuarioHelper helper)
         {
             this.context = context;
             this.UserManager = UserManager;
             this.verifyUser = verifyUser;
             this._terminal = _Terminal;
+            this.mapper = mapper;
+            this.helper = helper;
         }
         [HttpGet("{transportista}")]
         public ActionResult Get(string transportista, [FromQuery] Tonel tonel)
@@ -603,6 +616,37 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpGet("catalogo")]
+        public async Task<ActionResult> GetCatalogoTonel()
+        {
+            try
+            {
+                var idtad = await helper.GetTerminalId();
+
+                var toneles = await context.Tonel.Where(x => x.Id_Tad == idtad)
+                                                 .Include(x => x.Transportista)
+                                                 .OrderBy(x => x.Den)
+                                                 .ToListAsync();
+
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage excel = new();
+                ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Toneles");
+
+                ws.Cells["A1"].LoadFromCollection(toneles.Select(mapper.Map<CatalogoVehiculoDTO>), c =>
+                {
+                    c.PrintHeaders = true;
+                    c.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                });
+
+                ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                return Ok(excel.GetAsByteArray());
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         private int GetRandomCarid()
         {
             var random = new Random().Next(1, 999999);

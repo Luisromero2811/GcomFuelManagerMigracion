@@ -14,6 +14,9 @@ using Newtonsoft.Json;
 //using ServiceReference8;
 using BusinessEntityServiceProd;
 using TruckCarrierServiceProd;
+using AutoMapper;
+using GComFuelManager.Shared.ReportesDTO;
+using OfficeOpenXml;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -27,14 +30,24 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         private readonly VerifyUserId verifyUser;
         private readonly UserManager<IdentityUsuario> UserManager;
         private readonly User_Terminal _terminal;
+        private readonly IUsuarioHelper helper;
+        private readonly IMapper mapper;
 
-        public TransportistaController(ApplicationDbContext context, RequestToFile toFile, VerifyUserId verifyUser, UserManager<IdentityUsuario> UserManager, User_Terminal _Terminal)
+        public TransportistaController(ApplicationDbContext context,
+                                       RequestToFile toFile,
+                                       VerifyUserId verifyUser,
+                                       UserManager<IdentityUsuario> UserManager,
+                                       User_Terminal _Terminal,
+                                       IUsuarioHelper helper,
+                                       IMapper mapper)
         {
             this.context = context;
             this.toFile = toFile;
             this.verifyUser = verifyUser;
             this.UserManager = UserManager;
             this._terminal = _Terminal;
+            this.helper = helper;
+            this.mapper = mapper;
         }
 
         private async Task SaveErrors(Exception e)
@@ -716,6 +729,69 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             catch (Exception e)
             {
                 await SaveErrors(e);
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("grupo/catalogo")]
+        public async Task<ActionResult> GetGrupoTransportistaCatalogo()
+        {
+            try
+            {
+                var idtad = await helper.GetTerminalId();
+                var gruposts = await context.GrupoTransportista
+                    .Where(x => x.Id_Tad == idtad)
+                    .OrderBy(x => x.den)
+                    .ToListAsync();
+
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage excel = new();
+                ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Grupo transportista");
+
+                ws.Cells["A1"].LoadFromCollection(gruposts.Select(mapper.Map<CatalogoGrupoTransportistaDTO>), c =>
+                {
+                    c.PrintHeaders = true;
+                    c.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                });
+
+                ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                return Ok(excel.GetAsByteArray());
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("catalogo")]
+        public async Task<ActionResult> GetTransportistaCatalogo()
+        {
+            try
+            {
+                var idtad = await helper.GetTerminalId();
+                var gruposts = await context.Transportista
+                    .Where(x => x.Id_Tad == idtad)
+                    .Include(x => x.GrupoTransportista)
+                    .OrderBy(x => x.Den)
+                    .ToListAsync();
+
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage excel = new();
+                ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Transportistas");
+
+                ws.Cells["A1"].LoadFromCollection(gruposts.Select(mapper.Map<CatalogoTransportistaDTO>), c =>
+                {
+                    c.PrintHeaders = true;
+                    c.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                });
+
+                ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                return Ok(excel.GetAsByteArray());
+            }
+            catch (Exception e)
+            {
                 return BadRequest(e.Message);
             }
         }

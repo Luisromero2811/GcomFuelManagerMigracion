@@ -668,7 +668,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 var clientes = await context.Cliente
                     .AsNoTracking()
                     .Where(x => x.Id_Tad == id_terminal)
-                    .Include(x => x.grupo)
+                    .Include(x => x.Grupo)
+                    .OrderBy(x => x.Den)
                     .ToListAsync();
 
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
@@ -681,6 +682,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     c.PrintHeaders = true;
                     c.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
                 });
+
+                ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
 
                 return Ok(excel.GetAsByteArray());
             }

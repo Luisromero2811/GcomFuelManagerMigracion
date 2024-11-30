@@ -11,6 +11,9 @@ using Microsoft.EntityFrameworkCore;
 //using ServiceReference8;
 using BusinessEntityServiceProd;
 using System.Diagnostics;
+using AutoMapper;
+using GComFuelManager.Shared.ReportesDTO;
+using OfficeOpenXml;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -23,13 +26,22 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         private readonly VerifyUserId verifyUser;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly User_Terminal _terminal;
+        private readonly IUsuarioHelper helper;
+        private readonly IMapper mapper;
 
-        public ChoferController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> userManager, User_Terminal _Terminal)
+        public ChoferController(ApplicationDbContext context,
+                                VerifyUserId verifyUser,
+                                UserManager<IdentityUsuario> userManager,
+                                User_Terminal _Terminal,
+                                IUsuarioHelper helper,
+                                IMapper mapper)
         {
             this.context = context;
             this.verifyUser = verifyUser;
             this.userManager = userManager;
             this._terminal = _Terminal;
+            this.helper = helper;
+            this.mapper = mapper;
         }
         [HttpGet("{transportista:int}")]
         public ActionResult Get(int transportista, [FromQuery] Chofer chofer)
@@ -47,7 +59,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     .AsQueryable();
 
                 if (!string.IsNullOrEmpty(chofer.Den) && !string.IsNullOrWhiteSpace(chofer.Den))
-                    choferes = choferes.Where(x => (!string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(chofer.Den.ToLower()) || 
+                    choferes = choferes.Where(x => (!string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(chofer.Den.ToLower()) ||
                     (!string.IsNullOrEmpty(x.Shortden) && x.Shortden.ToLower().Contains(chofer.Den.ToLower()))));
 
                 return Ok(choferes);
@@ -506,7 +518,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                         await context.SaveChangesAsync();
 
-                        if(context.Chofer.Any(x=>x.Identificador == null && x.Id_Tad == 1))
+                        if (context.Chofer.Any(x => x.Identificador == null && x.Id_Tad == 1))
                         {
                             var choferes = await context.Chofer.Where(x => x.Identificador == null && x.Id_Tad == 1).ToListAsync();
                             foreach (var item in choferes)
@@ -564,6 +576,35 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpGet("catalogo")]
+        public async Task<ActionResult> GetChofer()
+        {
+            try
+            {
+                var idtad = await helper.GetTerminalId();
+                var choferes = await context.Chofer.Where(x => x.Id_Tad == idtad)
+                                                   .OrderBy(x => x.Den)
+                                                   .ToListAsync();
+
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage excel = new();
+                ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Destinos");
+
+                ws.Cells["A1"].LoadFromCollection(choferes.Select(mapper.Map<CatalogoChoferDTO>), c =>
+                {
+                    c.PrintHeaders = true;
+                    c.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                });
+
+                ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                return Ok(excel.GetAsByteArray());
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         private string GetRandomCarid()
         {
             var random = new Random().Next(1, 999999).ToString();

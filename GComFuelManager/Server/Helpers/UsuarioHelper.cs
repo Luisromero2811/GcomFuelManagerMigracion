@@ -34,7 +34,7 @@ namespace GComFuelManager.Server.Helpers
                 var nombre_terminal = token.Claims.FirstOrDefault(x => x.Type == "Terminal")?.Value;
                 if (nombre_terminal is not null)
                 {
-                    var terminal = context.Tad.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(nombre_terminal) && x.Activo == true);
+                    var terminal = await context.Tad.FirstOrDefaultAsync(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(nombre_terminal) && x.Activo == true);
                     if (terminal is not null)
                         return terminal.Cod;
                 }
