@@ -78,5 +78,10 @@ namespace GComFuelManager.Shared.Modelos
                 Id_DestinoGobierno = Id_DestinoGobierno
             };
         }
+
+        public override string ToString()
+        {
+            return Den ?? string.Empty;
+        }
     }
 }

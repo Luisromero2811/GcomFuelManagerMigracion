@@ -1,17 +1,19 @@
+//using ServiceReference8;//prod
+//using ServiceReference6;//qa
+using AutoMapper;
+using BusinessEntityServiceProd;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
+using GComFuelManager.Shared.ReportesDTO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-//using ServiceReference8;//prod
-//using ServiceReference6;//qa
-using System.Diagnostics;
-using BusinessEntityServiceProd;
+using OfficeOpenXml;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
@@ -24,13 +26,22 @@ namespace GComFuelManager.Server.Controllers.Cierres
         private readonly VerifyUserId verifyUser;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly User_Terminal _terminal;
+        private readonly IUsuarioHelper helper;
+        private readonly IMapper mapper;
 
-        public ClientesController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> UserManager, User_Terminal _Terminal)
+        public ClientesController(ApplicationDbContext context,
+            VerifyUserId verifyUser,
+            UserManager<IdentityUsuario> UserManager,
+            User_Terminal _Terminal,
+            IUsuarioHelper helper,
+            IMapper mapper)
         {
             this.context = context;
             this.verifyUser = verifyUser;
             userManager = UserManager;
             this._terminal = _Terminal;
+            this.helper = helper;
+            this.mapper = mapper;
         }
 
         private async Task SaveErrors(Exception e)
@@ -104,7 +115,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var clientes = context.Cliente.IgnoreAutoIncludes().Where(x => x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).IgnoreAutoIncludes().OrderBy(x => x.Den);
+                var clientes = context.Cliente.AsNoTracking().Where(x => x.Id_Tad == id_terminal).IgnoreAutoIncludes().OrderBy(x => x.Den);
                 return Ok(clientes);
             }
             catch (Exception e)
@@ -219,32 +230,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 return BadRequest(e.Message);
             }
         }
-
-        //[HttpGet("folio/{cod:int}")]
-        //public async Task<ActionResult> GetFolio([FromRoute] int cod)
-        //{
-        //    try
-        //    {
-        //        var cliente = await context.Cliente.FindAsync(cod);
-        //        if (cliente == null)
-        //            return NotFound();
-
-        //        cliente.Consecutivo = cliente.Consecutivo != null ? cliente.Consecutivo + 1 : 1;
-
-        //        var folio = cliente.CodCte != null ? cliente.CodCte + Convert.ToString(cliente.Consecutivo) : string.Empty;
-
-        //        //cliente.Grupo = null!;
-
-        //        context.Update(cliente);
-        //        await context.SaveChangesAsync();
-
-        //        return Ok(folio);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.Message);
-        //    }
-        //}
 
         [HttpPut("{cod:int}")]
         public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
@@ -596,54 +581,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
         }
 
-        //[HttpGet("buscar")]
-        //public ActionResult GetClienteBusqueda([FromQuery] CodDenDTO cliente)
-        //{
-        //    try
-        //    {
-        //        var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
-        //        if (id_terminal == 0)
-        //            return BadRequest();
-
-        //        var clientes = context.Cliente.IgnoreAutoIncludes().Where(x => x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).IgnoreAutoIncludes().AsQueryable();
-
-        //        if (string.IsNullOrEmpty(cliente.Den))
-        //        {
-        //            clientes = clientes.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(cliente.Den.ToLower()));
-        //        }
-
-        //        var newclientes = clientes.Select(x => x.Den);
-
-        //        return Ok(newclientes);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.Message);
-        //    }
-        //}
-
-        //[HttpGet("buscarGrupo")]
-        //public ActionResult GetGrupoBusqueda([FromQuery] CodDenDTO grupo)
-        //{
-        //    try
-        //    {
-        //        var grupos = context.Grupo.AsQueryable();
-
-        //        if (string.IsNullOrEmpty(grupo.Den))
-        //        {
-        //            grupos = grupos.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(grupo.Den.ToLower()));
-        //        }
-
-        //        var newgrupos = grupos.Select(x => x.Den);
-
-        //        return Ok(newgrupos);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.Message);
-        //    }
-        //}
-
         [HttpGet("filtrar")]
         public async Task<ActionResult> Filtrar_Clientes([FromQuery] CodDenDTO parametros)
         {
@@ -714,6 +651,41 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 await GetClienteService();
 
                 return Ok(destinos_unicos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("catalogo")]
+        public async Task<ActionResult> GetCatalogo()
+        {
+            try
+            {
+                var id_terminal = await helper.GetTerminalId();
+
+                var clientes = await context.Cliente
+                    .AsNoTracking()
+                    .Where(x => x.Id_Tad == id_terminal)
+                    .Include(x => x.Grupo)
+                    .OrderBy(x => x.Den)
+                    .ToListAsync();
+
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage excel = new();
+
+                ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Clientes");
+
+                ws.Cells["A1"].LoadFromCollection(clientes.Select(mapper.Map<CatalogoClienteDTO>), c =>
+                {
+                    c.PrintHeaders = true;
+                    c.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                });
+
+                ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                return Ok(excel.GetAsByteArray());
             }
             catch (Exception e)
             {

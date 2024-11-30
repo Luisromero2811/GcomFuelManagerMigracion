@@ -54,7 +54,7 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public bool IsEditing { get; set; } = false;
         [NotMapped, EpplusIgnore] public string Nuevo_Codigo { get; set; } = string.Empty;
 
-        [NotMapped, EpplusIgnore] public Grupo? grupo { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Grupo? Grupo { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Vendedor? Vendedor { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Originador? Originador { get; set; } = null!;
         [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
