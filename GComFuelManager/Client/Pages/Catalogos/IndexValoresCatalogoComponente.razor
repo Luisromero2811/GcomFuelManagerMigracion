@@ -1,0 +1,234 @@
+﻿﻿
+@page "/catalogos/valores/{Id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject CatalogoValorValidator validator
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Catalogos")]
+<Card HeaderClass="d-flex justify-content-between">
+    <Header>
+        <b>Valores de catalogo</b>
+        <NavLink class="g-1 btn gcom-bg-amarillo" href="catalogos">
+            <i class="fa fa-solid fa-arrow-left" />
+            Volver
+        </NavLink>
+    </Header>
+</Card>
+<EditForm Model="CatalogoPost" OnValidSubmit="Guardar">
+    <div class="col-12 my-2 row">
+        <FluentValidationValidator Validator="validator" />
+        <ValidationSummary />
+
+        <div class="col-4">
+            <InputText @bind-Value="CatalogoPost.Valor" class="form-control form-control-sm" placeholder="Valor de catalogo" />
+            <ValidationMessage For="@(()=>CatalogoPost.Valor)" />
+        </div>
+        <div class="col-4">
+            <InputText @bind-Value="CatalogoPost.Abreviacion" class="form-control form-control-sm" placeholder="Abreviacion de catalogo" />
+            <ValidationMessage For="@(()=>CatalogoPost.Abreviacion)" />
+        </div>
+        <div class="col-md-2 col">
+            <button class="btn btn-sm gcom-bg-amarillo g-1 col-12" type="submit">
+                <i class="fa fa-solid fa-floppy-disk" /> Guardar
+            </button>
+        </div>
+    </div>
+</EditForm>
+<div class="container-fluid overflow-scroll">
+    <Tabla Datos="Valores" Cargando="loading_info">
+        <Cabeceras>
+            <tr>
+                <th style="max-width:150px;width:100px;"></th>
+                <th>Valor</th>
+                <th>Abreviacion</th>
+            </tr>
+        </Cabeceras>
+        <Filtros>
+            <tr>
+                <td></td>
+                <td><input class="form-control" @bind-value="@filtro.Valor" @oninput="FiltrarNombre" /></td>
+                <td></td>
+            </tr>
+        </Filtros>
+        <Columnas Context="item">
+            <tr>
+                <td>
+                    @if (item.EsEditable)
+                    {
+                        <div class="btn-group">
+                            <button class="btn gcom-bg-amarillo g-1 col-12" @onclick="@(()=>Obtener(item.Id))">
+                                <i class="fa fa-solid fa-edit" />
+                            </button>
+                            <button class="btn btn-danger" @onclick="@(()=>Eliminar(item))">
+                                <i class="fa fa-solid fa-trash" />
+                            </button>
+                        </div>
+                    }
+                </td>
+                <td>@item.Valor</td>
+                <td>@item.Abreviacion</td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+<div class="col-12">
+    <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+    <div class="col-12">
+        <p>Total de registros: @filtro.Total_registros</p>
+    </div>
+</div>
+@code {
+    [Parameter] public int Id { get; set; }
+
+    List<CatalogoValorDTO> Valores = new();
+    CatalogoValorDTO filtro = new();
+    bool loading_info = false;
+    bool loading_save = false;
+    Dictionary<string, string> query = new();
+
+    CatalogoValorPostDTO CatalogoPost = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerValores();
+    }
+
+    private Dictionary<string, string> SetFiltro()
+    {
+        query[$"{nameof(filtro.Valor)}"] = filtro.Valor;
+        query[$"{nameof(filtro.CatalogoId)}"] = Id.ToString();
+        query[$"{nameof(filtro.Pagina)}"] = filtro.Pagina.ToString();
+        query[$"{nameof(filtro.Registros_por_pagina)}"] = filtro.Registros_por_pagina.ToString();
+        return query;
+    }
+
+    private async Task ObtenerValores()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+
+            var response = await http.Get<List<CatalogoValorDTO>>($"api/catalogo/valor?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Valores = response.Response;
+
+                filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+                filtro.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Eliminar(CatalogoValorDTO crm)
+    {
+        try
+        {
+            var confirm = await swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Eliminacion",
+                    Text = $"¿Desea eliminar el valor {crm.Valor} de este catalogo?",
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar"
+                });
+            if (!string.IsNullOrEmpty(confirm.Value))
+            {
+                var response = await http.Delete($"api/catalogo/{crm.Id}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await ObtenerValores();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task Pagina_Seleccionada(int pagina)
+    {
+        filtro.Pagina_ACtual = pagina;
+        filtro.Pagina = pagina;
+
+        await ObtenerValores();
+    }
+
+    private async Task FiltrarNombre(ChangeEventArgs args)
+    {
+        filtro.Valor = args.Value?.ToString() ?? string.Empty;
+        await ObtenerValores();
+    }
+
+    private async Task Guardar()
+    {
+        try
+        {
+            CatalogoPost.CatalogoId = Id;
+            loading_save = true;
+            var response = await http.Post<CatalogoValorPostDTO>($"api/catalogo", CatalogoPost);
+            if (response.Error)
+            {
+                loading_save = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_save = false;
+                await ObtenerValores();
+            }
+        }
+        catch (Exception e)
+        {
+            loading_save = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener(int id)
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CatalogoValorPostDTO>($"api/catalogo/valor/{id}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                CatalogoPost = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

@@ -448,7 +448,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     return BadRequest();
 
                 var transportistas = context.Transportista.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Id_Tad == id_terminal)
-                    .Include(x => x.Terminales).IgnoreAutoIncludes()
+                    //.Include(x => x.Terminales).IgnoreAutoIncludes()
                     .OrderBy(x => x.Den)
                     .AsQueryable();
 

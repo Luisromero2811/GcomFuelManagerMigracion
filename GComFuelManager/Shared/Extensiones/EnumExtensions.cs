@@ -25,3 +25,4 @@ public static class EnumExtensions
         return string.Empty;
     }
 }
+
