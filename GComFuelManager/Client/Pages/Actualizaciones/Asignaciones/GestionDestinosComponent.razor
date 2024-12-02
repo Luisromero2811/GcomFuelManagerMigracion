@@ -8,7 +8,7 @@
 
 <div class="card">
     <div class="card-header">
-        Agregar destino
+        <b>Agregar destino</b>
     </div>
     <div class="card-body">
         <EditForm Model="Destino" OnValidSubmit="GuardarDestino">
@@ -102,7 +102,7 @@
 </div>
 <div class="card my-2">
     <div class="card-header">
-        Relacionar cliente - destino
+        <b>Relacionar cliente - destino</b>
     </div>
     <div class="card-body">
         <EditForm Model="Relacion" OnValidSubmit="GuardarRelacionDestino">
@@ -155,7 +155,7 @@
         </DropDownFilter>
     </div>
 </div>
-<div class="ancho-tabla" style="height:500px;">
+<div class="col-12" style="height:500px;">
     <Tabla Datos="Destinos">
         <Cabeceras>
             <tr>
