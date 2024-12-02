@@ -124,6 +124,11 @@
                         @if (!Menu.PuedeCapturarCantidad)
                         {
                             <div class="col-4">
+                                <label>Fecha de movimiento</label>
+                                <InputDate @bind-Value="Inventario.FechaMovimiento" Type="InputDateType.Date" class="form-control form-control-sm" />
+                                <ValidationMessage For="@(()=>Inventario.FechaMovimiento)" />
+                            </div>
+                            <div class="col-4">
                                 <label>Hora inicial del movimiento</label>
                                 <InputDate @bind-Value="Inventario.FechaInicioMovimiento" Type="InputDateType.Time" class="form-control form-control-sm" />
                                 <ValidationMessage For="@(()=>Inventario.FechaInicioMovimiento)" />
@@ -162,17 +167,6 @@
                                 <p class="@(Inventario.Diferencia < 0 ? "text-danger" : "text-success")">@Inventario.Diferencia.ToString("N2", CultureInfo.InvariantCulture)</p>
                             </div>
                         }
-                        <div class="col-4">
-                            <label>Unidad de medida</label>
-                            <InputSelect @bind-Value="Inventario.UnidadMedidaId" class="form-select form-select-sm">
-                                <option>-- Unidades de medida --</option>
-                                @foreach (var item in UnidadesMedida)
-                                {
-                                    <option value="@item.Id">@item.Valor</option>
-                                }
-                            </InputSelect>
-                            <ValidationMessage For="@(()=>Inventario.UnidadMedidaId)" />
-                        </div>
                         <div class="col-4">
                             <label>Temperatura del producto</label>
                             <InputNumber @bind-Value="Inventario.Temperatura" class="form-control form-control-sm" />
@@ -291,6 +285,7 @@
                 <th style="width: 150px;" class="resizable-column">Tipo de movimiento</th>
                 <th style="width: 150px;" class="resizable-column">Referencia</th>
                 <th style="width: 150px;" class="resizable-column">ID documento</th>
+                <th style="width: 150px;" class="resizable-column">Fecha de movimiento</th>
                 <th style="width: 150px;" class="resizable-column">Hora inicial de movimiento</th>
                 <th style="width: 150px;" class="resizable-column">Hora final de movimiento</th>
                 <th style="width: 150px;" class="resizable-column">Tirilla inicial</th>
@@ -375,6 +370,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
                 <td>
                     <select class="form-select form-select-sm"
                             onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.UnidadMedidaId)))">
@@ -421,6 +417,7 @@
                 <td>@item.TipoMovimiento</td>
                 <td>@item.Referencia</td>
                 <td>@item.Numero</td>
+                <td>@item.FechaMovimiento.ToShortDateString()</td>
                 <td>@item.FechaInicioMovimiento.ToString("hh:mm tt")</td>
                 <td>@item.FechaFinMovimiento.ToString("hh:mm tt")</td>
                 <td>@item.TirillaInicial</td>

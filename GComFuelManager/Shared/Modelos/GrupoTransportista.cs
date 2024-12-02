@@ -8,8 +8,8 @@ using OfficeOpenXml.Attributes;
 
 namespace GComFuelManager.Shared.Modelos
 {
-	public class GrupoTransportista
-	{
+    public class GrupoTransportista
+    {
         [Key, JsonProperty("cod"), EpplusIgnore] public int cod { get; set; }
         //   public int Cod { get; set; } = 0;
 
@@ -32,6 +32,10 @@ namespace GComFuelManager.Shared.Modelos
             };
         }
 
+        public override string ToString()
+        {
+            return den ?? string.Empty;
+        }
     }
 }
 

@@ -72,6 +72,8 @@ builder.Services.AddSingleton<VerifyUserId>();
 builder.Services.AddSingleton<User_Terminal>();
 builder.Services.AddSingleton(new CultureInfo("es-Mx"));
 
+builder.Services.AddScoped<IUsuarioHelper, UsuarioHelper>();
+
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;

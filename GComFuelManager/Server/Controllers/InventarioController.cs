@@ -133,15 +133,17 @@ namespace GComFuelManager.Server.Controllers
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;
                     ExcelPackage excel = new();
                     ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Inventarios");
-                    ws.Cells["A1"].LoadFromCollection(inventarios.Select(x => mapper.Map<InventarioExcelDTO>(x)), op =>
+                    ws.Cells["A1"].LoadFromCollection(inventarios.Select(mapper.Map<InventarioExcelDTO>), op =>
                     {
                         op.TableStyle = TableStyles.Medium2;
                         op.PrintHeaders = true;
                     });
 
-                    ws.Cells[1, 11, ws.Dimension.End.Row, 13].Style.Numberformat.Format = "#,##0.00";
-                    ws.Cells[1, 15, ws.Dimension.End.Row, 15].Style.Numberformat.Format = "# °";
+                    ws.Cells[1, 12, ws.Dimension.End.Row, 16].Style.Numberformat.Format = "#,##0.00";
+                    ws.Cells[1, 18, ws.Dimension.End.Row, 18].Style.Numberformat.Format = "# °";
                     ws.Cells[1, 1, ws.Dimension.End.Row, 2].Style.Numberformat.Format = "dd/MM/yyyy hh:mm:ss";
+                    ws.Cells[1, 9, ws.Dimension.End.Row, 9].Style.Numberformat.Format = "dd/MM/yyyy";
+                    ws.Cells[1, 10, ws.Dimension.End.Row, 11].Style.Numberformat.Format = "hh:mm";
 
                     ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
                     return Ok(excel.GetAsByteArray());
@@ -151,7 +153,7 @@ namespace GComFuelManager.Server.Controllers
                 inventario.Pagina = HttpContext.ObtenerPagina();
 
                 var inventariodto = inventarios
-                    .Select(x => mapper.Map<InventarioDTO>(x))
+                    .Select(mapper.Map<InventarioDTO>)
                     .Skip((inventario.Pagina - 1) * inventario.Registros_por_pagina)
                     .Take(inventario.Registros_por_pagina);
 
@@ -204,10 +206,12 @@ namespace GComFuelManager.Server.Controllers
                 if (inventariodto.Cantidad < 0)
                     inventariodto.Cantidad *= -1;
 
-                if (inventariodto.UnidadMedidaId == lts.Id)
-                    inventariodto.CantidadLTS = inventariodto.Cantidad;
-                else
-                    inventariodto.CantidadLTS = inventariodto.Cantidad * 1000;
+                inventariodto.UnidadMedidaId = lts.Id;
+                inventariodto.CantidadLTS = inventariodto.Cantidad;
+                //if (inventariodto.UnidadMedidaId == lts.Id)
+                //    inventariodto.CantidadLTS = inventariodto.Cantidad;
+                //else
+                //    inventariodto.CantidadLTS = inventariodto.Cantidad * 1000;
 
                 InventarioCierre? cierre = null!;
 
@@ -595,8 +599,6 @@ namespace GComFuelManager.Server.Controllers
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var tmids = await ObtenerIdMovimientos();
-
                 var inventariostotal = context.InventarioCierres
                     .AsNoTracking()
                     .Where(x => x.Activo && x.TadId.Equals(id_terminal) && x.FechaCierre == null)
@@ -607,7 +609,6 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Terminal)
                     .Include(x => x.UsuarioCierre)
                     .Include(x => x.UsuarioInicio)
-                    .Select(x => mapper.Map<InventarioCierreDTO>(x))
                     .AsQueryable();
 
                 if (!cierre.ProductoId.IsZero())
@@ -627,7 +628,7 @@ namespace GComFuelManager.Server.Controllers
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;
                     ExcelPackage excel = new();
                     ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Inventarios");
-                    ws.Cells["A1"].LoadFromCollection(inventariostotal.Select(x => mapper.Map<InventarioActualExcelDTO>(x)), op =>
+                    ws.Cells["A1"].LoadFromCollection(inventariostotal.Select(x => mapper.Map<InventarioCierreDTO>(x)).Select(x => mapper.Map<InventarioActualExcelDTO>(x)), op =>
                     {
                         op.TableStyle = TableStyles.Medium2;
                         op.PrintHeaders = true;
@@ -639,7 +640,7 @@ namespace GComFuelManager.Server.Controllers
                     return Ok(excel.GetAsByteArray());
                 }
 
-                return Ok(inventariostotal);
+                return Ok(await inventariostotal.Select(x => mapper.Map<InventarioCierreDTO>(x)).ToListAsync());
             }
             catch (Exception e)
             {
@@ -763,6 +764,113 @@ namespace GComFuelManager.Server.Controllers
             catch (Exception)
             {
                 return BadRequest();
+            }
+        }
+
+        [HttpGet("cierre/detalle/reporte")]
+        public async Task<ActionResult> GetReporteCierreMovimietos([FromQuery] InventarioDTO parms)
+        {
+            try
+            {
+                var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var inventarios = context.Inventarios
+                    .AsNoTracking()
+                    .Where(x => x.Activo && x.TadId.Equals(id_terminal))
+                    .Include(x => x.Producto)
+                    .Include(x => x.Sitio)
+                    .Include(x => x.Almacen)
+                    .Include(x => x.Localidad)
+                    .Include(x => x.UnidadMedida)
+                    .Include(x => x.TipoMovimiento)
+                    .Include(x => x.Transportista)
+                    .Include(x => x.Tonel)
+                    .Include(x => x.Chofer)
+                    .Include(x => x.OrigenDestino)
+                    .OrderByDescending(x => x.FechaRegistro)
+                    .AsQueryable();
+
+                if (!parms.ProductoId.IsZero())
+                    inventarios = inventarios.Where(x => x.ProductoId == parms.ProductoId);
+
+                if (!parms.SitioId.IsZero())
+                    inventarios = inventarios.Where(x => x.SitioId == parms.SitioId);
+
+                if (!parms.AlmacenId.IsZero())
+                    inventarios = inventarios.Where(x => x.AlmacenId == parms.AlmacenId);
+
+                if (!parms.LocalidadId.IsZero())
+                    inventarios = inventarios.Where(x => x.LocalidadId == parms.LocalidadId);
+
+                if (!parms.UnidadMedidaId.IsZero())
+                    inventarios = inventarios.Where(x => x.UnidadMedidaId == parms.UnidadMedidaId);
+
+                if (!parms.TipoMovimientoId.IsZero())
+                    inventarios = inventarios.Where(x => x.TipoMovimientoId == parms.TipoMovimientoId);
+
+                if (!parms.CierreId.IsZero())
+                    inventarios = inventarios.Where(x => x.CierreId == parms.CierreId);
+
+                if (parms.FechaNULL)
+                    inventarios = inventarios.Where(x => x.FechaCierre == null);
+
+                if (!string.IsNullOrEmpty(parms.Transportista) && !string.IsNullOrWhiteSpace(parms.Transportista))
+                    inventarios = inventarios.Where(x => x.Transportista != null && !string.IsNullOrEmpty(x.Transportista.Den) && x.Transportista.Den.ToLower().Contains(parms.Transportista.ToLower()));
+
+                if (!string.IsNullOrEmpty(parms.Tonel) && !string.IsNullOrWhiteSpace(parms.Tonel))
+                    inventarios = inventarios.Where(x => x.Tonel != null && !string.IsNullOrEmpty(x.Tonel.Tracto) && x.Tonel.Tracto.ToLower().Contains(parms.Tonel.ToLower()));
+
+                if (!string.IsNullOrEmpty(parms.Chofer) && !string.IsNullOrWhiteSpace(parms.Chofer))
+                    inventarios = inventarios.Where(x => x.Chofer != null && !string.IsNullOrEmpty(x.Chofer.Den) && x.Chofer.Den.ToLower().Contains(parms.Chofer.ToLower()) ||
+                                                         x.Chofer != null && !string.IsNullOrEmpty(x.Chofer.Shortden) && x.Chofer.Shortden.ToLower().Contains(parms.Chofer.ToLower()));
+
+                if (!string.IsNullOrEmpty(parms.OrigenDestino) && !string.IsNullOrWhiteSpace(parms.OrigenDestino))
+                    inventarios = inventarios.Where(x => !string.IsNullOrEmpty(x.OrigenDestino.Valor) && x.OrigenDestino.Valor.ToLower().Contains(parms.OrigenDestino.ToLower()));
+
+
+                var cierre = await context.InventarioCierres
+                    .AsNoTracking()
+                    .Include(x => x.Producto)
+                    .Include(x => x.Sitio)
+                    .Include(x => x.Almacen)
+                    .Include(x => x.Localidad)
+                    .FirstOrDefaultAsync(x => x.Id == parms.CierreId);
+                if (cierre is null) { return NotFound(); }
+
+                var cierredto = mapper.Map<InventarioCierreDTO>(cierre);
+
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage excel = new();
+                ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Inventarios");
+
+                ws.Cells["A1"].LoadFromCollection(new List<InventarioCierreDTO>() { cierredto }.Select(mapper.Map<InventarioActualExcelDTO>), op =>
+                {
+                    op.TableStyle = TableStyles.Medium2;
+                    op.PrintHeaders = true;
+                });
+
+                ws.Cells[1, 5, ws.Dimension.End.Row, ws.Dimension.End.Column].Style.Numberformat.Format = "#,##0.00";
+                ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                ws.Cells["A4"].LoadFromCollection(inventarios.Select(mapper.Map<InventarioExcelDTO>), op =>
+                {
+                    op.TableStyle = TableStyles.Medium2;
+                    op.PrintHeaders = true;
+                });
+
+                ws.Cells[3, 11, ws.Dimension.End.Row, 13].Style.Numberformat.Format = "#,##0.00";
+                ws.Cells[3, 15, ws.Dimension.End.Row, 15].Style.Numberformat.Format = "# °";
+                ws.Cells[3, 1, ws.Dimension.End.Row, 2].Style.Numberformat.Format = "dd/MM/yyyy hh:mm:ss";
+
+                ws.Cells[3, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+                return Ok(excel.GetAsByteArray());
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
 
@@ -962,112 +1070,6 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest();
             }
         }
-
-        private record TiposMovientoIds(
-            int InventarioInicial,
-            int FisicaReservada,
-            int PedidoTotal,
-            int OrdenReservada,
-            int EnOrden,
-            List<int> CargosAdicionales,
-            List<int> Salidas,
-            List<int> Entradas,
-            List<int> SalidaVenta
-            );
-
-        private async Task<TiposMovientoIds> ObtenerIdMovimientos()
-        {
-            var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
-            if (id_terminal == 0)
-                throw new InvalidParameterException();
-
-            var invinicial = "01";
-
-            var listSalidas = new List<string> { "Salida por Ajuste" };
-
-            var listSalidaVenta = new List<string> { "Salida Venta" };
-
-            var listEntradas = new List<string> { "02", "03", "04", "05", "06" };
-
-            var invfisicareservada = "21";
-
-            var invpedidototal = "07";
-
-            var invordenreservada = "22";
-
-            var invenorden = "23";
-
-            var invinicialid = await context.CatalogoValores
-                    .AsNoTracking()
-                    .Where(x => !string.IsNullOrEmpty(x.Abreviacion) && x.Abreviacion.Equals(invinicial)
-                    && x.Activo && !x.EsEditable && x.TadId.Equals(id_terminal) && x.CatalogoId.Equals(39))
-                    .Select(x => x.Id)
-                    .FirstOrDefaultAsync();
-
-            var fisicareservadaid = await context.CatalogoValores
-                .AsNoTracking()
-                .Where(x => !string.IsNullOrEmpty(x.Abreviacion) && x.Abreviacion.Equals(invfisicareservada)
-                && x.Activo && !x.EsEditable && x.TadId.Equals(id_terminal) && x.CatalogoId.Equals(39))
-                .Select(x => x.Id)
-                .FirstOrDefaultAsync();
-
-            var pedidototalid = await context.CatalogoValores
-                .AsNoTracking()
-                .Where(x => !string.IsNullOrEmpty(x.Abreviacion) && x.Abreviacion.Equals(invpedidototal)
-                && x.Activo && !x.EsEditable && x.TadId.Equals(id_terminal) && x.CatalogoId.Equals(39))
-                .Select(x => x.Id)
-                .FirstOrDefaultAsync();
-
-            var ordenreservadaid = await context.CatalogoValores
-                .AsNoTracking()
-                .Where(x => !string.IsNullOrEmpty(x.Abreviacion) && x.Abreviacion.Equals(invordenreservada)
-                && x.Activo && !x.EsEditable && x.TadId.Equals(id_terminal) && x.CatalogoId.Equals(39))
-                .Select(x => x.Id)
-                .FirstOrDefaultAsync();
-
-            var enordenid = await context.CatalogoValores
-                .AsNoTracking()
-                .Where(x => !string.IsNullOrEmpty(x.Abreviacion) && x.Abreviacion.Equals(invenorden)
-                && x.Activo && !x.EsEditable && x.TadId.Equals(id_terminal) && x.CatalogoId.Equals(39))
-                .Select(x => x.Id)
-                .FirstOrDefaultAsync();
-
-            var cargosadicionales = await context.Catalogos
-                .AsNoTracking()
-                .Where(x => x.Clave.Equals("Catalogo_Inventario_Tipo_Movimientos"))
-                .Include(x => x.Valores.Where(y => y.Activo && y.EsEditable && y.TadId.Equals(id_terminal)))
-                .FirstOrDefaultAsync() ?? new();
-
-            var salidas = await context.CatalogoValores
-                .AsNoTracking()
-                .Where(x => listSalidas.Contains(x.Valor) && x.Activo && !x.EsEditable && x.TadId.Equals(id_terminal) && x.CatalogoId.Equals(39))
-                .Select(x => x.Id)
-                .ToListAsync();
-
-            var entradas = await context.CatalogoValores
-                .AsNoTracking()
-                .Where(x => listEntradas.Contains(x.Valor) && x.Activo && !x.EsEditable && x.TadId.Equals(id_terminal) && x.CatalogoId.Equals(39))
-                .Select(x => x.Id)
-                .ToListAsync();
-
-            var salidasventa = await context.CatalogoValores
-                .AsNoTracking()
-                .Where(x => listSalidas.Contains(x.Valor) && x.Activo && !x.EsEditable && x.TadId.Equals(id_terminal))
-                .Select(x => x.Id)
-                .ToListAsync();
-
-            return new TiposMovientoIds(
-                invinicialid,
-                fisicareservadaid,
-                pedidototalid,
-                ordenreservadaid,
-                enordenid,
-                cargosadicionales.Valores.Select(x => x.Id).ToList(),
-                salidas,
-                entradas,
-                salidasventa);
-        }
-
         private async Task<InventarioCierre> RestarRegistroInventario(InventarioCierre cierre, Inventario inventariodto)
         {
             if (cierre is not null)

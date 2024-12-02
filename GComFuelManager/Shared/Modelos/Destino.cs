@@ -86,5 +86,10 @@ namespace GComFuelManager.Shared.Modelos
 
         public override int GetHashCode() =>
             (Den, Id_Tad).GetHashCode();
+
+        public override string ToString()
+        {
+            return Den ?? string.Empty;
+        }
     }
 }

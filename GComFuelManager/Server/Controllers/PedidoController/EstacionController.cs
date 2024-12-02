@@ -5,12 +5,14 @@ using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.ModelDTOs;
 using GComFuelManager.Shared.Modelos;
+using GComFuelManager.Shared.ReportesDTO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 
 namespace GComFuelManager.Server.Controllers
 {
@@ -22,21 +24,24 @@ namespace GComFuelManager.Server.Controllers
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly VerifyUserId verifyUser;
+        private readonly IUsuarioHelper helper;
         private readonly IMapper mapper;
         private readonly IValidator<DestinoPostDTO> validator;
         private readonly User_Terminal _terminal;
 
         public EstacionController(ApplicationDbContext context,
-            User_Terminal _Terminal,
-            UserManager<IdentityUsuario> userManager,
-            VerifyUserId verifyUser,
-            IMapper mapper,
-            IValidator<DestinoPostDTO> validator)
+                                  User_Terminal _Terminal,
+                                  UserManager<IdentityUsuario> userManager,
+                                  VerifyUserId verifyUser,
+                                  IUsuarioHelper helper,
+                                  IMapper mapper,
+                                  IValidator<DestinoPostDTO> validator)
         {
             this.context = context;
             this._terminal = _Terminal;
             this.userManager = userManager;
             this.verifyUser = verifyUser;
+            this.helper = helper;
             this.mapper = mapper;
             this.validator = validator;
         }
@@ -418,6 +423,39 @@ namespace GComFuelManager.Server.Controllers
 
                 var multidestinos = context.Destino.Where(x => x.Activo && x.Es_Multidestino == true && x.Id_Tad == id_terminal).ToList();
                 return Ok(multidestinos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("catalogo")]
+        public async Task<ActionResult> GetCatalogo()
+        {
+            try
+            {
+                var id_terminal = await helper.GetTerminalId();
+
+                var estaciones = await context.Destino
+                    .Where(x => x.Id_Tad == id_terminal)
+                    .Include(x => x.Cliente)
+                    .OrderBy(x => x.Den)
+                    .ToListAsync();
+
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage excel = new();
+                ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Destinos");
+
+                ws.Cells["A1"].LoadFromCollection(estaciones.Select(mapper.Map<CatalogoDestinoDTO>), c =>
+                {
+                    c.PrintHeaders = true;
+                    c.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                });
+
+                ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                return Ok(excel.GetAsByteArray());
             }
             catch (Exception e)
             {

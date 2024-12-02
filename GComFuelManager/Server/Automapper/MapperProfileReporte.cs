@@ -200,6 +200,14 @@ namespace GComFuelManager.Server.Automapper
                     opt.NullSubstitute(string.Empty);
                 })
                 .ForMember(x => x.Precio, opt => opt.MapFrom(x => x.Pre));
+
+            CreateMap<Cliente, CatalogoClienteDTO>();
+            CreateMap<Destino, CatalogoDestinoDTO>();
+            CreateMap<GrupoTransportista, CatalogoGrupoTransportistaDTO>();
+            CreateMap<Transportista, CatalogoTransportistaDTO>();
+            CreateMap<Chofer, CatalogoChoferDTO>();
+            CreateMap<Tonel, CatalogoVehiculoDTO>();
+
         }
     }
 }
