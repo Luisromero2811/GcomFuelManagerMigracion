@@ -48,6 +48,7 @@ namespace GComFuelManager.Shared.Modelos
         public int? Folio_Vale { get; set; }
         public int? Id_Multidestino { get; set; }
         public Tipo_Venta? Modelo_Venta_Orden { get; set; } = Tipo_Venta.Rack;
+        public TipoCompra? ModeloCompra { get; set; } = TipoCompra.Rack;
 
         [NotMapped] public List<HistorialEstados> HistorialEstados { get; set; } = new();
         [NotMapped] public Destino? Destino { get; set; } = null!;
@@ -65,7 +66,6 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public Transportista? Transportista { get; set; } = null!;
         [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
         [NotMapped] public OrdenPedido? OrdenPedido { get; set; } = null!;
-        [NotMapped] public int? Compartimento { get; set; } = null!;
         [NotMapped] public Datos_Facturas? Datos_Facturas { get; set; } = null!;
         [NotMapped] public List<Archivo>? Archivos { get; set; } = null!;
         public OrdenEmbarque ShallowCopy()
@@ -111,7 +111,6 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public double? Utilidad_Sobre_Volumen { get; set; } = 0;
         [NotMapped, EpplusIgnore] public bool Mostrar_Detalle_Orden { get; set; } = false;
         [NotMapped, EpplusIgnore] public List<Orden> Ordenes_Synthesis { get; set; } = new();
-        [NotMapped, EpplusIgnore] public string? Terminales { get; set; }
 
         public double Obtener_Utilidad_Coste()
         {
@@ -252,15 +251,15 @@ namespace GComFuelManager.Shared.Modelos
 
                 gestion_.FechaCarga = Obtener_Fecha_De_Carga_De_Orden.ToString("yyyy-MM-dd HH:mm:ss");
                 gestion_.Bol = Orden?.BatchId;
-                gestion_.MdVenta = Modelo_Venta_Orden.ToString();
+                //gestion_.MdVenta = Modelo_Venta_Orden;
                 gestion_.Cliente = Obtener_Cliente_De_Orden;
                 gestion_.Destino = Obtener_Destino_De_Orden;
                 gestion_.Producto = Obtener_Producto_De_Orden;
-                if (Tonel is not null)
-                    gestion_.VolNat = Compartment == 1 ? Convert.ToDouble(Tonel.Capcom) :
-                            Compartment == 2 ? Convert.ToDouble(Tonel.Capcom2) :
-                            Compartment == 3 ? Convert.ToDouble(Tonel.Capcom3) :
-                            Compartment == 4 ? Convert.ToDouble(Tonel.Capcom4) : Vol;
+                //if (Tonel is not null)
+                //    gestion_.VolNat = Compartment == 1 ? Convert.ToDouble(Tonel.Capcom) :
+                //            Compartment == 2 ? Convert.ToDouble(Tonel.Capcom2) :
+                //            Compartment == 3 ? Convert.ToDouble(Tonel.Capcom3) :
+                //            Compartment == 4 ? Convert.ToDouble(Tonel.Capcom4) : Vol;
                 gestion_.VolCar = Orden?.Vol;
                 gestion_.Transportista = Tonel?.Transportista?.Den;
                 gestion_.Unidad = Obtener_Tonel_De_Orden;

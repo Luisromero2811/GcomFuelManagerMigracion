@@ -14,19 +14,19 @@
             <div class="col-12 card shadow-sm">
                 <div class="col-12 card-body">
                     <label><b>Mostrar Precios:</b></label>
-                    <div class="col-12 row">
-                        <div class="col-4 mb-1">
+                    <div class="col-12 row d-flex">
+                        <div class="col-4">
                             <label>Del:</label>
-                            <RadzenDatePicker class="col-12" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@busquedaPrecios.DateInicio" Min="@busquedaPrecios.DateInicio.AddDays(-3)" Max="@busquedaPrecios.DateInicio">
-                            </RadzenDatePicker>
+                            <input type="date" class="col-12 form-control form-control-sm" @bind="@busquedaPrecios.Fecha_Inicio" min="@DateTime.Today.AddDays(-3)">
+                            </input>
                         </div>
-                        <div class="col-4 mb-1">
+                        <div class="col-4">
                             <label>A:</label>
-                            <RadzenDatePicker class="col-12" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@busquedaPrecios.DateFin" Min="@busquedaPrecios.DateFin.AddDays(-3)" Max="@busquedaPrecios.DateFin">
-                            </RadzenDatePicker>
+                            <input type="date" class="col-12 form-control form-control-sm" @bind="@busquedaPrecios.Fecha_Fin" min="@DateTime.Today.AddDays(-3)">
+                            </input>
                         </div>
-                        <div class="col-4 d-flex mt-2">
-                            <button class="btn gcom-bg-amarillo col-12 my-auto" @onclick="@GetPreciosFiltro">
+                        <div class="col-4 d-flex">
+                            <button class="btn btn-sm gcom-bg-amarillo col-12 mt-auto" @onclick="@GetPreciosFiltro">
                                 <i class="fa fa-solid fa-eye"></i><b>Mostrar Precios</b>
                             </button>
                         </div>
@@ -36,144 +36,82 @@
         </div>
     </div>
 </div>
+
 <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios" Context="GridOptim">
     <Authorized>
-        <div class="col-12 mt-4 overflow-scroll ancho-tabla" style="height:449px; resize:both;">
-            <table class="table table-hover table-bordered table-sm" style="max-height: 100px; overflow: auto; width: 100%">
-                <thead>
+        <div class="col-12 mt-4 ancho-tabla">
+            <Tabla Datos="Precios">
+                <Cabeceras>
                     <tr>
-                        <th scope="col">Fecha</th>
-                        <th scope="col">Precio</th>
-                        <th scope="col">Producto</th>
-                        <th scope="col">Destino</th>
-                        <th scope="col">Zona</th>
-                        <th scope="col">Cliente</th>
-                        <th scope="col">Moneda</th>
-                        <th scope="col">Cambio</th>
-                        <th scope="col">Usuario</th>
-                        <th scope="col">Unidad de Negocio</th>
+                        <th>Fecha</th>
+                        <th>Precio</th>
+                        <th>Producto</th>
+                        <th>Destino</th>
+                        <th>Zona</th>
+                        <th>Cliente</th>
+                        <th>Moneda</th>
+                        <th>Cambio</th>
+                        <th>Usuario</th>
+                        <th>Unidad de negocio</th>
                     </tr>
-                </thead>
-                <tbody>
+                </Cabeceras>
+                <Filtros>
                     <tr>
                         <td></td>
                         <td></td>
                         <td>
-                            <!--Filtro producto-->
-                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.producto" />
+                            <input @oninput="@((args)=>SetFiltros(args, nameof(ParametrosBusquedaPrecios.producto)))" @bind="@busquedaPrecios.producto" class="form-control form-control-sm" />
                         </td>
                         <td>
-                            <!--Filtro destino-->
-                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.destino" />
+                            <input @oninput="@((args)=>SetFiltros(args, nameof(ParametrosBusquedaPrecios.destino)))" class="form-control form-control-sm" />
                         </td>
                         <td>
-                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.zona" />
+                            <input @oninput="@((args)=>SetFiltros(args, nameof(ParametrosBusquedaPrecios.zona)))" class="form-control form-control-sm" />
                         </td>
                         <td>
-                            <!--Filtro cliente-->
-                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.cliente" />
+                            <input @oninput="@((args)=>SetFiltros(args, nameof(ParametrosBusquedaPrecios.cliente)))" class="form-control form-control-sm" />
                         </td>
                         <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
                     </tr>
-                    @foreach (var data in preciosL)
-                    {
-                        <tr>
-                            <td>
-                                <p>@data.FchDia.ToString("dd-MM-yyyy")</p>
-                            </td>
-                            <td>
-                                <p>@data.pre.ToString()</p>
-                            </td>
-                            <td>
-                                <p>@data.Producto?.Den</p>
-                            </td>
-                            <td>
-                                <p>@data.Destino?.Den</p>
-                            </td>
-                            <td>
-                                <p>@data.Zona?.Nombre</p>
-                            </td>
-                            <td>
-                                <p>@data?.Cliente?.Den</p>
-                            </td>
-                            <td>
-                                <p>@data?.Moneda?.Nombre</p>
-                            </td>
-                            <td>
-                                <p>@data?.Equibalencia</p>
-                            </td>
-                            <td>
-                                <p>@data?.Usuario?.Den</p>
-                            </td>
-                            <td>
-                                <p>@data?.Terminal?.Den</p>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-                <tfoot>
+                </Filtros>
+                <Columnas Context="item">
                     <tr>
-                        <td colspan="12">
-                            <div class="col-12 row">
-                                <div class="text-muted col-2">
-                                    <p>Total de registros: @ConteoTotal Total de datos filtrados: @PreciosFiltrados.Count()</p>
-                                </div>
-                            </div>
-                        </td>
+                        <td>@item.Fecha</td>
+                        <td>@item.Pre</td>
+                        <td>@item.Producto</td>
+                        <td>@item.Destino</td>
+                        <td>@item.Zona</td>
+                        <td>@item.Cliente</td>
+                        <td>@item.Moneda</td>
+                        <td>@item.Cambio</td>
+                        <td>@item.Usuario</td>
+                        <td>@item.Unidad_Negocio</td>
                     </tr>
-                </tfoot>
-            </table>
+                </Columnas>
+            </Tabla>
+        </div>
+        <div class="col-12">
+            <PaginacionComponent PaginaActual="busquedaPrecios.Pagina_ACtual" PaginasTotales="busquedaPrecios.Total_paginas" PaginaSeleccionada="PaginasSeleccionadas" Radio="5" />
+            <div class="col-12">
+                <p>Total de registros: @busquedaPrecios.Total_registros</p>
+            </div>
+        </div>
+        <div class="col-12 d-flex justify-content-end my-2">
+            <div class="col-3">
+                <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="GenerateExcel">
+                    <i class="fa fa-solid fa-file-excel" /> Exportar excel
+                </button>
+            </div>
         </div>
     </Authorized>
 </AuthorizeView>
 
-<div class="col-12 my-3">
-    <div class="d-flex justify-content-center">
-        <div class="col card shadow-sm">
-            <div class="col-12 card-body">
-                <div class="col-12 my-1">
-                    <div class="row d-flex justify-content-start">
-                        <label><b>Exportar Historico de Precios</b></label>
-                    </div>
-                    <div class="row d-flex justify-content-end">
-                        <div class="col-4">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<style type="text/css">
-     .ancho {
-        width: @TotalWidth;
-    }
-</style>
-
 @code {
-
-    FechasF fechas = new FechasF();
-    PrecioHistorico Precio { get; set; } = new PrecioHistorico();
-
-    private string ProductoSeleccionado = string.Empty;
-    private IEnumerable<string?> ProductList { get; set; } = new List<string>();
-
-    private string DestinoSeleccionado = string.Empty;
-    private IEnumerable<string?> DestinoList { get; set; } = new List<string>();
-
-    private string ClienteSeleccionado = string.Empty;
-    private IEnumerable<string?> ClienteList { get; set; } = new List<string>();
-
     //List
-    List<PrecioHistorico> precios { get; set; } = new List<PrecioHistorico>();
-    private IList<PrecioHistorico> preciosL { get; set; } = new List<PrecioHistorico>();
-    private List<HistorialPrecioDTO> precioE { get; set; } = new List<HistorialPrecioDTO>();
+    List<HistorialPrecioDTO> Precios = new();
 
     //Paginacion
     ParametrosBusquedaPrecios busquedaPrecios = new ParametrosBusquedaPrecios();
@@ -195,62 +133,51 @@
 
     List<HistorialPrecioDTO> historialPrecio { get; set; } = new List<HistorialPrecioDTO>();
 
-    private string Productoseleccionado = string.Empty;
-    private string Destinoseleccionado = string.Empty;
-    private string Clienteseleccionado = string.Empty;
-    private string Zonaseleccionada = string.Empty;
-
     Dictionary<string, string> query = new Dictionary<string, string>();
-
-    private IList<PrecioHistorico> PreciosFiltrados => preciosL.Where(x =>
-(string.IsNullOrEmpty(Productoseleccionado) || x.Producto!.Den != null && x.Producto.Den != null && x.Producto.Den.Contains(Productoseleccionado, StringComparison.OrdinalIgnoreCase)) &&
-(string.IsNullOrEmpty(Destinoseleccionado) || x.Destino!.Den != null && x.Destino.Den!.Contains(Destinoseleccionado, StringComparison.OrdinalIgnoreCase)) &&
- (string.IsNullOrEmpty(Clienteseleccionado) || x.Cliente!.Den != null && x.Cliente.Den!.Contains(Clienteseleccionado, StringComparison.OrdinalIgnoreCase)) &&
- (string.IsNullOrEmpty(Zonaseleccionada) || x.Zona!.Nombre != null && x.Zona.Nombre!.Contains(Zonaseleccionada, StringComparison.OrdinalIgnoreCase))
-).ToList();
 
     private async Task PaginasSeleccionadas(int pagina)
     {
-        PaginaActual = pagina;
-        busquedaPrecios.pagina = PaginaActual;
-        await LoadData();
+        busquedaPrecios.Pagina = pagina;
+        busquedaPrecios.Pagina_ACtual = pagina;
+        await GetPreciosFiltro();
     }
 
-    private async Task LoadData()
+    private async Task SetFiltros(ChangeEventArgs args, string campo)
     {
-        if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
-        queryStringObject["producto"] = busquedaPrecios.producto;
-        queryStringObject["destino"] = busquedaPrecios.destino;
-        queryStringObject["cliente"] = busquedaPrecios.cliente;
-        queryStringObject["zona"] = busquedaPrecios.zona;
-        queryStringObject["pagina"] = busquedaPrecios.pagina.ToString();
-        queryStringObject["tamanopagina"] = busquedaPrecios.tamanopagina.ToString();
-
-        var DefaultValues = new List<string>() { "false", "", "0" };
-        var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
-            .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlDecode(x.Value)}").ToArray());
-
+        switch (campo)
+        {
+            case nameof(ParametrosBusquedaPrecios.producto):
+                busquedaPrecios.producto = args?.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(ParametrosBusquedaPrecios.destino):
+                busquedaPrecios.producto = args?.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(ParametrosBusquedaPrecios.zona):
+                busquedaPrecios.producto = args?.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(ParametrosBusquedaPrecios.cliente):
+                busquedaPrecios.producto = args?.Value?.ToString() ?? string.Empty;
+                break;
+            default:
+                break;
+        }
 
         await GetPreciosFiltro();
     }
 
-    protected override async Task OnAfterRenderAsync(bool first)
+    private Dictionary<string, string> LoadData()
     {
-        if (first)
-        {
-            var cm = await js.GetItemLocalStorage("CloseMenu");
-            if (!string.IsNullOrEmpty(cm))
-                isClose = bool.Parse(cm);
+        if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
+        queryStringObject[nameof(busquedaPrecios.Fecha_Fin)] = busquedaPrecios.Fecha_Fin.ToString("MM/dd/yyyy") ?? string.Empty;
+        queryStringObject[nameof(busquedaPrecios.Fecha_Inicio)] = busquedaPrecios.Fecha_Inicio.ToString("MM/dd/yyyy") ?? string.Empty;
+        queryStringObject[nameof(busquedaPrecios.producto)] = busquedaPrecios.producto;
+        queryStringObject[nameof(busquedaPrecios.destino)] = busquedaPrecios.destino;
+        queryStringObject[nameof(busquedaPrecios.cliente)] = busquedaPrecios.cliente;
+        queryStringObject[nameof(busquedaPrecios.zona)] = busquedaPrecios.zona;
+        queryStringObject[nameof(busquedaPrecios.Pagina)] = busquedaPrecios.Pagina.ToString();
+        queryStringObject[nameof(busquedaPrecios.Total_registros)] = "10";
 
-            if (isClose)
-                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
-            else
-                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
-
-            if (width < 0)
-                width = 500;
-            TotalWidth = $"{width}px";
-        }
+        return queryStringObject;
     }
 
     public async Task GetPreciosFiltro()
@@ -258,17 +185,9 @@
         try
         {
             loading = true;
-
-            query = new Dictionary<string, string>();
-            query["DateInicio"] = busquedaPrecios.DateInicio.ToString("MM/dd/yyyy") ?? string.Empty;
-            query["DateFin"] = busquedaPrecios.DateFin.ToString("MM/dd/yyyy") ?? string.Empty;
-            query["zona"] = busquedaPrecios.zona ?? string.Empty;
-            query["producto"] = busquedaPrecios.producto ?? string.Empty;
-            query["cliente"] = busquedaPrecios.cliente ?? string.Empty;
-            query["destino"] = busquedaPrecios.destino ?? string.Empty;
-
-            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
-            var response = await repositorio.Get<List<PrecioHistorico>>($"api/precio/filtrohist?{uri}");
+            queryStringObject[nameof(Parametros_Busqueda_Gen.Excel)] = false.ToString();
+            var uri = Constructor_De_URL_Parametros.Generar_URL(LoadData());
+            var response = await repositorio.Get<List<HistorialPrecioDTO>>($"api/precio/historial?{uri}");
             if (response.Error)
             {
                 loading = false;
@@ -277,14 +196,10 @@
             else
             {
                 loading = false;
-                PaginasTotales = int.Parse(response.HttpResponseMessage.Headers.GetValues("paginas").FirstOrDefault());
-                ConteoTotal = int.Parse(response.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault());
-                PaginaActual = int.Parse(response.HttpResponseMessage.Headers.GetValues("pagina").FirstOrDefault());
-                ProductList = preciosL?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
-                DestinoList = preciosL?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
-                ClienteList = preciosL?.DistinctBy(x => x.Cliente?.Den).Select(x => x.Cliente?.Den)!;
-                preciosL = response.Response;
-
+                busquedaPrecios.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                busquedaPrecios.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+                busquedaPrecios.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+                Precios = response.Response;
             }
         }
         catch (Exception e)
@@ -295,42 +210,13 @@
         }
     }
 
-    //public async Task MostrarOrdenFecha()
-    //{
-    //    try
-    //    {
-    //        loadingFiltro = true;
-    //        StateHasChanged();
-
-    //        var responseHttp = await repositorio.Post<FechasF, IList<PrecioHistorico>>($"api/precio/historial", fechas);
-
-    //        if (responseHttp.Error)
-    //        {
-    //            loadingFiltro = false;
-    //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
-    //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-    //        }
-    //        else
-    //        {
-    //            loadingFiltro = false;
-    //            preciosL = responseHttp.Response;
-    //            ProductList = preciosL?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
-    //            DestinoList = preciosL?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
-    //            ClienteList = preciosL?.DistinctBy(x => x.Cliente?.Den).Select(x => x.Cliente?.Den)!;
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        loadingFiltro = false;
-    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-    //    }
-    //}
-
     public async Task GenerateExcel()
     {
         try
         {
-            var responseHttp = await repositorio.Post<ParametrosBusquedaPrecios, List<HistorialPrecioDTO>?>($"api/precio/historial", busquedaPrecios);
+            queryStringObject[nameof(Parametros_Busqueda_Gen.Excel)] = true.ToString();
+            var uri = Constructor_De_URL_Parametros.Generar_URL(LoadData());
+            var responseHttp = await repositorio.Get<byte[]>($"api/precio/historial?{uri}");
             if (responseHttp.Error)
             {
                 var respuestaHttp = await responseHttp.ObtenerMensajeError();
@@ -338,25 +224,7 @@
             }
             else
             {
-                precioE = responseHttp.Response!;
-                //Licencia para guardado de Excel
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                //Generacion de Excel
-                var excel = new ExcelPackage();
-                var worksheet = excel.Workbook.Worksheets.Add("HistorialPrecios");
-                worksheet.Columns.Width = 49;
-                worksheet.Columns.AutoFit();
-                //Formación de Excel
-                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-                    precioE
-                  , true);
-                tablebody.Style.Font.Bold = true;
-                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                var header = worksheet.Cells["A1:J1"];
-                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                //Guardar Excell
-                await js.GuardarComo($"HistorialPrecios_{DateTime.Now.ToString("yyyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
+                await js.GuardarComo($"HistorialPrecios_{DateTime.Now.ToString("yyyyy-MM-dd hh:mm:ss")}.xlsx", responseHttp.Response);
             }
 
         }

@@ -139,6 +139,7 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Estado)
                 .WithMany()
                 .HasForeignKey(x => x.Codest);
+            //Orden-Estado 
             modelBuilder.Entity<Orden>()
                 .HasOne(x => x.Estado)
                 .WithMany()
@@ -313,8 +314,8 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Orden>()
                 .HasOne(x => x.OrdEmbDet)
                 .WithOne(x => x.Orden)
-                .HasPrincipalKey<OrdEmbDet>(x => x.Bol)
-                .HasForeignKey<Orden>(x => x.BatchId);
+                .HasPrincipalKey<OrdEmbDet>(x => new { x.Bol, x.Id_Tad })
+                .HasForeignKey<Orden>(x => new { x.BatchId, x.Id_Tad });
 
             modelBuilder.Entity<OrdenCierre>()
                 .HasMany(x => x.OrdenPedidos)

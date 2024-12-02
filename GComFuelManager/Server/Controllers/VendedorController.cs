@@ -179,7 +179,7 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPut("relacionar/cliente")]
-        public async Task<ActionResult> Guardar_Relacion_Cliente_Vendedor([FromBody] List<Cliente> clientes, [FromQuery] Vendedor vendedor)
+        public async Task<ActionResult> Guardar_Relacion_Cliente_Vendedor([FromBody] List<int> clientesids, [FromQuery] Vendedor vendedor)
         {
             try
             {
@@ -187,29 +187,24 @@ namespace GComFuelManager.Server.Controllers
                 if (id_terminal == 0)
                     return BadRequest();
 
-                if (clientes is null)
-                    return NotFound();
-
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
-                foreach (var cliente in clientes)
+                var clientes = await context.Cliente
+                    .Where(x => x.Codtad == id_terminal && clientesids.Contains(x.Cod))
+                    .ToListAsync();
+
+                var clienteseditados = clientes.Select(x =>
                 {
-                    if (context.Cliente_Tad.Any(x => x.Id_Cliente == cliente.Cod && x.Id_Terminal == id_terminal))
-                    {
-                        var cliente_buscado = context.Cliente.FirstOrDefault(x => x.Cod == cliente.Cod);
-                        if (cliente_buscado is not null)
-                        {
-                            cliente_buscado.Id_Vendedor = vendedor.Id;
-                            cliente_buscado.Id_Originador = vendedor.Id_Originador;
-                            context.Update(cliente_buscado);
-                            await context.SaveChangesAsync(id, 38);
-                        }
-                    }
-                    else
-                        return BadRequest($"El cliente {cliente.Den} no se encuentra en esta terminal");
-                }
+                    x.Id_Vendedor = vendedor.Id;
+                    x.Id_Originador = vendedor.Id_Originador;
+                    return x;
+                });
+
+                context.UpdateRange();
+                await context.SaveChangesAsync();
+
                 return Ok();
             }
             catch (Exception e)

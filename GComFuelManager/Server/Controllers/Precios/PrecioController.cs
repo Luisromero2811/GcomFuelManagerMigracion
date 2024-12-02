@@ -1,4 +1,5 @@
-﻿using GComFuelManager.Server.Helpers;
+﻿using AutoMapper;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
@@ -537,7 +538,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     return BadRequest();
 
                 var precios = context.PreciosHistorico
-                 .Where(x => x.FchDia >= parametros.DateInicio && x.FchDia <= parametros.DateFin && x.Id_Tad == id_terminal)
+                 .Where(x => x.FchDia >= parametros.Fecha_Inicio && x.FchDia <= parametros.Fecha_Fin && x.Id_Tad == id_terminal)
                     .Include(x => x.Destino)
                     .Include(x => x.Cliente)
                     .Include(x => x.Terminal)
@@ -1019,8 +1020,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                 return BadRequest(e.Message);
             }
         }
-        [HttpPost("historial")]
-        public async Task<ActionResult> GetDateHistorialPrecio([FromBody] ParametrosBusquedaPrecios fechas)
+        [HttpGet("historial")]
+        public async Task<ActionResult> GetDateHistorialPrecio([FromQuery] ParametrosBusquedaPrecios parametros)
         {
             try
             {
@@ -1029,8 +1030,9 @@ namespace GComFuelManager.Server.Controllers.Precios
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var precios = await context.PreciosHistorico
-                .Where(x => x.FchDia >= fechas.DateInicio && x.FchDia <= fechas.DateFin && x.Id_Tad == id_terminal)
+                var precios = context.PreciosHistorico
+                    .AsNoTracking()
+                    .Where(x => x.FchDia >= parametros.Fecha_Inicio && x.FchDia <= parametros.Fecha_Fin && x.Id_Tad == id_terminal)
                    .Include(x => x.Destino)
                    .Include(x => x.Cliente)
                    .Include(x => x.Terminal)
@@ -1043,6 +1045,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                    {
                        Fecha = item.FchDia.ToString("dd/MM/yyyy"),
                        Pre = item.pre,
+                       PrecioCompra = item.Precio_Compra,
                        Producto = item.Producto!.Den,
                        Destino = item.Destino!.Den,
                        Zona = item.Zona!.Nombre,
@@ -1050,9 +1053,44 @@ namespace GComFuelManager.Server.Controllers.Precios
                        Cliente = item.Cliente!.Den,
                        Usuario = item.Usuario!.Den,
                        Fecha_De_Subida = item.FchActualizacion.ToString(),
-                       Unidad_Negocio = item.Terminal!.Den
+                       Unidad_Negocio = item.Terminal!.Den,
+                       Cambio = item.Equibalencia
                    })
-                   .ToListAsync();
+                   .AsQueryable();
+
+                if (!string.IsNullOrEmpty(parametros.cliente))
+                    precios = precios.Where(x => x.Cliente != null && !string.IsNullOrEmpty(x.Cliente) && x.Cliente.ToLower().Contains(parametros.cliente.ToLower()));
+                if (!string.IsNullOrEmpty(parametros.producto))
+                    precios = precios.Where(x => x.Producto != null && !string.IsNullOrEmpty(x.Producto) && x.Producto.ToLower().Contains(parametros.producto.ToLower()));
+                if (!string.IsNullOrEmpty(parametros.destino))
+                    precios = precios.Where(x => x.Destino != null && !string.IsNullOrEmpty(x.Destino) && x.Destino.ToLower().Contains(parametros.destino.ToLower()));
+                if (!string.IsNullOrEmpty(parametros.zona))
+                    precios = precios.Where(x => x.Zona != null && !string.IsNullOrEmpty(x.Zona) && x.Zona.ToLower().Contains(parametros.zona.ToLower()));
+
+                if (parametros.Excel)
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                    ExcelPackage excel = new();
+                    ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Inventarios");
+                    ws.Cells["A1"].LoadFromCollection(precios, op =>
+                    {
+                        op.TableStyle = TableStyles.Medium2;
+                        op.PrintHeaders = true;
+                    });
+
+                    ws.Cells[1, 2, ws.Dimension.End.Row, 3].Style.Numberformat.Format = "#,##0.00";
+                    ws.Cells[1, 1, ws.Dimension.End.Row, 1].Style.Numberformat.Format = "dd/MM/yyyy";
+
+                    ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+                    return Ok(excel.GetAsByteArray());
+                }
+
+                await HttpContext.InsertarParametrosPaginacion(precios, parametros.tamanopagina, parametros.pagina);
+
+                parametros.Pagina = HttpContext.ObtenerPagina();
+
+                precios = precios.Skip((parametros.Pagina - 1) * parametros.Total_registros).Take(parametros.Total_registros);
+
                 return Ok(precios);
             }
             catch (Exception e)
@@ -1201,7 +1239,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     Activo = precio.Activo,
                     Equibalencia = precio.Equibalencia,
                     ID_Moneda = precio.ID_Moneda,
-                    Id_Tad = precio.Id_Tad
+                    Id_Tad = id_terminal
                 };
 
                 if (precio.Cod != null)

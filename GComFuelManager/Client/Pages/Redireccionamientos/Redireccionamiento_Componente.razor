@@ -62,7 +62,7 @@
                     </div>
                     <div class="col-4">
                         <label>Destino</label>
-                        <DropDownFilter Listado="Destinos" TListado="CodDenDTO" @bind-Valor="@Redireccion.Destino_Red" Propiedad_Valor="Cod" TValue="int" FiltrarValor="@GetEstaciones"
+                        <DropDownFilter Listado="Destinos" TListado="DestinoDTO" @bind-Valor="@Redireccion.Destino_Red" Propiedad_Valor="Cod" TValue="int" FiltrarValor="@GetEstaciones"
                                         Default_Placeholder="-- Seleccione un destino --" On_Change_Method="GetPrecioEstacion">
                             <RenderValue Context="destino">
                                 @destino.Den
@@ -323,7 +323,7 @@
     Redireccionamiento Redireccion { get; set; } = new();
     List<Grupo> Grupos { get; set; } = new();
     List<CodDenDTO> Clientes { get; set; } = new();
-    List<CodDenDTO> Destinos { get; set; } = new();
+    List<DestinoDTO> Destinos { get; set; } = new();
     List<Orden> Ordenes_Synthesis { get; set; } = new();
 
     Pedimento Pedimento { get; set; } = new();
@@ -513,12 +513,12 @@
         try
         {
             Dictionary<string, string> query = new();
-            query["Destino_Filtrado"] = value;
-            query["ID_Cliente"] = Redireccion.Cliente_Red.ToString();
+            query[nameof(DestinoDTO.Den)] = value;
+            query[nameof(DestinoDTO.Codcte)] = Redireccion.Cliente_Red.ToString();
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
 
-            var response = await http.Get<List<CodDenDTO>>($"api/estacion?{uri}");
+            var response = await http.Get<List<DestinoDTO>>($"api/estacion?{uri}");
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();

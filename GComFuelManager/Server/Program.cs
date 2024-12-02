@@ -56,6 +56,7 @@ builder.Services.AddAutoMapper(typeof(MapperProfileModel), typeof(MapperProfileR
 builder.Services.AddScoped<IValidator<InventarioPostDTO>, InventarioValidator>();
 builder.Services.AddScoped<IValidator<TerminalPostDTO>, TerminalValidator>();
 builder.Services.AddScoped<IValidator<CatalogoValorPostDTO>, CatalogoValorValidator>();
+builder.Services.AddScoped<IValidator<DestinoPostDTO>, DestinoValidator>();
 
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();

@@ -29,11 +29,21 @@ namespace GComFuelManager.Server.Automapper
                 .ForMember(x => x.FechaRegistro, op => op.Ignore())
                 .ForMember(x => x.FechaCierre, op => op.Ignore())
                 .ForMember(x => x.Activo, op => op.Ignore());
+            CreateMap<Destino, Destino>()
+                .ForMember(x => x.Id_Tad, opt => opt.Ignore());
+            CreateMap<Destino, DestinoDTO>()
+                .ForMember(x => x.Id_Tad, opt => opt.Ignore())
+                .ForMember(x => x.Codsyn, opt => opt.Ignore());
+            CreateMap<DestinoPostDTO, Destino>()
+                .ForMember(x => x.Id_Tad, opt => opt.Ignore());
+            CreateMap<Destino, DestinoPostDTO>();
 
+            CreateMap<Cliente, ClienteDTO>();
             CreateMap<Tad, TerminalDTO>();
             CreateMap<Tad, TerminalPostDTO>();
             CreateMap<TerminalPostDTO, Tad>();
 
+            CreateMap<Vendedor, VendedorDTO>();
             CreateMap<InventarioCierre, InventarioCierre>(); 
             CreateMap<InventarioCierre, InventarioCierreDTO>()
                 .ForMember(x => x.OrdenReservado, op =>
@@ -78,6 +88,7 @@ namespace GComFuelManager.Server.Automapper
             CreateMap<CatalogoValor, CatalogoValorPostDTO>();
             CreateMap<CatalogoValorPostDTO, CatalogoValor>();
 
+            CreateMap<Originador, OriginadorDTO>();
             CreateMap<Usuario, UsuarioSistemaDTO>();
         }
     }

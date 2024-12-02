@@ -526,24 +526,25 @@ namespace GComFuelManager.Server.Controllers
 
                     var ordenes_excel = orden_Facturacion.Select(x => new Orden_Facturacion()
                     {
-                        Terminal = x.Terminal.Den ?? string.Empty,
+                        Terminal = x.Terminal?.Den ?? string.Empty,
                         Cliente = x.Obtener_Cliente_De_Orden,
                         Destino = x.Obtener_Destino_De_Orden,
                         Producto = x.Obtener_Nombre_Producto,
                         Precio = x.Obtener_Precio_Original,
-                        Tranportista = x.Tonel.Transportista.Den ?? string.Empty,
-                        Unidad = x.Tonel.Nombre_Placas ?? string.Empty,
-                        Chofer = x.Chofer.FullName ?? string.Empty,
+                        Tranportista = x.Tonel?.Transportista?.Den ?? string.Empty,
+                        Unidad = x.Tonel?.Nombre_Placas ?? string.Empty,
+                        Chofer = x.Chofer?.FullName ?? string.Empty,
                         Sellos = x.SealNumber,
                         Pedimento = x.Pedimento,
-                        Tipo_Venta = x.Destino.Cliente.Tipven ?? string.Empty,
                         Volumen_Cargado = x.Vol,
                         Importe_Compra = x.Importe ?? string.Empty,
                         Precio_CompraSImpuesto = x.ValorUnitario,
                         No_Orden = x.NOrden,
                         Factura_Proveeedor = x.Factura,
                         BOL = x.BatchId.ToString(),
-                        Fecha_Carga = x.Fchcar
+                        Fecha_Carga = x.Fchcar,
+                        TipoCompra = x.OrdenEmbarque?.ModeloCompra.ToString(),
+                        Tipo_Venta = x.Destino?.ModeloVenta.ToString()
                     });
 
                     ws.Cells["A1"].LoadFromCollection(ordenes_excel, c =>

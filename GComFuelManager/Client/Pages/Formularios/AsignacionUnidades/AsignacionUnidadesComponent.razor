@@ -47,15 +47,6 @@
                         <div class="col-12 row g-1">
                             <div class="col-4">
                                 <label>Transportista:</label>
-                                @* <DropDownFilter Listado="Transportistas" TListado="Transportista" TValue="int?" Default_Placeholder="Seleccione un transportista" @bind-Valor="asignacion.CodTra"
-                                On_Change_Method="GetDataSelction" Propiedad_Valor="Cod">
-                                <Render Context="item">
-                                @item.Busentid | @item?.Den
-                                </Render>
-                                <RenderValue Context="item">
-                                <p style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden; margin:0;">@item.Busentid | @item?.Den</p>
-                                </RenderValue>
-                                </DropDownFilter> *@
                                 <RadzenDropDown Data="Transportistas" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTra"
                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                 AllowVirtualization="true" Change="@GetDataSelction" Style="height:20px">
@@ -149,7 +140,7 @@
     </div>
 </div>
 
-<div class="col-12 overflow-scroll ancho-tabla mt-1" style="height:450px;resize:both;">
+<div class="col-12 ancho-tabla mt-1" style="height:450px;resize:both;">
     <table class="table table-sm table-bordered table-hover" id="miTabla">
         <thead class="fila">
             <tr style="max-height:50px;white-space:nowrap;">
@@ -170,10 +161,6 @@
                             Autorizador
                         </th>
                     </AuthorizeView>
-                }
-                else
-                {
-
                 }
 
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
@@ -222,6 +209,12 @@
                 {
                     <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
                         Fecha de carga
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 15).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Modelo de compra
                     </th>
                 }
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
@@ -313,6 +306,10 @@
                     <td></td>
                 }
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 7).Visible)
+                {
+                    <td></td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 15).Visible)
                 {
                     <td></td>
                 }
@@ -468,6 +465,18 @@
                     @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 7).Visible)
                     {
                         <td class="overflow-hidden">@data?.Fchcar?.ToString("dd/MM/yyyy")</td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 15).Visible)
+                    {
+                        <td class="overflow-hidden">
+                            <select class="form-select form-select-sm" @bind="data.ModeloCompra">
+                                <option>-- modelo de compra --</option>
+                                @foreach (var item in Enum.GetValues(typeof(TipoCompra)))
+                                {
+                                    <option>@item</option>
+                                }
+                            </select>
+                        </td>
                     }
                     @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
                     {
@@ -808,7 +817,8 @@ else
             new Columna_Tabla {ID = 11, Nombre_Columna = "Operador"},
             new Columna_Tabla {ID = 12, Nombre_Columna = "Bin"},
             new Columna_Tabla {ID = 13, Nombre_Columna = "Estatus"},
-            new Columna_Tabla {ID = 14, Nombre_Columna = "Unidad de Negocio" },
+            new Columna_Tabla {ID = 14, Nombre_Columna = "Unidad de negocio" },
+            new Columna_Tabla {ID = 15, Nombre_Columna = "Modelo de compra" },
         });
 
         _params.Fecha_Fin.AddDays(1);
@@ -958,10 +968,10 @@ else
                         Chofer = asignacion.CodChf,
                         Tonel = asignacion.CodTon,
                         Compartimento = Vehiculos?.Count == null ? 0 :
-        (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-        : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-        : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-        : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                                (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
                     };

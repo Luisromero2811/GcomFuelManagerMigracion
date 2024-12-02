@@ -17,6 +17,8 @@ namespace GComFuelManager.Shared.DTOs
         public string? Destino { get; set; } = string.Empty;
         [DisplayName("Tipo de venta")]
         public string? Tipo_Venta { get; set; } = string.Empty;
+        public string? TipoCompra { get; set; } = string.Empty;
+        public string? Cliente { get; set; } = string.Empty;
         public string? Producto { get; set; } = string.Empty;
         [DisplayName("Volumen cargado")]
         public double? Volumen_Cargado { get; set; }
@@ -34,7 +36,6 @@ namespace GComFuelManager.Shared.DTOs
         public string? Tranportista { get; set; } = string.Empty;
         public string? Chofer { get; set; } = string.Empty;
         public string? Unidad { get; set; } = string.Empty;
-        public string? Cliente { get; set; } = string.Empty;
         public double? Precio { get; set; }
         [DisplayName("Numero de orden")]
         public string? No_Orden { get; set; } = string.Empty;
