@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using GComFuelManager.Server;
 using GComFuelManager.Server.Automapper;
+using GComFuelManager.Server.Extensions;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Server.Validators;
@@ -53,19 +54,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAutoMapper(typeof(MapperProfileModel), typeof(MapperProfileReporte));
 
-builder.Services.AddScoped<IValidator<InventarioPostDTO>, InventarioValidator>();
-builder.Services.AddScoped<IValidator<TerminalPostDTO>, TerminalValidator>();
-builder.Services.AddScoped<IValidator<CatalogoValorPostDTO>, CatalogoValorValidator>();
-builder.Services.AddScoped<IValidator<DestinoPostDTO>, DestinoValidator>();
+builder.Services.AddCustomValidationService();
+builder.Services.AddCustomEmailService();
 
-builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
-builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();
-builder.Services.AddScoped<IVencimientoService, VencimientoEmailService>();
-builder.Services.AddScoped<IPreciosService, PreciosService>();
-builder.Services.AddScoped<IConfirmOrden, ConfirmOrden>();
-builder.Services.AddScoped<IConfirmarCreacionOrdenes, ConfirmarCreacionOrdenesService>();
-builder.Services.AddScoped<IDenegarCreacionOrdenes, DenegarCreacionOrdenesService>();
-builder.Services.AddScoped<IConfirmPedido, ConfirmPedido>();
 builder.Services.AddSingleton<RequestToFile>();
 builder.Services.AddSingleton<VerifyUserToken>();
 builder.Services.AddSingleton<VerifyUserId>();

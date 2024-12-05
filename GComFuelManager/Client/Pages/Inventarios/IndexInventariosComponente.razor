@@ -121,13 +121,13 @@
                             <InputText @bind-Value="Inventario.Numero" class="form-control form-control-sm" />
                             <ValidationMessage For="@(()=>Inventario.Numero)" />
                         </div>
+                        <div class="col-4">
+                            <label>Fecha de movimiento</label>
+                            <InputDate @bind-Value="Inventario.FechaMovimiento" Type="InputDateType.Date" class="form-control form-control-sm" />
+                            <ValidationMessage For="@(()=>Inventario.FechaMovimiento)" />
+                        </div>
                         @if (!Menu.PuedeCapturarCantidad)
                         {
-                            <div class="col-4">
-                                <label>Fecha de movimiento</label>
-                                <InputDate @bind-Value="Inventario.FechaMovimiento" Type="InputDateType.Date" class="form-control form-control-sm" />
-                                <ValidationMessage For="@(()=>Inventario.FechaMovimiento)" />
-                            </div>
                             <div class="col-4">
                                 <label>Hora inicial del movimiento</label>
                                 <InputDate @bind-Value="Inventario.FechaInicioMovimiento" Type="InputDateType.Time" class="form-control form-control-sm" />

@@ -186,6 +186,7 @@
             {
                 loading = false;
                 Cierres = response.Response;
+                modal_.Close();
             }
         }
         catch (Exception e)
@@ -195,28 +196,12 @@
         }
     }
 
-    private async Task CerrarInventario(InventarioCierreDTO inv)
+    private void CerrarInventario(InventarioCierreDTO inv)
     {
-        try
-        {
-            loading = true;
-            var response = await http.Get<bool>($"api/inventario/cierre/cerrar/{inv.Id}");
-            if (response.Error)
-            {
-                loading = false;
-                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
-            }
-            else
-            {
-                loading = false;
-                await CargarCierres();
-            }
-        }
-        catch (Exception e)
-        {
-            loading = false;
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
+        modal_.OpenModal<CierreInventariosComponente>("Cerrar inventario", new Dictionary<string, object> {
+            { nameof(CierreInventariosComponente.Id), inv.Id },
+            { nameof(CierreInventariosComponente.ReloadInventario), EventCallback.Factory.Create(this, CargarCierres) }
+        });
     }
 
     private Dictionary<string, string> SetFiltro()

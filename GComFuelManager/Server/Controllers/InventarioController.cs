@@ -2,6 +2,7 @@
 using FluentValidation;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Server.Migrations;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Enums;
 using GComFuelManager.Shared.Extensiones;
@@ -13,10 +14,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
-using Org.BouncyCastle.Security;
 using System.Linq.Dynamic.Core;
 
 namespace GComFuelManager.Server.Controllers
@@ -33,9 +32,15 @@ namespace GComFuelManager.Server.Controllers
         private readonly User_Terminal terminal;
         private readonly VerifyUserId verifyUser;
         private readonly UserManager<IdentityUsuario> userManager;
+        private readonly IUsuarioHelper usuarioHelper;
 
-        public InventarioController(ApplicationDbContext context, IValidator<InventarioPostDTO> validator, IMapper mapper,
-                                    User_Terminal _terminal, VerifyUserId verifyUser, UserManager<IdentityUsuario> userManager)
+        public InventarioController(ApplicationDbContext context,
+                                    IValidator<InventarioPostDTO> validator,
+                                    IMapper mapper,
+                                    User_Terminal _terminal,
+                                    VerifyUserId verifyUser,
+                                    UserManager<IdentityUsuario> userManager,
+                                    IUsuarioHelper usuarioHelper)
         {
             this.context = context;
             this.validator = validator;
@@ -43,6 +48,7 @@ namespace GComFuelManager.Server.Controllers
             terminal = _terminal;
             this.verifyUser = verifyUser;
             this.userManager = userManager;
+            this.usuarioHelper = usuarioHelper;
         }
 
         [HttpGet]
@@ -474,14 +480,12 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpGet("cierre/cerrar/{Id:int}")]
-        public async Task<ActionResult> PostCierre([FromRoute] int Id)
+        [HttpGet("cierre/cerrar")]
+        public async Task<ActionResult> PostCierre([FromQuery] InventarioCierreDTO dto)
         {
             try
             {
-                var userid = await verifyUser.GetId(HttpContext, userManager);
-                if (string.IsNullOrEmpty(userid))
-                    return NotFound();
+                var userid = await usuarioHelper.GetUserId();
 
                 var user = await userManager.FindByIdAsync(userid);
                 if (user is null) { return NotFound(); }
@@ -489,47 +493,48 @@ namespace GComFuelManager.Server.Controllers
                 var usersis = await context.Usuario.AsNoTracking().FirstOrDefaultAsync(x => x.Cod.Equals(user.UserCod));
                 if (usersis is null) { return NotFound(); }
 
-                var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0)
-                    return BadRequest();
+                var id_terminal = await usuarioHelper.GetTerminalId();
 
-                var cierre = await context.InventarioCierres.FindAsync(Id);
+                var cierre = await context.InventarioCierres.FindAsync(dto.Id);
                 if (cierre is null) return NotFound();
 
+                var anteriorcierre = await context.InventarioCierres
+                    .Where(x => x.ProductoId.Equals(cierre.ProductoId) &&
+                    x.SitioId.Equals(cierre.SitioId) &&
+                    x.AlmacenId.Equals(cierre.AlmacenId) &&
+                    x.LocalidadId.Equals(cierre.LocalidadId) &&
+                    x.FechaCierre.Value.Date == DateTime.Today.Date &&
+                    x.Activo && x.Id != cierre.Id)
+                    .OrderByDescending(x => x.FechaCierre)
+                    .FirstOrDefaultAsync() ?? new();
+
                 var nuevocierre = mapper.Map<InventarioCierre>(cierre);
-                //invetir variables
+
                 nuevocierre.Id = 0;
                 nuevocierre.UsuarioInicioId = usersis.Cod;
                 nuevocierre.FechaInicio = DateTime.Now;
+
+                cierre.Fisico = anteriorcierre.Fisico;
+                cierre.Reservado = anteriorcierre.Reservado;
+                cierre.ReservadoDisponible = anteriorcierre.ReservadoDisponible;
+                cierre.Disponible = anteriorcierre.Disponible;
+                cierre.PedidoTotal = anteriorcierre.PedidoTotal;
+                cierre.OrdenReservado = anteriorcierre.OrdenReservado;
+                cierre.EnOrden = anteriorcierre.EnOrden;
+                cierre.Cargado = anteriorcierre.Cargado;
+                cierre.TotalDisponible = anteriorcierre.TotalDisponible;
+                cierre.TotalDisponibleFull = anteriorcierre.TotalDisponibleFull;
 
                 cierre.TadId = id_terminal;
                 cierre.UnidadMedidaId = 70;
                 cierre.FechaCierre = DateTime.Now;
                 cierre.UsuarioCierreId = usersis.Cod;
 
-                var anteriorcierre = await context.InventarioCierres
-                    .AsNoTracking()
-                    .Include(x => x.Producto)
-                    .Include(x => x.Sitio)
-                    .Include(x => x.Almacen)
-                    .Include(x => x.Localidad)
-                    .FirstOrDefaultAsync(x => x.ProductoId.Equals(cierre.ProductoId) &&
-                    x.SitioId.Equals(cierre.SitioId) &&
-                    x.AlmacenId.Equals(cierre.AlmacenId) &&
-                    x.LocalidadId.Equals(cierre.LocalidadId) &&
-                    x.FechaCierre.Value.Date == DateTime.Today.Date &&
-                    x.Activo && x.Id != cierre.Id);
-
-                if (anteriorcierre is not null)
-                {
-                    return BadRequest($"Ya existe un cierre el dia {DateTime.Today:D}. \n Producto : {anteriorcierre.Producto.Nombre_Producto}. " +
-                    $"\n Sitio {anteriorcierre.Sitio.Valor}. \n Almacen: {anteriorcierre.Almacen.Valor}. \n Localidad: {anteriorcierre.Localidad.Valor}");
-                }
-
-                cierre.Abierto = false;
-
-                await context.AddAsync(nuevocierre);
-                context.Update(cierre);
+                //if (anteriorcierre is not null)
+                //{
+                //    return BadRequest($"Ya existe un cierre el dia {DateTime.Today:D}. \n Producto : {anteriorcierre.Producto.Nombre_Producto}. " +
+                //    $"\n Sitio {anteriorcierre.Sitio.Valor}. \n Almacen: {anteriorcierre.Almacen.Valor}. \n Localidad: {anteriorcierre.Localidad.Valor}");
+                //}
 
                 var inventarios = await context.Inventarios
                     .Where(x => x.ProductoId.Equals(cierre.ProductoId) &&
@@ -540,8 +545,25 @@ namespace GComFuelManager.Server.Controllers
                     x.Activo)
                     .ToListAsync();
 
-                var inventariosdecierre = inventarios.Select(x => { x.FechaCierre = cierre.FechaCierre; return x; });
+                var inventariosdecierre = inventarios
+                    .Where(x => x.FechaMovimiento >= dto.Fecha_Inicio
+                                && x.FechaMovimiento <= dto.Fecha_Fin)
+                    .Select(x => { x.FechaCierre = cierre.FechaCierre; return x; })
+                    .ToList();
 
+                inventariosdecierre.ForEach(x =>
+                {
+                    SumarRegistroInventario(cierre, x);
+                });
+
+                var inventariosdecierreanterior = inventarios.ExceptBy(inventariosdecierre.Select(x => x.Id), x => x.Id).Select(x => { x.Cierre = nuevocierre; return x; });
+
+                cierre.Abierto = false;
+                //await context.AddAsync(nuevocierre);
+                await context.AddAsync(nuevocierre);
+                context.Update(cierre);
+
+                context.UpdateRange(inventariosdecierreanterior);
                 context.UpdateRange(inventariosdecierre);
                 await context.SaveChangesAsync(userid, 61);
 
@@ -874,6 +896,61 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+
+        [HttpGet("consolidacion")]
+        public async Task<ActionResult> GetConsolidacion([FromQuery] InventarioCierreDTO dTO)
+        {
+            try
+            {
+                var idtad = await usuarioHelper.GetTerminalId();
+
+                var cierres = await context.InventarioCierres
+                    .AsNoTracking()
+                    .Where(x => x.TadId == idtad && x.Activo && x.Abierto)
+                    .Include(x => x.Producto)
+                    .GroupBy(x => x.Producto, x => x, (baseinv, invs) => new InventarioCierreDTO
+                    {
+                        Producto = baseinv.Den ?? string.Empty,
+                        ProductoId = baseinv.Cod,
+                        Fisico = invs.Sum(x => x.Fisico),
+                        Reservado = invs.Sum(x => x.Reservado),
+                        Disponible = invs.Sum(x => x.Disponible),
+                        ReservadoDisponible = invs.Sum(x => x.ReservadoDisponible),
+                        PedidoTotal = invs.Sum(x => x.PedidoTotal),
+                        OrdenReservado = invs.Sum(x => x.OrdenReservado),
+                        EnOrden = invs.Sum(x => x.EnOrden),
+                        Cargado = invs.Sum(x => x.Cargado),
+                        TotalDisponible = invs.Sum(x => x.TotalDisponible),
+                        TotalDisponibleFull = invs.Sum(x => x.TotalDisponibleFull)
+                    })
+                    .Select(x => mapper.Map<InventarioCierreDTO>(x))
+                    .ToListAsync();
+
+                if (dTO.Excel)
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                    ExcelPackage excel = new();
+                    ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Cierres");
+                    ws.Cells["A1"].LoadFromCollection(cierres.Select(x => mapper.Map<InventarioConsolidacionDTO>(x)), op =>
+                    {
+                        op.TableStyle = TableStyles.Medium2;
+                        op.PrintHeaders = true;
+                    });
+
+                    ws.Cells[1, 2, ws.Dimension.End.Row, ws.Dimension.End.Column].Style.Numberformat.Format = "#,##0.00";
+                    ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                    return Ok(excel.GetAsByteArray());
+                }
+
+                return Ok(cierres);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         #region Catalogos
 
         [HttpGet("catalogo/sitio")]
@@ -1074,7 +1151,7 @@ namespace GComFuelManager.Server.Controllers
         {
             if (cierre is not null)
             {
-                var tm = await context.CatalogoValores.AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(inventariodto.TipoMovimientoId));
+                var tm = await context.CatalogoValores.AsNoTracking().FirstOrDefaultAsync(x => x.Id == inventariodto.TipoMovimientoId);
                 if (cierre.Abierto)
                 {
                     if (tm is not null)
@@ -1142,6 +1219,91 @@ namespace GComFuelManager.Server.Controllers
                     }
                 }
             }
+            return cierre!;
+        }
+        private InventarioCierre SumarRegistroInventario(InventarioCierre cierre, Inventario inventariodto)
+        {
+            if (cierre is not null)
+            {
+                if (cierre.Abierto)
+                {
+                    var tm = context.CatalogoValores.AsNoTracking().FirstOrDefault(x => x.Id == inventariodto.TipoMovimientoId);
+                    if (tm is not null)
+                    {
+                        if (int.TryParse(tm.Abreviacion, out int tipo))
+                        {
+                            if (tipo.Equals(1))
+                                cierre.Fisico += inventariodto.CantidadLTS;
+                            else if (tipo.Equals(7))
+                                cierre.PedidoTotal += inventariodto.CantidadLTS;
+                            else if (tipo.Equals(8))
+                            {
+                                cierre.Fisico += inventariodto.CantidadLTS;
+                                cierre.PedidoTotal -= inventariodto.CantidadLTS;
+                            }
+                            else if (tipo.Equals(9) || tipo.Equals(20))
+                            {
+                                if (inventariodto.TipoInventario.Equals(TipoInventario.FisicaReservada))
+                                {
+                                    cierre.ReservadoDisponible -= inventariodto.CantidadLTS;
+                                    cierre.Reservado -= inventariodto.CantidadLTS;
+                                }
+                                if (inventariodto.TipoInventario.Equals(TipoInventario.OrdenReservada))
+                                {
+                                    cierre.OrdenReservado -= inventariodto.CantidadLTS;
+                                    cierre.ReservadoDisponible += inventariodto.CantidadLTS;
+                                }
+                                if (inventariodto.TipoInventario.Equals(TipoInventario.EnOrden))
+                                {
+                                    cierre.EnOrden -= inventariodto.CantidadLTS;
+                                    cierre.ReservadoDisponible += inventariodto.CantidadLTS;
+                                }
+                                if (inventariodto.TipoInventario.Equals(TipoInventario.Cargado))
+                                {
+                                    cierre.Cargado -= inventariodto.CantidadLTS;
+                                }
+
+                                if (tipo.Equals(9))
+                                    cierre.Fisico += inventariodto.CantidadLTS;
+                                if (tipo.Equals(20) && !inventariodto.TipoInventario.Equals(TipoInventario.Cargado))
+                                    cierre.Fisico -= inventariodto.CantidadLTS;
+                            }
+                            else if (tipo < 20)
+                                cierre.Fisico += inventariodto.CantidadLTS;
+                            else if (tipo.Equals(21))
+                            {
+                                cierre.Reservado += inventariodto.CantidadLTS;
+                                cierre.ReservadoDisponible += inventariodto.CantidadLTS;
+                            }
+                            else if (tipo.Equals(22))
+                            {
+                                cierre.OrdenReservado += inventariodto.CantidadLTS;
+                                cierre.ReservadoDisponible -= inventariodto.CantidadLTS;
+                            }
+                            else if (tipo.Equals(23))
+                            {
+                                cierre.EnOrden += inventariodto.CantidadLTS;
+                                cierre.OrdenReservado -= inventariodto.CantidadLTS;
+                            }
+                            else if (tipo.Equals(25))
+                            {
+                                cierre.EnOrden -= inventariodto.CantidadLTS;
+                                cierre.Reservado -= inventariodto.CantidadLTS;
+                                //cierre.ReservadoDisponible -= inventariodto.CantidadLTS;
+                                cierre.Fisico -= inventariodto.CantidadLTS;
+                                cierre.Cargado += inventariodto.CantidadLTS;
+                            }
+                            else if (tipo >= 20)
+                                cierre.Fisico -= inventariodto.CantidadLTS;
+                        }
+
+                        cierre.Disponible = (cierre.Fisico - cierre.Reservado);
+                        cierre.TotalDisponible = (cierre.Disponible + cierre.PedidoTotal);
+                        cierre.TotalDisponibleFull = cierre.TotalDisponible.IsZero() ? 0 : cierre.TotalDisponible / 62000;
+                    }
+                }
+            }
+
             return cierre!;
         }
     }
