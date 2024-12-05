@@ -6,7 +6,10 @@
 
 <Card HeaderText="Inventario" LoadingContent="loading" />
 
-<div class="my-2 col-12 d-flex justify-content-end">
+<div class="my-2 col-12 d-flex justify-content-between">
+    <div class="col-3 align-content-center">
+        <b>Fecha de consulta:</b> @DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt")
+    </div>
     <div class="col-3">
         <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="Excel">
             <i class="fa fa-solid fa-file-excel" /> Exportar
