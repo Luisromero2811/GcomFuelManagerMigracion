@@ -1,0 +1,113 @@
+﻿@page "/inventarios/consolidacion"
+@inject IRepositorio http
+@inject IJSRuntime js
+@inject SweetAlertService Swal
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Inventarios, Inventarios Lectura")]
+
+<Card HeaderText="Inventario" LoadingContent="loading" />
+
+<div class="my-2 col-12 d-flex justify-content-end">
+    <div class="col-3">
+        <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="Excel">
+            <i class="fa fa-solid fa-file-excel" /> Exportar
+        </button>
+    </div>
+</div>
+
+<div class="ancho-tabla">
+    <Tabla Datos="Cierres">
+        <Cabeceras>
+            <tr>
+                <th style="width: 150px;" class="resizable-column">Producto</th>
+                <th style="width: 150px;" class="resizable-column">Inventario fisico</th>
+                <th style="width: 150px;" class="resizable-column">Fisica reservada</th>
+                <th style="width: 150px;" class="resizable-column">Fisico disponible</th>
+                <th style="width: 150px;" class="resizable-column">Fisica reservada disponible</th>
+                <th style="width: 150px;" class="resizable-column">Pedido total</th>
+                <th style="width: 150px;" class="resizable-column">Ordenada reservada</th>
+                <th style="width: 150px;" class="resizable-column">En orden</th>
+                <th style="width: 150px;" class="resizable-column">Cargada</th>
+                <th style="width: 150px;" class="resizable-column">Total disponible</th>
+                <th style="width: 150px;" class="resizable-column">Total disponible en full</th>
+            </tr>
+        </Cabeceras>
+        <Columnas Context="inv">
+            <tr>
+                <td>@inv.Producto</td>
+                <td>@inv.Fisico.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.Reservado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.Disponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.ReservadoDisponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.PedidoTotal.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.OrdenReservado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.EnOrden.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.Cargado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.TotalDisponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.TotalDisponibleFull.ToString("N2", CultureInfo.InvariantCulture)</td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+
+@code {
+    bool loading = false;
+    List<InventarioCierreDTO> Cierres = new();
+    Dictionary<string, string> query = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCierres();
+    }
+
+    private async Task CargarCierres()
+    {
+        try
+        {
+            loading = true;
+            query[nameof(Parametros_Busqueda_Gen.Excel)] = false.ToString();
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await http.Get<List<InventarioCierreDTO>>($"api/inventario/consolidacion?{url}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                Cierres = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Excel()
+    {
+        try
+        {
+            loading = true;
+            query[nameof(Parametros_Busqueda_Gen.Excel)] = true.ToString();
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await http.Get<byte[]>($"api/inventario/consolidacion?{url}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                await js.GuardarComo($"Consolidacion Productos_{DateTime.Now:ddMMyyyyHHmmss}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

@@ -2,6 +2,7 @@
 using FluentValidation;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Server.Migrations;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Enums;
 using GComFuelManager.Shared.Extensiones;
@@ -888,6 +889,61 @@ namespace GComFuelManager.Server.Controllers
                 ws.Cells[3, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
                 return Ok(excel.GetAsByteArray());
 
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
+        [HttpGet("consolidacion")]
+        public async Task<ActionResult> GetConsolidacion([FromQuery] InventarioCierreDTO dTO)
+        {
+            try
+            {
+                var idtad = await usuarioHelper.GetTerminalId();
+
+                var cierres = await context.InventarioCierres
+                    .AsNoTracking()
+                    .Where(x => x.TadId == idtad && x.Activo && x.Abierto)
+                    .Include(x => x.Producto)
+                    .GroupBy(x => x.Producto, x => x, (baseinv, invs) => new InventarioCierreDTO
+                    {
+                        Producto = baseinv.Den ?? string.Empty,
+                        ProductoId = baseinv.Cod,
+                        Fisico = invs.Sum(x => x.Fisico),
+                        Reservado = invs.Sum(x => x.Reservado),
+                        Disponible = invs.Sum(x => x.Disponible),
+                        ReservadoDisponible = invs.Sum(x => x.ReservadoDisponible),
+                        PedidoTotal = invs.Sum(x => x.PedidoTotal),
+                        OrdenReservado = invs.Sum(x => x.OrdenReservado),
+                        EnOrden = invs.Sum(x => x.EnOrden),
+                        Cargado = invs.Sum(x => x.Cargado),
+                        TotalDisponible = invs.Sum(x => x.TotalDisponible),
+                        TotalDisponibleFull = invs.Sum(x => x.TotalDisponibleFull)
+                    })
+                    .Select(x => mapper.Map<InventarioCierreDTO>(x))
+                    .ToListAsync();
+
+                if (dTO.Excel)
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                    ExcelPackage excel = new();
+                    ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Cierres");
+                    ws.Cells["A1"].LoadFromCollection(cierres.Select(x => mapper.Map<InventarioConsolidacionDTO>(x)), op =>
+                    {
+                        op.TableStyle = TableStyles.Medium2;
+                        op.PrintHeaders = true;
+                    });
+
+                    ws.Cells[1, 2, ws.Dimension.End.Row, ws.Dimension.End.Column].Style.Numberformat.Format = "#,##0.00";
+                    ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                    return Ok(excel.GetAsByteArray());
+                }
+
+                return Ok(cierres);
             }
             catch (Exception e)
             {
