@@ -94,13 +94,6 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Cliente)
                 .WithMany()
                 .HasForeignKey(x => x.Codcte);
-            //OrdenCierre
-
-            //modelBuilder.Entity<OrdenEmbarque>()
-            //    .HasOne(x => x.OrdenCierre)
-            //    .WithOne(x => x.OrdenEmbarque)
-            //    .HasForeignKey<OrdenCierre>(x => x.CodPed);
-
             //Terminal
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Tad)
@@ -146,20 +139,6 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Estado)
                 .WithMany()
                 .HasForeignKey(x => x.Codest);
-            ////Relaciones Tabla de OrdEmbDet
-            //modelBuilder.Entity<OrdEmbDet>()
-            //    .HasOne(x => x.Orden)
-            //    .WithMany()
-            //    .HasPrincipalKey(x => x.BatchId)
-            //    .HasForeignKey(x => x.Bol);
-            ////Relaciones Tabla orden
-            ////Orden-OrdEmbDet
-            //modelBuilder.Entity<Orden>()
-            //    .HasOne(x => x.OrdEmbDet)
-            //    .WithMany()
-            //    .HasPrincipalKey(x => x.Bol)
-            //    .HasForeignKey(x => x.BatchId)
-            //    .OnDelete(DeleteBehavior.Restrict);
             //Orden-Estado 
             modelBuilder.Entity<Orden>()
                 .HasOne(x => x.Estado)
@@ -273,19 +252,6 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Destino)
                 .WithMany()
                 .HasForeignKey(x => x.DesCod);
-
-            //modelBuilder.Entity<OrdenPedido>()
-            //    .HasOne(x => x.OrdenEmbarque)
-            //    .WithOne(x => x.OrdenPedido)
-            //    .HasPrincipalKey<OrdenEmbarque>(x => x.Cod)
-            //    .HasForeignKey<OrdenPedido>(x => x.CodPed);
-            //OrdenEmbarque a Órdenes
-            //modelBuilder.Entity<OrdenEmbarque>()
-            //    .HasOne(x => x.Orden)
-            //    .WithOne(x => x.OrdenEmbarque)
-            //    .HasForeignKey<OrdenEmbarque>("Folio", "CompartmentId")
-            //    .HasPrincipalKey<Orden>("Folio", "CompartmentId");
-
             //OrdenEmbarque a Órdenes
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Orden)
@@ -348,8 +314,8 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Orden>()
                 .HasOne(x => x.OrdEmbDet)
                 .WithOne(x => x.Orden)
-                .HasPrincipalKey<OrdEmbDet>(x => x.Bol)
-                .HasForeignKey<Orden>(x => x.BatchId);
+                .HasPrincipalKey<OrdEmbDet>(x => new { x.Bol, x.Id_Tad })
+                .HasForeignKey<Orden>(x => new { x.BatchId, x.Id_Tad });
 
             modelBuilder.Entity<OrdenCierre>()
                 .HasMany(x => x.OrdenPedidos)
@@ -609,6 +575,156 @@ namespace GComFuelManager.Server
                 .HasMany(x => x.Archivos)
                 .WithOne(x => x.OrdenEmbarque)
                 .HasForeignKey(x => x.Id_Registro);
+
+            modelBuilder.Entity<Inventario>()
+                .HasOne(x => x.Sitio)
+                .WithMany()
+                .HasForeignKey(x => x.SitioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inventario>()
+                .HasOne(x => x.Almacen)
+                .WithMany()
+                .HasForeignKey(x => x.AlmacenId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inventario>()
+                .HasOne(x => x.Localidad)
+                .WithMany()
+                .HasForeignKey(x => x.LocalidadId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inventario>()
+                .HasOne(x => x.TipoMovimiento)
+                .WithMany()
+                .HasForeignKey(x => x.TipoMovimientoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inventario>()
+                .HasOne(x => x.UnidadMedida)
+                .WithMany()
+                .HasForeignKey(x => x.UnidadMedidaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inventario>()
+                .HasOne(x => x.Producto)
+                .WithMany()
+                .HasForeignKey(x => x.ProductoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<Inventario>()
+            //    .HasOne(x => x.Terminal)
+            //    .WithMany()
+            //    .HasForeignKey(x => x.TadId)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Tad>()
+                .HasOne(x => x.TipoTerminal)
+                .WithMany()
+                .HasForeignKey(x => x.TipoTerminalId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InventarioCierre>()
+                .HasOne(x => x.Sitio)
+                .WithMany()
+                .HasForeignKey(x => x.SitioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InventarioCierre>()
+                .HasOne(x => x.Almacen)
+                .WithMany()
+                .HasForeignKey(x => x.AlmacenId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InventarioCierre>()
+                .HasOne(x => x.Localidad)
+                .WithMany()
+                .HasForeignKey(x => x.LocalidadId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InventarioCierre>()
+                .HasOne(x => x.UnidadMedida)
+                .WithMany()
+                .HasForeignKey(x => x.UnidadMedidaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InventarioCierre>()
+                .HasOne(x => x.Producto)
+                .WithMany()
+                .HasForeignKey(x => x.ProductoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InventarioCierre>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.TadId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inventario>()
+                .HasOne(x => x.Cierre)
+                .WithMany(x => x.Inventarios)
+                .HasForeignKey(x => x.CierreId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Catalogo>()
+                .HasMany(x => x.Valores)
+                .WithOne()
+                .HasForeignKey(x => x.CatalogoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Catalogo>()
+                .HasMany(x => x.ValoresFijos)
+                .WithOne()
+                .HasForeignKey(x => x.Catalogo)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inventario>()
+                .HasOne(x => x.OrigenDestino)
+                .WithMany()
+                .HasForeignKey(x => x.OrigenDestinoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inventario>()
+                .HasOne(x => x.Transportista)
+                .WithMany()
+                .HasForeignKey(x => x.TransportistaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inventario>()
+                .HasOne(x => x.Tonel)
+                .WithMany()
+                .HasForeignKey(x => x.TonelId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inventario>()
+                .HasOne(x => x.Chofer)
+                .WithMany()
+                .HasForeignKey(x => x.ChoferId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InventarioCierre>()
+                .HasOne(x => x.UsuarioInicio)
+                .WithMany()
+                .HasForeignKey(x => x.UsuarioInicioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InventarioCierre>()
+                .HasOne(x => x.UsuarioCierre)
+                .WithMany()
+                .HasForeignKey(x => x.UsuarioCierreId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Cliente>()
+                .HasOne(x => x.Grupo)
+                .WithMany()
+                .HasForeignKey(x => x.Codgru)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<Transportista>()
+                .HasOne(x => x.GrupoTransportista)
+                .WithMany()
+                .HasForeignKey(x => x.Codgru)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
 
@@ -623,7 +739,7 @@ namespace GComFuelManager.Server
         public DbSet<FormaPago> FormaPago { get; set; }
         public DbSet<Grupo> Grupo { get; set; }
         public DbSet<GrupoUsuario> GrupoUsuario { get; set; }
-        public DbSet<Inventario> Inventario { get; set; }
+        public DbSet<Inventario> Inventarios { get; set; }
         public DbSet<Log> Log { get; set; }
         public DbSet<OrdEmbDet> OrdEmbDet { get; set; }
         public DbSet<Orden> Orden { get; set; }
@@ -679,5 +795,8 @@ namespace GComFuelManager.Server
         public DbSet<Catalogo_Fijo> Catalogo_Fijo { get; set; }
         public DbSet<Activo_Fijo> Activo_Fijo { get; set; }
         public DbSet<Archivo> Archivos { get; set; }
+        public DbSet<InventarioCierre> InventarioCierres { get; set; }
+        public DbSet<Catalogo> Catalogos { get; set; }
+        public DbSet<CatalogoValor> CatalogoValores { get; set; }
     }
 }

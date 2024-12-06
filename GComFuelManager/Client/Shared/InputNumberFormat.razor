@@ -1,0 +1,26 @@
+﻿@* typeparam T
+@inherits InputBase<T> *@
+
+@* <input type="text" @bind="" /> *@
+
+@* @code {
+
+
+    private bool TryParsealue(string value, out T result)
+    {
+        if (typeof(T) == typeof(int) && int.TryParse(value.Replace(",", ""), out int intValue))
+        {
+            result = (T)(object)intValue;
+            return true;
+        }
+
+        if (typeof(T) == typeof(double) && double.TryParse(value.Replace(",", ""), out double doubleValue))
+        {
+            result = (T)(object)doubleValue;
+            return true;
+        }
+
+
+        result false;
+    }
+} *@

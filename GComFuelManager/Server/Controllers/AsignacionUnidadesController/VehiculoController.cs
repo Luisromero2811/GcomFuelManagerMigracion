@@ -1,12 +1,16 @@
-﻿using GComFuelManager.Server.Helpers;
+﻿using AutoMapper;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
+using GComFuelManager.Shared.ReportesDTO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+
 //using ServiceReference1;//qa
 //using ServiceReference9;//prod
 using VehicleServiceProd;
@@ -22,13 +26,22 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         private readonly UserManager<IdentityUsuario> UserManager;
         private readonly VerifyUserId verifyUser;
         private readonly User_Terminal _terminal;
+        private readonly IMapper mapper;
+        private readonly IUsuarioHelper helper;
 
-        public VehiculoController(ApplicationDbContext context, UserManager<IdentityUsuario> UserManager, VerifyUserId verifyUser, User_Terminal _Terminal)
+        public VehiculoController(ApplicationDbContext context,
+                                  UserManager<IdentityUsuario> UserManager,
+                                  VerifyUserId verifyUser,
+                                  User_Terminal _Terminal,
+                                  IMapper mapper,
+                                  IUsuarioHelper helper)
         {
             this.context = context;
             this.UserManager = UserManager;
             this.verifyUser = verifyUser;
             this._terminal = _Terminal;
+            this.mapper = mapper;
+            this.helper = helper;
         }
         [HttpGet("{transportista}")]
         public ActionResult Get(string transportista, [FromQuery] Tonel tonel)
@@ -356,124 +369,125 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     //Si la respuesta no es nula, si existe respuesta
                     if (respuesta.Vehicles != null)
                     {
-                        foreach (var item in respuesta.Vehicles)
+                        var vehicles = respuesta.Vehicles.Where(x => x.CarrierId.Id.Value == carrId);
+                        foreach (var item in vehicles)
                         {
                             //carrId = item.CarrierId.Id.Value;
-                            if (carrId == item.CarrierId.Id.Value)
+                            //if (carrId == item.CarrierId.Id.Value)
+                            //{
+                            //Creamos el objeto del Tonel
+                            Tonel tonel = new()
                             {
-                                //Creamos el objeto del Tonel
-                                Tonel tonel = new()
+                                Placa = item.RegistrationNumber.Trim(),
+                                Tracto = item.VehicleCode.Trim(),
+                                //Placatracto = item.RfiTagId.Trim(),
+                                Placatracto = item.RfiTagId != null ? item.RfiTagId.Trim() : "",
+                                Codsyn = Convert.ToInt32(item.VehicleId.Id.Value),
+                                Carid = item.CarrierId.Id.Value.ToString(),
+                                Id_Tad = 1
+                            };
+                            //Obtenemos el code del tonel
+                            Tonel? t = context.Tonel.Where(x => x.Placa == tonel.Placa && x.Tracto == tonel.Tracto && x.Placatracto == tonel.Placatracto && x.Codsyn == tonel.Codsyn && x.Carid == tonel.Carid
+                            && x.Id_Tad == 1)
+                                .DefaultIfEmpty()
+                                .FirstOrDefault();
+
+                            //Si el tonel no es nulo lo actualimos
+                            if (t != null)
+                            {
+                                t.Placa = item.RegistrationNumber.Trim();
+                                t.Tracto = item.VehicleCode.Trim();
+                                //t.Placatracto = item.RfiTagId.Trim();
+                                t.Placatracto = item.RfiTagId != null ? item.RfiTagId.Trim() : "";
+                                t.Codsyn = Convert.ToInt32(item.VehicleId.Id.Value);
+                                t.Carid = carrId.ToString();
+                                t.Activo = true;
+
+                                foreach (var com in item.VehicleCompartments)
                                 {
-                                    Placa = item.RegistrationNumber.Trim(),
-                                    Tracto = item.VehicleCode.Trim(),
-                                    //Placatracto = item.RfiTagId.Trim(),
-                                    Placatracto = item.RfiTagId != null ? item.RfiTagId.Trim() : "",
-                                    Codsyn = Convert.ToInt32(item.VehicleId.Id.Value),
-                                    Carid = item.CarrierId.Id.Value.ToString(),
-                                    Id_Tad = 1
-                                };
-                                //Obtenemos el code del tonel
-                                Tonel? t = context.Tonel.Where(x => x.Placa == tonel.Placa && x.Tracto == tonel.Tracto && x.Placatracto == tonel.Placatracto && x.Codsyn == tonel.Codsyn && x.Carid == tonel.Carid
-                                && x.Id_Tad == 1)
-                                    .DefaultIfEmpty()
-                                    .FirstOrDefault();
-
-                                //Si el tonel no es nulo lo actualimos
-                                if (t != null)
-                                {
-                                    t.Placa = item.RegistrationNumber.Trim();
-                                    t.Tracto = item.VehicleCode.Trim();
-                                    //t.Placatracto = item.RfiTagId.Trim();
-                                    t.Placatracto = item.RfiTagId != null ? item.RfiTagId.Trim() : "";
-                                    t.Codsyn = Convert.ToInt32(item.VehicleId.Id.Value);
-                                    t.Carid = carrId.ToString();
-                                    t.Activo = true;
-
-                                    foreach (var com in item.VehicleCompartments)
+                                    if (com.CompartmentNumber.Value == 1)
                                     {
-                                        if (com.CompartmentNumber.Value == 1)
-                                        {
-                                            t.Idcom = Convert.ToInt32(com.CompartmentId.Id.Value);
-                                            t.Nrocom = Convert.ToInt32(com.CompartmentNumber.Value);
-                                            t.Capcom = com.Capacity.Value;
-                                        }
-                                        if (com.CompartmentNumber.Value == 2)
-                                        {
-                                            t.Idcom2 = Convert.ToInt32(com.CompartmentId.Id.Value);
-                                            t.Nrocom2 = Convert.ToInt32(com.CompartmentNumber.Value);
-                                            t.Capcom2 = com.Capacity.Value;
-                                        }
-                                        if (com.CompartmentNumber.Value == 3)
-                                        {
-                                            t.Idcom3 = Convert.ToInt32(com.CompartmentId.Id.Value);
-                                            t.Nrocom3 = Convert.ToInt32(com.CompartmentNumber.Value);
-                                            t.Capcom3 = com.Capacity.Value;
-                                        }
-                                        if (com.CompartmentNumber.Value == 4)
-                                        {
-                                            t.Idcom4 = Convert.ToInt32(com.CompartmentId.Id.Value);
-                                            t.Nrocom4 = Convert.ToInt32(com.CompartmentNumber.Value);
-                                            t.Capcom4 = Convert.ToInt32(com.Capacity.Value);
-                                        }
+                                        t.Idcom = Convert.ToInt32(com.CompartmentId.Id.Value);
+                                        t.Nrocom = Convert.ToInt32(com.CompartmentNumber.Value);
+                                        t.Capcom = com.Capacity.Value;
                                     }
-                                    TonelesActivos.Add(t);
-                                    context.Update(t);
-
-                                    if (!context.Unidad_Tad.Any(x => x.Id_Unidad == t.Cod))
+                                    if (com.CompartmentNumber.Value == 2)
                                     {
-                                        Unidad_Tad unidad_ = new()
-                                        {
-                                            Id_Terminal = 1,
-                                            Id_Unidad = t.Cod,
-                                            Terminal = null,
-                                            Tonel = null
-                                        };
-
-                                        context.Add(unidad_);
+                                        t.Idcom2 = Convert.ToInt32(com.CompartmentId.Id.Value);
+                                        t.Nrocom2 = Convert.ToInt32(com.CompartmentNumber.Value);
+                                        t.Capcom2 = com.Capacity.Value;
                                     }
-
+                                    if (com.CompartmentNumber.Value == 3)
+                                    {
+                                        t.Idcom3 = Convert.ToInt32(com.CompartmentId.Id.Value);
+                                        t.Nrocom3 = Convert.ToInt32(com.CompartmentNumber.Value);
+                                        t.Capcom3 = com.Capacity.Value;
+                                    }
+                                    if (com.CompartmentNumber.Value == 4)
+                                    {
+                                        t.Idcom4 = Convert.ToInt32(com.CompartmentId.Id.Value);
+                                        t.Nrocom4 = Convert.ToInt32(com.CompartmentNumber.Value);
+                                        t.Capcom4 = Convert.ToInt32(com.Capacity.Value);
+                                    }
                                 }
-                                //Sino le agregamos un nuevo tonel
-                                else
+                                TonelesActivos.Add(t);
+                                context.Update(t);
+
+                                if (!context.Unidad_Tad.Any(x => x.Id_Unidad == t.Cod))
                                 {
-                                    foreach (var com in item.VehicleCompartments)
-                                    {
-                                        if (com.CompartmentNumber.Value == 1)
-                                        {
-                                            tonel.Idcom = Convert.ToInt32(com.CompartmentId.Id.Value);
-                                            tonel.Nrocom = Convert.ToInt32(com.CompartmentNumber.Value);
-                                            tonel.Capcom = com.Capacity.Value;
-                                        }
-                                        if (com.CompartmentNumber.Value == 2)
-                                        {
-                                            tonel.Idcom2 = Convert.ToInt32(com.CompartmentId.Id.Value);
-                                            tonel.Nrocom2 = Convert.ToInt32(com.CompartmentNumber.Value);
-                                            tonel.Capcom2 = com.Capacity.Value;
-                                        }
-                                        if (com.CompartmentNumber.Value == 3)
-                                        {
-                                            tonel.Idcom3 = Convert.ToInt32(com.CompartmentId.Id.Value);
-                                            tonel.Nrocom3 = Convert.ToInt32(com.CompartmentNumber.Value);
-                                            tonel.Capcom3 = com.Capacity.Value;
-                                        }
-                                        if (com.CompartmentNumber.Value == 4)
-                                        {
-                                            tonel.Idcom4 = Convert.ToInt32(com.CompartmentId.Id.Value);
-                                            tonel.Nrocom4 = Convert.ToInt32(com.CompartmentNumber.Value);
-                                            tonel.Capcom4 = Convert.ToInt32(com.Capacity.Value);
-                                        }
-                                    }
-                                    // context.Add(tonel);
                                     Unidad_Tad unidad_ = new()
                                     {
                                         Id_Terminal = 1,
+                                        Id_Unidad = t.Cod,
                                         Terminal = null,
-                                        Tonel = tonel
+                                        Tonel = null
                                     };
 
                                     context.Add(unidad_);
                                 }
+
                             }
+                            //Sino le agregamos un nuevo tonel
+                            else
+                            {
+                                foreach (var com in item.VehicleCompartments)
+                                {
+                                    if (com.CompartmentNumber.Value == 1)
+                                    {
+                                        tonel.Idcom = Convert.ToInt32(com.CompartmentId.Id.Value);
+                                        tonel.Nrocom = Convert.ToInt32(com.CompartmentNumber.Value);
+                                        tonel.Capcom = com.Capacity.Value;
+                                    }
+                                    if (com.CompartmentNumber.Value == 2)
+                                    {
+                                        tonel.Idcom2 = Convert.ToInt32(com.CompartmentId.Id.Value);
+                                        tonel.Nrocom2 = Convert.ToInt32(com.CompartmentNumber.Value);
+                                        tonel.Capcom2 = com.Capacity.Value;
+                                    }
+                                    if (com.CompartmentNumber.Value == 3)
+                                    {
+                                        tonel.Idcom3 = Convert.ToInt32(com.CompartmentId.Id.Value);
+                                        tonel.Nrocom3 = Convert.ToInt32(com.CompartmentNumber.Value);
+                                        tonel.Capcom3 = com.Capacity.Value;
+                                    }
+                                    if (com.CompartmentNumber.Value == 4)
+                                    {
+                                        tonel.Idcom4 = Convert.ToInt32(com.CompartmentId.Id.Value);
+                                        tonel.Nrocom4 = Convert.ToInt32(com.CompartmentNumber.Value);
+                                        tonel.Capcom4 = Convert.ToInt32(com.Capacity.Value);
+                                    }
+                                }
+                                // context.Add(tonel);
+                                Unidad_Tad unidad_ = new()
+                                {
+                                    Id_Terminal = 1,
+                                    Terminal = null,
+                                    Tonel = tonel
+                                };
+
+                                context.Add(unidad_);
+                            }
+                            //}
 
                         }
 
@@ -602,6 +616,37 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpGet("catalogo")]
+        public async Task<ActionResult> GetCatalogoTonel()
+        {
+            try
+            {
+                var idtad = await helper.GetTerminalId();
+
+                var toneles = await context.Tonel.Where(x => x.Id_Tad == idtad)
+                                                 .Include(x => x.Transportista)
+                                                 .OrderBy(x => x.Tracto)
+                                                 .ToListAsync();
+
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage excel = new();
+                ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Toneles");
+
+                ws.Cells["A1"].LoadFromCollection(toneles.Select(mapper.Map<CatalogoVehiculoDTO>), c =>
+                {
+                    c.PrintHeaders = true;
+                    c.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                });
+
+                ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                return Ok(excel.GetAsByteArray());
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         private int GetRandomCarid()
         {
             var random = new Random().Next(1, 999999);

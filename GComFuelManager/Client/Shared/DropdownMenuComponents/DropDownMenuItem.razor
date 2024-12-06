@@ -1,6 +1,6 @@
 ﻿@if (!Use_Roles)
 {
-    <NavLink href="@Path" Match="NavLinkMatch.All">
+    <NavLink href="@Path" Match="NavLinkMatch.Prefix">
         <div class="dropdown-menu-side-item">
             @if (ItemTemplate is not null)
             {
@@ -13,7 +13,7 @@ else
 {
     <AuthorizeView Roles="@Roles">
         <Authorized>
-            <NavLink href="@Path" Match="NavLinkMatch.All">
+            <NavLink href="@Path" Match="NavLinkMatch.Prefix">
                 <div class="dropdown-menu-side-item">
                     @if (ItemTemplate is not null)
                     {

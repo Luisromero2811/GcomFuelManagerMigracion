@@ -1,0 +1,357 @@
+﻿@page "/inventarios/resumen"
+@inject IRepositorio http
+@inject IJSRuntime js
+@inject SweetAlertService Swal
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Inventarios, Inventarios Lectura")]
+
+<Card HeaderText="Resumen de inventario actual" CardClass="mb-2" LoadingContent="loading" />
+
+<div class="col-12 d-flex justify-content-between mb-2">
+    <button class="btn bt-sm col-3 gcom-bg-amarillo mt-auto" @onclick="CargarCierres">
+        <i class="fa fa-solid fa-rotate-right" />
+        Actualizar
+    </button>
+    <button class="btn bt-sm col-3 gcom-bg-amarillo mt-auto" @onclick="Exportar">
+        <i class="fa fa-solid fa-file-excel" />
+        Exportar
+    </button>
+</div>
+
+<div class="ancho-tabla">
+    <Tabla Datos="Cierres">
+        <Cabeceras>
+            <tr>
+                <AuthorizeView Roles="Admin, Administrador Sistema,Inventarios">
+                    <Authorized>
+                        <th style="width: 150px;" class="resizable-column">Acciones</th>
+                    </Authorized>
+                </AuthorizeView>
+                <th style="width: 150px;" class="resizable-column">Fecha de inicio</th>
+                <th style="width: 150px;" class="resizable-column">Producto</th>
+                <th style="width: 150px;" class="resizable-column">Sitio</th>
+                <th style="width: 150px;" class="resizable-column">Almacen</th>
+                <th style="width: 150px;" class="resizable-column">Localidad</th>
+                <th style="width: 150px;" class="resizable-column">Inventario fisico</th>
+                <th style="width: 150px;" class="resizable-column">Fisica reservada</th>
+                <th style="width: 150px;" class="resizable-column">Fisico disponible</th>
+                <th style="width: 150px;" class="resizable-column">Fisica reservada disponible</th>
+                <th style="width: 150px;" class="resizable-column">Pedido total</th>
+                <th style="width: 150px;" class="resizable-column">Ordenada reservada</th>
+                <th style="width: 150px;" class="resizable-column">En orden</th>
+                <th style="width: 150px;" class="resizable-column">Cargada</th>
+                <th style="width: 150px;" class="resizable-column">Total disponible</th>
+                <th style="width: 150px;" class="resizable-column">Total disponible en full</th>
+                <th style="width: 150px;" class="resizable-column">Usuario de inicio de cierre</th>
+            </tr>
+        </Cabeceras>
+        <Filtros>
+            <tr>
+                <AuthorizeView Roles="Admin, Administrador Sistema,Inventarios">
+                    <Authorized>
+                        <td></td>
+                    </Authorized>
+                </AuthorizeView>
+                <td></td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.ProductoId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Productos)
+                        {
+                            <option value="@item.Cod">@item.Den</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.SitioId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Sitios)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.AlmacenId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Almacenes)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm"
+                            onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.LocalidadId)))">
+                        <option value="0">Todos</option>
+                        @foreach (var item in Localidades)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </Filtros>
+        <Columnas Context="inv">
+            <tr>
+                <AuthorizeView Roles="Admin, Administrador Sistema,Inventarios">
+                    <Authorized>
+                        <td>
+                            <div class="btn-group col-12">
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>AbrirDetalleCierre(inv))" aria-label="Ver registros">
+                                    <i class="fa fa-solid fa-eye" />
+                                </button>
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>CerrarInventario(inv))" aria-label="Cerrar inventario">
+                                    <i class="fa fa-solid fa-lock" />
+                                </button>
+                            </div>
+                        </td>
+                    </Authorized>
+                </AuthorizeView>
+                <td>@inv.FechaInicio</td>
+                <td>@inv.Producto</td>
+                <td>@inv.Sitio</td>
+                <td>@inv.Almacen</td>
+                <td>@inv.Localidad</td>
+                <td>@inv.Fisico.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.Reservado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.Disponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.ReservadoDisponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.PedidoTotal.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.OrdenReservado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.EnOrden.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.Cargado.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.TotalDisponible.ToString("N2", CultureInfo.InvariantCulture) lts</td>
+                <td>@inv.TotalDisponibleFull.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td>@inv.UsuarioInicio?.ToString()</td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+
+<Modal_Custom @ref="modal_" />
+
+@code {
+    List<InventarioCierreDTO> Cierres = new();
+    Modal_Custom modal_ = new();
+
+    bool loading = false;
+
+    IEnumerable<Producto> Productos = new List<Producto>();
+    IEnumerable<CatalogoValorDTO> Sitios = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> Almacenes = new List<CatalogoValorDTO>();
+    IEnumerable<CatalogoValorDTO> Localidades = new List<CatalogoValorDTO>();
+
+    Dictionary<string, string> query = new();
+    InventarioCierreDTO Filtro = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(
+            CargarCierres(),
+            GetProductos(),
+            CatalogoSitio(),
+            CatalogoAlmacen(),
+            CatalogoLocalidad()
+        );
+    }
+
+    private async Task CargarCierres()
+    {
+        try
+        {
+            loading = true;
+            query[nameof(Filtro.Excel)] = false.ToString();
+            var url = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            var response = await http.Get<List<InventarioCierreDTO>>($"api/inventario/resumen?{url}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                Cierres = response.Response;
+                modal_.Close();
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void CerrarInventario(InventarioCierreDTO inv)
+    {
+        modal_.OpenModal<CierreInventariosComponente>("Cerrar inventario", new Dictionary<string, object> {
+            { nameof(CierreInventariosComponente.Id), inv.Id },
+            { nameof(CierreInventariosComponente.ReloadInventario), EventCallback.Factory.Create(this, CargarCierres) }
+        });
+    }
+
+    private Dictionary<string, string> SetFiltro()
+    {
+        query[nameof(Filtro.ProductoId)] = Filtro.ProductoId.ToString();
+        query[nameof(Filtro.SitioId)] = Filtro.SitioId.ToString();
+        query[nameof(Filtro.AlmacenId)] = Filtro.AlmacenId.ToString();
+        query[nameof(Filtro.LocalidadId)] = Filtro.LocalidadId.ToString();
+        query[nameof(Filtro.Pagina)] = Filtro.Pagina.ToString();
+        query[nameof(Filtro.Registros_por_pagina)] = Filtro.Registros_por_pagina.ToString();
+        query[nameof(Filtro.Fecha_Inicio)] = Filtro.Fecha_Inicio.ToString("MM-dd-yyyy");
+        query[nameof(Filtro.Fecha_Fin)] = Filtro.Fecha_Fin.ToString("MM-dd-yyyy");
+        query[nameof(Filtro.PorFecha)] = true.ToString();
+
+        return query;
+    }
+
+    private void AbrirDetalleCierre(InventarioCierreDTO inv)
+    {
+        modal_.OpenModal<DetalleCierreInventarioComponente>("Detalle de cierre", new Dictionary<string, object> { { "Cierre", inv } });
+    }
+
+    private async Task GetProductos()
+    {
+
+        try
+        {
+            var response = await http.Get<IEnumerable<Producto>>("api/producto");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Productos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    private async Task CatalogoSitio()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/sitio");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Sitios = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CatalogoAlmacen()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/almacen");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Almacenes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CatalogoLocalidad()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<CatalogoValorDTO>>("api/inventario/catalogo/localidad");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Localidades = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Filtrar(ChangeEventArgs args, string pro)
+    {
+        switch (pro)
+        {
+            case nameof(Filtro.ProductoId):
+                Filtro.ProductoId = int.Parse(args.Value?.ToString() ?? string.Empty);
+                break;
+            case nameof(Filtro.SitioId):
+                Filtro.SitioId = int.Parse(args.Value?.ToString() ?? string.Empty);
+                break;
+            case nameof(Filtro.AlmacenId):
+                Filtro.AlmacenId = int.Parse(args.Value?.ToString() ?? string.Empty);
+                break;
+            case nameof(Filtro.LocalidadId):
+                Filtro.LocalidadId = int.Parse(args.Value?.ToString() ?? string.Empty);
+                break;
+            default:
+                break;
+        }
+        await CargarCierres();
+    }
+
+    private async Task Exportar()
+    {
+        try
+        {
+            loading = true;
+            query[nameof(Filtro.Excel)] = true.ToString();
+            var url = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            var response = await http.Get<byte[]>($"api/inventario/resumen?{url}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                await js.GuardarComo($"InventarioActual_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+}

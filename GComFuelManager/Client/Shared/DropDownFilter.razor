@@ -106,7 +106,7 @@
 
                 TValue newValor = (TValue)prop_name.GetValue(item);
                 // await ValorChanged.InvokeAsync(Valor);
-                if(!EqualityComparer<TValue>.Default.Equals(Valor, newValor))
+                if (!EqualityComparer<TValue>.Default.Equals(Valor, newValor))
                 {
                     Valor = newValor;
                     await ValorChanged.InvokeAsync(newValor);
@@ -142,5 +142,11 @@
         var value = e.Value?.ToString() ?? string.Empty;
 
         await FiltrarValor.InvokeAsync(value);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrEmpty(Propiedad_Valor) && !string.IsNullOrWhiteSpace(Propiedad_Valor))
+            Valor_Seleleccionado = Listado.FirstOrDefault(x => x.GetType().GetProperty(Propiedad_Valor).GetValue(x).Equals(Valor));
     }
 }

@@ -1,0 +1,86 @@
+﻿@page "/catalogos"
+@inject IRepositorio http
+@inject SweetAlertService Swal
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Catalogos")]
+
+<Card HeaderText="Catalogos del sistema" LoadingContent="loading">
+
+</Card>
+<div>
+    <Tabla Datos="Catalogos">
+        <Cabeceras>
+            <tr>
+                <th style="width:150px;">Ver valores de catalogo</th>
+                <th>Catalogo</th>
+            </tr>
+        </Cabeceras>
+        <Columnas Context="item">
+            <tr>
+                <td>
+                    <NavLink class="btn btn-sm gcom-bg-amarillo" href=@($"catalogos/valores/{item.Id}")>
+                        <i class="fa fa-solid fa-rectangle-list" />
+                    </NavLink>
+                </td>
+                <td>@item.Nombre</td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+@code {
+    List<CatalogoDTO> Catalogos = new();
+
+    CatalogoDTO Filtro = new();
+    bool loading = false;
+    Dictionary<string, string> query = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCatalogo();
+    }
+
+    private Dictionary<string, string> SetFiltro()
+    {
+        query[nameof(Filtro.Nombre)] = Filtro.Nombre;
+        query[nameof(Filtro.Pagina)] = Filtro.Pagina.ToString();
+        query[nameof(Filtro.Registros_por_pagina)] = Filtro.Registros_por_pagina.ToString();
+
+        return query;
+    }
+
+    private async Task CargarCatalogo()
+    {
+        try
+        {
+            loading = true;
+            var url = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            var response = await http.Get<List<CatalogoDTO>>($"api/catalogo?{url}");
+            if (response.Error)
+            {
+                loading = false;
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                loading = false;
+                Catalogos = response.Response;
+                Filtro.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+                Filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                Filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    private async Task SeleccionarPagina(int pagina)
+    {
+        Filtro.Pagina = pagina;
+        Filtro.Pagina_ACtual = pagina;
+        await CargarCatalogo();
+    }
+
+}

@@ -1,6 +1,11 @@
-﻿using GComFuelManager.Server;
+﻿using FluentValidation;
+using GComFuelManager.Server;
+using GComFuelManager.Server.Automapper;
+using GComFuelManager.Server.Extensions;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Server.Validators;
+using GComFuelManager.Shared.ModelDTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(optionsAction =>
 {
+    optionsAction.EnableSensitiveDataLogging();
     optionsAction.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
@@ -46,30 +52,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ClockSkew = TimeSpan.Zero
     });
 
-builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
-builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();
-builder.Services.AddScoped<IVencimientoService, VencimientoEmailService>();
-builder.Services.AddScoped<IPreciosService, PreciosService>();
-builder.Services.AddScoped<IConfirmOrden, ConfirmOrden>();
-builder.Services.AddScoped<IConfirmarCreacionOrdenes, ConfirmarCreacionOrdenesService>();
-builder.Services.AddScoped<IDenegarCreacionOrdenes, DenegarCreacionOrdenesService>();
-builder.Services.AddScoped<IConfirmPedido, ConfirmPedido>();
+builder.Services.AddAutoMapper(typeof(MapperProfileModel), typeof(MapperProfileReporte));
+
+builder.Services.AddCustomValidationService();
+builder.Services.AddCustomEmailService();
+
 builder.Services.AddSingleton<RequestToFile>();
 builder.Services.AddSingleton<VerifyUserToken>();
 builder.Services.AddSingleton<VerifyUserId>();
 builder.Services.AddSingleton<User_Terminal>();
 builder.Services.AddSingleton(new CultureInfo("es-Mx"));
 
+builder.Services.AddScoped<IUsuarioHelper, UsuarioHelper>();
+
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
     options.Secure = CookieSecurePolicy.Always;
-   
+
 });
 
 var app = builder.Build();
 
-using(var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     applicationDbContext.Database.Migrate();

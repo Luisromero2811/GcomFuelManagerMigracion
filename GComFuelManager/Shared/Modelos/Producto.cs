@@ -59,6 +59,11 @@ namespace GComFuelManager.Shared.Modelos
                 Id_Tipo = Id_Tipo,
             };
         }
+
+        public override string ToString()
+        {
+            return Den ?? string.Empty;
+        }
     }
 }
 
