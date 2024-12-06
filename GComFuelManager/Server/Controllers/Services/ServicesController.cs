@@ -1312,7 +1312,7 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var productos = context.Producto.Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.Codsyn)).ToList();
+                var productos = context.Producto.Where(x => x.Id_Tad == terminal).ToList();
 
                 List<Producto> productos_validos = new();
                 List<Producto> productos_editados = new();
