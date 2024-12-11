@@ -493,7 +493,7 @@ namespace GComFuelManager.Server.Controllers
                 var usersis = await context.Usuario.AsNoTracking().FirstOrDefaultAsync(x => x.Cod.Equals(user.UserCod));
                 if (usersis is null) { return NotFound(); }
 
-                var id_terminal = await usuarioHelper.GetTerminalId();
+                var id_terminal = await usuarioHelper.GetTerminalIdAsync();
 
                 var cierre = await context.InventarioCierres.FindAsync(dto.Id);
                 if (cierre is null) return NotFound();
@@ -902,7 +902,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var idtad = await usuarioHelper.GetTerminalId();
+                var idtad = await usuarioHelper.GetTerminalIdAsync();
 
                 var cierres = await context.InventarioCierres
                     .AsNoTracking()

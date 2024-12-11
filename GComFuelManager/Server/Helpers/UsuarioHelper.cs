@@ -23,7 +23,33 @@ namespace GComFuelManager.Server.Helpers
             this.userManager = userManager;
         }
 
-        public async Task<short> GetTerminalId()
+        public short GetTerminalId()
+        {
+            string Id = string.Empty;
+
+            var authheader = httpContext.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+
+            if (authheader is not null && authheader.StartsWith("Bearer"))
+                Id = authheader["Bearer ".Length..];
+
+            var handler = new JwtSecurityTokenHandler();
+
+            if (handler.CanReadToken(Id))
+            {
+                var token = handler.ReadJwtToken(Id);
+                var nombre_terminal = token.Claims.FirstOrDefault(x => x.Type == "Terminal")?.Value;
+                if (nombre_terminal is not null)
+                {
+                    var terminal = context.Tad.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(nombre_terminal) && x.Activo == true);
+                    if (terminal is not null)
+                        return terminal.Cod;
+                }
+            }
+
+            throw new UsuarioIdsException("Terminal no valida");
+        }
+
+        public async Task<short> GetTerminalIdAsync()
         {
             string Id = string.Empty;
 
