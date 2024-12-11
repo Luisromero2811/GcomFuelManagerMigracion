@@ -4,7 +4,8 @@ namespace GComFuelManager.Server.Helpers
 {
     public interface IUsuarioHelper
     {
-        public Task<short> GetTerminalId();
+        public Task<short> GetTerminalIdAsync();
+        public short GetTerminalId();
         public Task<string> GetUserId();
         public Task<IdentityUsuario> GetUsuario();
     }

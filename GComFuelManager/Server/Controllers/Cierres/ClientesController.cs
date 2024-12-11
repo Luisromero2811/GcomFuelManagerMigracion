@@ -656,7 +656,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var id_terminal = await helper.GetTerminalId();
+                var id_terminal = await helper.GetTerminalIdAsync();
 
                 var clientes = await context.Cliente
                     .AsNoTracking()

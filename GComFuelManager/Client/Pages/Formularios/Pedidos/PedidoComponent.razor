@@ -1039,7 +1039,7 @@
                     {
                         if (response.Response.Destino.ModeloCompra is not null)
                         {
-                            response.Response.OrdenEmbarque.ModeloCompra = response.Response.Destino.ModeloCompra;
+                            response.Response.OrdenEmbarque.ModeloCompra = response.Response.Destino.ModeloCompra ?? TipoCompra.Rack;
                         }
                     }
                 }

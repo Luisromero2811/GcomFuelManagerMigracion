@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.Enums;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml.Attributes;
@@ -25,6 +26,8 @@ namespace GComFuelManager.Shared.DTOs
         public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
         [DisplayName("Fecha de carga")]
         public string? FechaCarga { get; set; } = string.Empty;
+        [DisplayName("Modelo de compra")]
+        public TipoCompra? ModeloCompra { get; set; } = TipoCompra.Rack;
         public string? Transportista { get; set; } = string.Empty;
         public string? Unidad { get; set; } = string.Empty;
         public int? Compartimento { get; set; } = 0;

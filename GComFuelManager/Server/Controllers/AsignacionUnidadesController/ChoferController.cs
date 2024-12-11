@@ -581,7 +581,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                var idtad = await helper.GetTerminalId();
+                var idtad = await helper.GetTerminalIdAsync();
                 var choferes = await context.Chofer.Where(x => x.Id_Tad == idtad)
                                                    .OrderBy(x => x.Den)
                                                    .ToListAsync();

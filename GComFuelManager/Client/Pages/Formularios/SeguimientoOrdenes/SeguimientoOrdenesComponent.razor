@@ -478,39 +478,6 @@
         await MostrarOrdenFechaRadio();
     }
 
-    //public async Task MostrarTraffic()
-    //{
-    //    try
-    //    {
-    //        Status = false;
-    //        var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/trafico", fechas);
-    //        fechas.Estado = 4;
-    //        if (responseHttp.Error)
-    //        {
-    //            loadingFiltro = false;
-    //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
-    //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-    //        }
-    //        else
-    //        {
-    //            Status = true;
-    //            loadingFiltro = false;
-    //            fechas.Estado = 4;
-    //            ordens = responseHttp.Response;
-
-    //            DestinoList = ordens?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
-    //            ClienteList = ordens?.DistinctBy(x => x.Destino?.Cliente?.Den).Select(x => x.Destino?.Cliente?.Den)!;
-    //            ProductList = ordens?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        loadingFiltro = false;
-    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-    //        throw e;
-    //    }
-    //}
-
     public async Task ExportExcel()
     {
         try
