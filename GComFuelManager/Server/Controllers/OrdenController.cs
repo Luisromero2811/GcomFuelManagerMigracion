@@ -544,7 +544,7 @@ namespace GComFuelManager.Server.Controllers
                         BOL = x.BatchId.ToString(),
                         Fecha_Carga = x.Fchcar,
                         TipoCompra = x.OrdenEmbarque?.ModeloCompra.ToString(),
-                        Tipo_Venta = x.Destino?.ModeloVenta.ToString()
+                        Tipo_Venta = x.OrdenEmbarque?.TipoVenta.ToString()
                     });
 
                     ws.Cells["A1"].LoadFromCollection(ordenes_excel, c =>

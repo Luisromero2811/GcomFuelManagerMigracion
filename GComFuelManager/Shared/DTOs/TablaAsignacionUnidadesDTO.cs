@@ -28,6 +28,7 @@ namespace GComFuelManager.Shared.DTOs
         public string? FechaCarga { get; set; } = string.Empty;
         [DisplayName("Modelo de compra")]
         public TipoCompra? ModeloCompra { get; set; } = TipoCompra.Rack;
+        public TipoVenta? TipoVenta { get; set; } = Enums.TipoVenta.Externo;
         public string? Transportista { get; set; } = string.Empty;
         public string? Unidad { get; set; } = string.Empty;
         public int? Compartimento { get; set; } = 0;

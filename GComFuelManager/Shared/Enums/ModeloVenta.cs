@@ -1,12 +1,12 @@
 ﻿namespace GComFuelManager.Shared.Enums
 {
-    public enum Tipo_Venta
+    public enum ModeloVenta
     {
         Delivery,
         Rack
     }
 
-    public enum Modelo_Venta
+    public enum TipoVenta
     {
         Interno,
         Externo,
