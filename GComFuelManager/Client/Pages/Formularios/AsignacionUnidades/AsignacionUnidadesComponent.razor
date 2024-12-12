@@ -224,6 +224,12 @@
                         Modelo de compra
                     </th>
                 }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 16).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Tipo de venta
+                    </th>
+                }
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
                 {
                     <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
@@ -317,6 +323,10 @@
                     <td></td>
                 }
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 15).Visible)
+                {
+                    <td></td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 16).Visible)
                 {
                     <td></td>
                 }
@@ -480,6 +490,21 @@
                             <td class="overflow-hidden">
                                 <select class="form-select form-select-sm" @bind="data.ModeloCompra" @bind:event="onchange" @bind:after="()=>UpdateOrden(data)">
                                     @foreach (var item in Enum.GetValues(typeof(TipoCompra)))
+                                    {
+                                        <option>@item</option>
+                                    }
+                                </select>
+                            </td>
+                        }
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 16).Visible)
+                    {
+                        @if (data is not null)
+                        {
+                            <td class="overflow-hidden">
+                                <select class="form-select form-select-sm" @bind="data.TipoVenta" @bind:event="onchange" @bind:after="()=>UpdateOrden(data)">
+                                    <option>-- Tipo de venta --</option>
+                                    @foreach (var item in Enum.GetValues(typeof(TipoVenta)))
                                     {
                                         <option>@item</option>
                                     }
@@ -807,10 +832,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await Checar_Terminal();
-        await ObtenerAutorizadores();
-        await ObtenerMultidestinos();
-        await GetTransportista();
         Columnas.AddRange(new List<Columna_Tabla>()
 {
             new Columna_Tabla{ID = 1, Nombre_Columna = "Orde de compra"},
@@ -828,10 +849,18 @@ else
             new Columna_Tabla {ID = 13, Nombre_Columna = "Estatus"},
             new Columna_Tabla {ID = 14, Nombre_Columna = "Unidad de negocio" },
             new Columna_Tabla {ID = 15, Nombre_Columna = "Modelo de compra" },
+            new Columna_Tabla {ID = 16, Nombre_Columna = "Tipo de venta" },
         });
 
         _params.Fecha_Fin.AddDays(1);
-        await MostrarOrdenFecha();
+
+        await Task.WhenAll(
+            Checar_Terminal(),
+            ObtenerAutorizadores(),
+            ObtenerMultidestinos(),
+            GetTransportista(),
+            MostrarOrdenFecha()
+        );
 
         await js.InvokeVoidAsync("importarScript", "js/resizableTable.js");
     }
@@ -976,10 +1005,10 @@ else
                         Chofer = asignacion.CodChf,
                         Tonel = asignacion.CodTon,
                         Compartimento = Vehiculos?.Count == null ? 0 :
-                                                            (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-                                                            : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-                                                            : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-                                                            : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                                                                        (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                                                        : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                                                        : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                                                        : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
                     };
@@ -1099,6 +1128,7 @@ else
         loadingAgregar = true;
         try
         {
+            orden.Modelo_Venta_Orden = orden.TipoVenta.Equals(TipoVenta.Rack) ? ModeloVenta.Rack : ModeloVenta.Delivery;
             var response = await repositorio.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido/asignar/unidad", orden);
             if (response.Error)
             {

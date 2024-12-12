@@ -184,6 +184,7 @@ namespace GComFuelManager.Server.Controllers
                             Volumen = x.Obtener_Volumen_De_Orden(),
                             FechaCarga = x.Fchcar?.ToString("dd/MM/yyyy") ?? string.Empty,
                             ModeloCompra = x.ModeloCompra,
+                            TipoVenta = x.TipoVenta,
                             Transportista = x.Tonel?.Transportista?.Den ?? string.Empty,
                             Unidad = x.Tonel?.Veh ?? string.Empty,
                             Compartimento = x.Compartment,
