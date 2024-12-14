@@ -80,8 +80,7 @@ namespace GComFuelManager.Server.Automapper
                 })
                 .ForMember(x => x.MdVenta, opt =>
                 {
-                    opt.PreCondition(x => x.Destino != null);
-                    opt.MapFrom(x => x.Destino!.ModeloVenta);
+                    opt.MapFrom(x => x.TipoVenta);
                 })
                 .ForMember(x => x.ModeloCompra, opt => opt.MapFrom(x => x.ModeloCompra))
                 .ForMember(x => x.Cliente, opt =>

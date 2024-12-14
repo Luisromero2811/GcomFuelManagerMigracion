@@ -93,13 +93,13 @@
                                                 AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen" Style="height:31px;">
                                     <Template Context="data">
                                         <RadzenText TextStyle="TextStyle.Body2">
-                                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                            @((data as Precio).Producto?.Den) | $@((data as Precio)?.Pre)
                                             <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
                                         </RadzenText>
                                     </Template>
                                     <ValueTemplate Context="data">
                                         <RadzenText TextStyle="TextStyle.Body2">
-                                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                            @((data as Precio).Producto?.Den) | $@((data as Precio)?.Pre)
                                         </RadzenText>
                                     </ValueTemplate>
                                 </RadzenDropDown>
@@ -1033,16 +1033,15 @@
             }
             else
             {
-                //if (response.Response.Destino is not null)
-                //{
-                //    if (response.Response.OrdenEmbarque is not null)
-                //    {
-                //        //if (response.Response.Destino.ModeloCompra is not null)
-                //        //{
-                //        //    response.Response.OrdenEmbarque.ModeloCompra = response.Response.Destino.ModeloCompra;
-                //        //}
-                //    }
-                //}
+                if (response.Response.Destino is not null)
+                {
+                    if (response.Response.OrdenEmbarque is not null)
+                    {
+                        response.Response.OrdenEmbarque.ModeloCompra = response.Response.Destino.ModeloCompra ?? TipoCompra.Rack;
+                        response.Response.OrdenEmbarque.Modelo_Venta_Orden = response.Response.Destino.TipoVenta ?? ModeloVenta.Delivery;
+                        response.Response.OrdenEmbarque.TipoVenta = response.Response.Destino.ModeloVenta ?? TipoVenta.Externo;
+                    }
+                }
                 ordenCierres.Add(response.Response);
             }
 

@@ -1,4 +1,4 @@
-﻿using GComFuelManager.Shared.Enums;
+using GComFuelManager.Shared.Enums;
 
 namespace GComFuelManager.Shared.ModelDTOs
 {
@@ -13,8 +13,8 @@ namespace GComFuelManager.Shared.ModelDTOs
         public string? Ciu { get; set; } = string.Empty;
         public string? Est { get; set; } = string.Empty;
         public bool Es_Multidestino { get; set; } = false;
-        public Tipo_Venta TipoVenta { get; set; }
-        public Modelo_Venta ModeloVenta { get; set; }
-        //public TipoCompra ModeloCompra { get; set; }
+        public ModeloVenta TipoVenta { get; set; }
+        public TipoVenta ModeloVenta { get; set; }
+        public TipoCompra ModeloCompra { get; set; }
     }
 }

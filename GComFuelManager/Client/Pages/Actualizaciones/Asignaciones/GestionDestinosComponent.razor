@@ -65,7 +65,7 @@
                 <div class="col-4">
                     <label>Tipo de venta</label>
                     <InputSelect @bind-Value="Destino.TipoVenta" class="form-select form-select-sm">
-                        @foreach (var item in Enum.GetValues(typeof(Tipo_Venta)))
+                        @foreach (var item in Enum.GetValues(typeof(ModeloVenta)))
                         {
                             <option value="@item">@item</option>
                         }
@@ -74,7 +74,7 @@
                 <div class="col-4">
                     <label>Modelo de venta</label>
                     <InputSelect @bind-Value="Destino.ModeloVenta" class="form-select form-select-sm">
-                        @foreach (var item in Enum.GetValues(typeof(Modelo_Venta)))
+                        @foreach (var item in Enum.GetValues(typeof(TipoVenta)))
                         {
                             <option value="@item">@item</option>
                         }

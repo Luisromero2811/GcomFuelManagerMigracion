@@ -437,7 +437,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     List<EtaDTO> Ordenes = new List<EtaDTO>();
                     //&& fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno")
                     var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
-                       .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Modelo_Venta_Orden == Tipo_Venta.Delivery && x.Codtad == id_terminal)
+                       .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Modelo_Venta_Orden == ModeloVenta.Delivery && x.Codtad == id_terminal)
                         .Include(x => x.Orden)
                         .ThenInclude(x => x.OrdEmbDet)
                         .Include(x => x.Orden)
@@ -466,7 +466,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     List<EtaDTO> Ordenes = new List<EtaDTO>();
 
                     var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
-                        .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Modelo_Venta_Orden == Tipo_Venta.Rack && x.Codtad == id_terminal)
+                        .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Modelo_Venta_Orden == ModeloVenta.Rack && x.Codtad == id_terminal)
                         .Include(x => x.Orden)
                         .ThenInclude(x => x.OrdEmbDet)
                         .Include(x => x.Orden)
@@ -572,16 +572,16 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     Ordenes = Ordenes.Where(x => x.ModeloCompra == TipoCompra.Rack);
 
                 if (eta.MdVenta == TipoVentaFiltro.Interno)
-                    Ordenes = Ordenes.Where(x => x.Destino != null && x.Destino.ModeloVenta == Modelo_Venta.Interno);
+                    Ordenes = Ordenes.Where(x => x.TipoVenta == TipoVenta.Interno);
 
                 if (eta.MdVenta == TipoVentaFiltro.Externo)
-                    Ordenes = Ordenes.Where(x => x.Destino != null && x.Destino.ModeloVenta == Modelo_Venta.Externo);
+                    Ordenes = Ordenes.Where(x => x.TipoVenta == TipoVenta.Externo);
 
                 if (eta.MdVenta == TipoVentaFiltro.AmbosDelivery)
-                    Ordenes = Ordenes.Where(x => x.Destino != null && (x.Destino.ModeloVenta == Modelo_Venta.Externo || x.Destino.ModeloVenta == Modelo_Venta.Interno));
+                    Ordenes = Ordenes.Where(x => x.TipoVenta == TipoVenta.Externo || x.TipoVenta == TipoVenta.Interno);
 
                 if (eta.MdVenta == TipoVentaFiltro.Rack)
-                    Ordenes = Ordenes.Where(x => x.Destino != null && x.Destino.ModeloVenta == Modelo_Venta.Rack);
+                    Ordenes = Ordenes.Where(x => x.TipoVenta == TipoVenta.Rack);
 
                 if (eta.Excel)
                 {

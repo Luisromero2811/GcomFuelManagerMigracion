@@ -12,6 +12,13 @@
     Se estan enviano las ordenes a synthesis, este proceso puede tardar unos minutos. Permanesca en esta pantalla hasta terminar el proceso.
 </RadzenAlert>
 
+@if (loadingAgregar || loadingFiltro)
+{
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+    </div>
+}
+
 <div class="col-12 card mb-2">
     <div class="card-header">
         <b>Asignación de Unidades</b>
@@ -217,6 +224,12 @@
                         Modelo de compra
                     </th>
                 }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 16).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Tipo de venta
+                    </th>
+                }
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
                 {
                     <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
@@ -313,6 +326,10 @@
                 {
                     <td></td>
                 }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 16).Visible)
+                {
+                    <td></td>
+                }
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
                 {
                     <td></td>
@@ -376,7 +393,7 @@
                             <td class="overflow-hidden">
                                 <div class="rz-text-truncate row">
                                     <div class="col-10">
-                                        <select @bind="@data.Id_Multidestino" class="form-select form-select-sm">
+                                        <select @bind="@data.Id_Multidestino" class="form-select form-select-sm" @bind:event="onchange" @bind:after="()=>UpdateOrden(data)">
                                             <option>Multidestino</option>
                                             @foreach (var item in Multidestinos)
                                             {
@@ -389,7 +406,7 @@
                             <td class="overflow-hidden">
                                 <div class="rz-text-truncate row">
                                     <div class="col-10">
-                                        <select @bind="@data.Id_Autorizador" class="form-select form-select-sm">
+                                        <select @bind="@data.Id_Autorizador" class="form-select form-select-sm" @bind:event="onchange" @bind:after="()=>UpdateOrden(data)">
                                             <option>Autorizador</option>
                                             @foreach (var item in Autorizadores)
                                             {
@@ -468,15 +485,32 @@
                     }
                     @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 15).Visible)
                     {
-                        <td class="overflow-hidden">
-                            <select class="form-select form-select-sm" @bind="data.ModeloCompra">
-                                <option>-- modelo de compra --</option>
-                                @foreach (var item in Enum.GetValues(typeof(TipoCompra)))
-                                {
-                                    <option>@item</option>
-                                }
-                            </select>
-                        </td>
+                        @if (data is not null)
+                        {
+                            <td class="overflow-hidden">
+                                <select class="form-select form-select-sm" @bind="data.ModeloCompra" @bind:event="onchange" @bind:after="()=>UpdateOrden(data)">
+                                    @foreach (var item in Enum.GetValues(typeof(TipoCompra)))
+                                    {
+                                        <option>@item</option>
+                                    }
+                                </select>
+                            </td>
+                        }
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 16).Visible)
+                    {
+                        @if (data is not null)
+                        {
+                            <td class="overflow-hidden">
+                                <select class="form-select form-select-sm" @bind="data.TipoVenta" @bind:event="onchange" @bind:after="()=>UpdateOrden(data)">
+                                    <option>-- Tipo de venta --</option>
+                                    @foreach (var item in Enum.GetValues(typeof(TipoVenta)))
+                                    {
+                                        <option>@item</option>
+                                    }
+                                </select>
+                            </td>
+                        }
                     }
                     @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
                     {
@@ -798,10 +832,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await Checar_Terminal();
-        await ObtenerAutorizadores();
-        await ObtenerMultidestinos();
-        await GetTransportista();
         Columnas.AddRange(new List<Columna_Tabla>()
 {
             new Columna_Tabla{ID = 1, Nombre_Columna = "Orde de compra"},
@@ -819,10 +849,18 @@ else
             new Columna_Tabla {ID = 13, Nombre_Columna = "Estatus"},
             new Columna_Tabla {ID = 14, Nombre_Columna = "Unidad de negocio" },
             new Columna_Tabla {ID = 15, Nombre_Columna = "Modelo de compra" },
+            new Columna_Tabla {ID = 16, Nombre_Columna = "Tipo de venta" },
         });
 
         _params.Fecha_Fin.AddDays(1);
-        await MostrarOrdenFecha();
+
+        await Task.WhenAll(
+            Checar_Terminal(),
+            ObtenerAutorizadores(),
+            ObtenerMultidestinos(),
+            GetTransportista(),
+            MostrarOrdenFecha()
+        );
 
         await js.InvokeVoidAsync("importarScript", "js/resizableTable.js");
     }
@@ -832,11 +870,6 @@ else
         public string Nombre_Columna { get; set; } = string.Empty;
         public bool Visible { get; set; } = true;
         public int ID { get; set; } = 0;
-    }
-
-    void Change(string text)
-    {
-        Console.WriteLine($"{text}");
     }
 
     public async Task GetDataSelction()
@@ -849,6 +882,7 @@ else
             await GetVehiculo();
         }
     }
+
     public async Task GetTransportista()
     {
         var response = await repositorio.Get<List<Transportista>>("api/transportista");
@@ -862,6 +896,7 @@ else
             Transportistas = response.Response;
         }
     }
+
     public async Task GetChoferes()
     {
         try
@@ -891,6 +926,7 @@ else
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
     public async Task GetVehiculo()
     {
         try
@@ -920,6 +956,7 @@ else
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
     public async Task MostrarOrdenFecha()
     {
         try
@@ -968,10 +1005,10 @@ else
                         Chofer = asignacion.CodChf,
                         Tonel = asignacion.CodTon,
                         Compartimento = Vehiculos?.Count == null ? 0 :
-                                (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-                                : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-                                : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-                                : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                                                                        (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                                                        : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                                                        : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                                                        : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
                     };
@@ -1086,6 +1123,32 @@ else
         }
     }
 
+    private async Task UpdateOrden(OrdenEmbarque orden)
+    {
+        loadingAgregar = true;
+        try
+        {
+            orden.Modelo_Venta_Orden = orden.TipoVenta.Equals(TipoVenta.Rack) ? ModeloVenta.Rack : ModeloVenta.Delivery;
+            var response = await repositorio.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido/asignar/unidad", orden);
+            if (response.Error)
+            {
+                loadingAgregar = false;
+                string? message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingAgregar = false;
+            }
+        }
+        catch (Exception e)
+        {
+            loadingAgregar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
     private async Task GenerateExcel()
     {
         try
@@ -1109,8 +1172,6 @@ else
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
-
-
 
     private void Message(NotificationMessage message)
     {
