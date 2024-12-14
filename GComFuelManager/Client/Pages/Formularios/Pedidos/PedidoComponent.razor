@@ -663,13 +663,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1033,16 +1033,16 @@
             }
             else
             {
-                if (response.Response.Destino is not null)
-                {
-                    if (response.Response.OrdenEmbarque is not null)
-                    {
-                        if (response.Response.Destino.ModeloCompra is not null)
-                        {
-                            response.Response.OrdenEmbarque.ModeloCompra = response.Response.Destino.ModeloCompra;
-                        }
-                    }
-                }
+                //if (response.Response.Destino is not null)
+                //{
+                //    if (response.Response.OrdenEmbarque is not null)
+                //    {
+                //        //if (response.Response.Destino.ModeloCompra is not null)
+                //        //{
+                //        //    response.Response.OrdenEmbarque.ModeloCompra = response.Response.Destino.ModeloCompra;
+                //        //}
+                //    }
+                //}
                 ordenCierres.Add(response.Response);
             }
 
@@ -1174,12 +1174,12 @@
         try
         {
             await ds.OpenAsync<ViewFoliosPedidosComponent>("Folios de pedidos", options: new DialogOptions()
-                {
-                    Width = "90%",
-                    Height = "600px",
-                    Resizable = true,
-                    Draggable = false
-                });
+            {
+                Width = "90%",
+                Height = "600px",
+                Resizable = true,
+                Draggable = false
+            });
         }
         catch (Exception e)
         {
@@ -1243,12 +1243,12 @@
         try
         {
             await ds.OpenAsync<ViewFoliosCierresComponent>("Folios de cierres", options: new DialogOptions()
-                {
-                    Width = "90%",
-                    Height = "600px",
-                    Resizable = true,
-                    Draggable = false
-                });
+            {
+                Width = "90%",
+                Height = "600px",
+                Resizable = true,
+                Draggable = false
+            });
         }
         catch (Exception e)
         {

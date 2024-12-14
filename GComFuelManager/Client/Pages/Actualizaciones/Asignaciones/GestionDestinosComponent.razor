@@ -80,7 +80,7 @@
                         }
                     </InputSelect>
                 </div>
-                <div class="col-4">
+                @*<div class="col-4">
                     <label>Modelo de compra</label>
                     <InputSelect @bind-Value="Destino.ModeloCompra" class="form-select form-select-sm">
                         @foreach (var item in Enum.GetValues(typeof(TipoCompra)))
@@ -88,7 +88,7 @@
                             <option value="@item">@item</option>
                         }
                     </InputSelect>
-                </div>
+                </div>*@
             </div>
             <div class="col-12 row mt-2">
                 <div class="col-4">
@@ -167,7 +167,7 @@
                 <th>ID de destino de gobierno</th>
                 <th>Tipo de venta</th>
                 <th>Modelo de venta</th>
-                <th>Modelo de compra</th>
+                @*<th>Modelo de compra</th>*@
                 <th>Habilitar / Deshabilitar</th>
             </tr>
         </Cabeceras>
@@ -185,7 +185,7 @@
                 <td>@item.Id_DestinoGobierno</td>
                 <td>@item.TipoVenta</td>
                 <td>@item.ModeloVenta</td>
-                <td>@item.ModeloCompra</td>
+                @*<td>@item.ModeloCompra</td>*@
                 <td>
                     <div class="form-check form-switch mx-2">
                         <input class="form-check-input" type="checkbox" role="switch" id="DestinoStatus" checked="@item.Activo" @onchange="@(()=>ChangeStatusDestino(item.Cod))">
