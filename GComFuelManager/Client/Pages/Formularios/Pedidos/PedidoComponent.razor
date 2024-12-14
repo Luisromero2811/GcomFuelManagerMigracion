@@ -1037,7 +1037,7 @@
                 {
                     if (response.Response.OrdenEmbarque is not null)
                     {
-                        response.Response.OrdenEmbarque.ModeloCompra = response.Response.Destino.ModeloCompra ?? TipoCompra.Rack;
+                        //response.Response.OrdenEmbarque.ModeloCompra = response.Response.Destino.ModeloCompra ?? TipoCompra.Rack;
                         response.Response.OrdenEmbarque.Modelo_Venta_Orden = response.Response.Destino.TipoVenta ?? ModeloVenta.Delivery;
                         response.Response.OrdenEmbarque.TipoVenta = response.Response.Destino.ModeloVenta ?? TipoVenta.Externo;
                     }
