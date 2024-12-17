@@ -1,4 +1,4 @@
-﻿using GComFuelManager.Shared.Enums;
+using GComFuelManager.Shared.Enums;
 using OfficeOpenXml.Attributes;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -42,7 +42,7 @@ namespace GComFuelManager.Shared.Modelos
 
         public ModeloVenta? TipoVenta { get; set; }
         public TipoVenta? ModeloVenta { get; set; }
-        public TipoCompra? ModeloCompra { get; set; }
+        //public TipoCompra? ModeloCompra { get; set; }
 
         [NotMapped, DisplayName("Nombre Completo del Destino")]
         public string FULLDEN

@@ -337,7 +337,10 @@ namespace GComFuelManager.Shared.Modelos
                 if (Destino is not null)
                 {
                     if (!string.IsNullOrEmpty(Destino.Den))
-                        return Destino.Cliente.Den;
+                    {
+                        Cliente? cliente = Destino.Cliente;
+                        return cliente?.Den;
+                    }
                 }
 
                 return "Sin cliente asignado";
