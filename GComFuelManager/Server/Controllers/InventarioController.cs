@@ -176,6 +176,8 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var isEdit = false;
+
                 var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
                 if (id_terminal == 0)
                     return BadRequest();
@@ -219,6 +221,14 @@ namespace GComFuelManager.Server.Controllers
                 //else
                 //    inventariodto.CantidadLTS = inventariodto.Cantidad * 1000;
 
+                if (inventariodto.Id != 0)
+                {
+                    var inv = await context.Inventarios.FindAsync(inventariodto.Id);
+                    if (inv is not null)
+                        if (inv.CantidadLTS != inventariodto.CantidadLTS)
+                            isEdit = true;
+                }
+
                 InventarioCierre? cierre = null!;
 
                 if (!inventariodto.CierreId.IsZero())
@@ -241,7 +251,7 @@ namespace GComFuelManager.Server.Controllers
                             if (tipo >= 20)
                                 return BadRequest("No hay volumen disponible");
 
-                if (cierre is not null)
+                if (cierre is not null && isEdit)
                     if (tm is not null)
                         if (int.TryParse(tm.Abreviacion, out int tipo))
                             if (tipo.Equals(8))
@@ -883,7 +893,9 @@ namespace GComFuelManager.Server.Controllers
                 });
 
                 ws.Cells[3, 11, ws.Dimension.End.Row, 13].Style.Numberformat.Format = "#,##0.00";
-                ws.Cells[3, 15, ws.Dimension.End.Row, 15].Style.Numberformat.Format = "# °";
+                ws.Cells[3, 18, ws.Dimension.End.Row, 18].Style.Numberformat.Format = "# °";
+                ws.Cells[3, 9, ws.Dimension.End.Row, 9].Style.Numberformat.Format = "dd/MM/yyyy";
+                ws.Cells[3, 10, ws.Dimension.End.Row, 11].Style.Numberformat.Format = "HH:mm";
                 ws.Cells[3, 1, ws.Dimension.End.Row, 2].Style.Numberformat.Format = "dd/MM/yyyy hh:mm:ss";
 
                 ws.Cells[3, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
