@@ -78,7 +78,7 @@
                                         @(!string.IsNullOrEmpty(item.Tel_Movil) ? $"/{item.Tel_Movil}" : string.Empty)
                                     </Render>
                                 </DropDownFilter>
-                                <InputSelect @bind-Value="Oportunidad.ContactoId" class="d-none"/>
+                                <InputSelect @bind-Value="Oportunidad.ContactoId" class="d-none" />
                                 <ValidationMessage For="@(()=>Oportunidad.ContactoId)" />
                             </div>
                             <div class="col-md-4 col-12">
@@ -239,7 +239,7 @@
                             </div>
                             <div class="col-md-4 col-12">
                                 <label>Etapa de venta</label>
-                                <InputSelect @bind-Value="Oportunidad.EtapaVentaId" class="form-select">
+                                <InputSelect @bind-Value="Oportunidad.EtapaVentaId" class="form-select" @onchange="OnEtapaVentaChange">
                                     <option>-- seleccione una etapa de venta--</option>
                                     @foreach (var item in Etapas)
                                     {
@@ -289,10 +289,38 @@
                                 <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documento de revision"
                                                MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRevisionSubido" />
                             </div>
+                            <div class="col-12 col-md-4 my-1">
+                                <label>Tipo de Documento:</label>
+                                <DropDownFilter Listado="TiposDocumento" TListado="CRMTipoDocumentoDTO" TValue="CRMTipoDocumentoDTO" Default_Placeholder="Seleccione tipos de documento" FiltrarValor="ObtenerTipos"
+                                                Propiedad_Valor="Id" Seleccion_Multiple="true" On_Cancel_Method="CancelTipoSelector">
+                                    <RenderValue Context="item">
+                                        @if (TipoSeleccionado.Count > 0)
+                                        {
+                                            <div>
+                                                @(TipoSeleccionado.Count()) seleccionados
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div>Lideres</div>
+                                        }
+                                    </RenderValue>
+                                    <Render Context="item">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="@item.Id" checked="@(TipoSeleccionado.Any(x => x.Id == item.Id))" @onchange="@((e)=>SelectTipo(e, item))" />
+                                            <label class="form-check-label" for="@item.Id">
+                                                <div class="my-auto">
+                                                    @($"{item.Nombre}")
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </Render>
+                                </DropDownFilter>
+                            </div>
                         </Body>
                     </Card>
-                    <div class="col-12">
-                        <div class="col-3">
+                    <div class="col-12 d-flex mt-3 justify-content-center">
+                        <div class="col-3 btn-group">
                             <button type="submit" class="btn gcom-bg-amarillo col-12">
                                 <i class="fa fa-solid fa-floppy-disk" />
                                 Guardar
@@ -302,6 +330,15 @@
                                 }
                             </button>
                         </div>
+                        @if (MostrarBotonConoceCliente)
+                        {
+                            <div class="col-3 ms-2">
+                                <button type="button" class="btn gcom-bg-amarillo col-12" @onclick="IrAConoceTuCliente">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                    Conoce a tu Cliente
+                                </button>
+                            </div>
+                        }
                     </div>
                 </EditForm>
             </Body>
@@ -311,6 +348,9 @@
 
 @code {
     [Parameter] public int Id { get; set; }
+
+    private bool MostrarBotonConoceCliente = false;
+    private const int EtapaGanadoId = 74;
 
     CRMOportunidadPostDTO Oportunidad = new();
     List<CRMCatalogoValor> OrigenProductos = new();
@@ -328,6 +368,17 @@
     List<CRMClienteDTO> Clientes = new();
     List<CRMContactoDTO> Contactos = new();
     List<CRMEquipoDTO> Equipos = new();
+
+    List<CRMTipoDocumentoDTO> TiposDocumento { get; set; } = new();
+
+    List<CRMTipoDocumentoDTO> TipoNoSeleccionado = new();
+    List<CRMTipoDocumentoDTO> TipoSeleccionado = new();
+    CRMDocumentoPostDTO Documentos = new();
+
+    Dictionary<string, string> FiltroNoSeleccionado = new();
+    Dictionary<string, string> FiltroSeleccionado = new();
+    Dictionary<string, string> query = new();
+
 
     bool loading_info = false;
     bool loading_save = false;
@@ -347,6 +398,7 @@
         ObtenerCatalogoVolumen(),
         ObtenerCatalogoFormaPago(),
         ObtenerCatalogoDiasCredito(),
+        ObtenerTipos(),
         ObtenerContacto(),
         ObtenerEquipos());
 
@@ -356,6 +408,7 @@
     {
         if (!Id.IsZero())
             await ObtenerOportunidad();
+        VerificarMostrarBoton();
     }
 
     private async Task ObtenerVendedores(string value = "")
@@ -687,6 +740,8 @@
     {
         try
         {
+            Oportunidad.TiposDocumentoIds = TipoSeleccionado.Select(x => x.Id).ToList();
+
             loading_save = true;
             var response = await http.Post<CRMOportunidadPostDTO>($"api/crmoportunidad", Oportunidad);
             if (response.Error)
@@ -697,11 +752,18 @@
             }
             else
             {
-                loading_save = false;
-                if (Id != 0)
-                    navigation.NavigateTo("crm/oportunidades", false);
+                if (Oportunidad.Id != 0)
+                {
+                    await swal.FireAsync("Exito", "La oportunidad fue gestionada de manera correcta", SweetAlertIcon.Success);
+                    await ObtenerOportunidad();
+                    VerificarMostrarBoton();
+                }
                 else
-                    Oportunidad = new();
+                {
+                    await swal.FireAsync("Exito", "La oportunidad fue gestionada de manera correcta", SweetAlertIcon.Success);
+                    VerificarMostrarBoton();
+                }
+
             }
         }
         catch (Exception e)
@@ -727,6 +789,9 @@
             {
                 loading_info = false;
                 Oportunidad = response.Response;
+                TipoSeleccionado = TiposDocumento
+                  .Where(td => Oportunidad.TiposDocumentoIds.Contains(td.Id)) // Verificamos IDs
+                  .ToList();
             }
         }
         catch (Exception e)
@@ -870,5 +935,85 @@
             Oportunidad.DocumentoRevision = doc.Id;
         }
     }
+
+    void CancelTipoSelector()
+    {
+        TipoSeleccionado = new();
+    }
+
+    void SelectTipo(ChangeEventArgs args, CRMTipoDocumentoDTO dto)
+    {
+        if (args.Value is null) { return; }
+
+        if ((bool)args.Value)
+        {
+            if (!TipoSeleccionado.Any(x => x.Id == dto.Id))
+                TipoSeleccionado.Add(dto);
+        }
+        else
+        {
+            if (TipoSeleccionado.Any(x => x.Id == dto.Id))
+                TipoSeleccionado.RemoveAt(TipoSeleccionado.IndexOf(TipoSeleccionado.First(x => x.Id == dto.Id)));
+        }
+
+        Documentos.TipoDocumentos = TipoSeleccionado;
+    }
+
+    private async Task ObtenerTipos(string value = "")
+    {
+        try
+        {
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<CRMTipoDocumentoDTO>>($"api/actividades/tipodocumento?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                TiposDocumento = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void VerificarMostrarBoton()
+    {
+        MostrarBotonConoceCliente = Oportunidad.EtapaVentaId == EtapaGanadoId;
+    }
+
+    //Le damos el valor de la etapa de venta para que este sepa si se debe mostrar el boton o no
+    private void OnEtapaVentaChange(ChangeEventArgs e)
+    {
+        var etapaSeleccionada = Convert.ToInt32(e.Value);
+        MostrarBotonConoceCliente = etapaSeleccionada == EtapaGanadoId;
+    }
+
+    private async Task IrAConoceTuCliente()
+    {
+        try
+        {
+            // Realiza una llamada al backend para obtener el formulario relacionado
+            var response = await http.Get<ConoceClienteOportunidad>($"api/crmformjuridico/verificar/{Id}");
+
+            // Si la respuesta no tiene error, existe un formulario relacionado
+            bool editar = response != null && response.Response != null;
+
+            // Redirige al formulario con el estado basado en la existencia del registro
+            navigation.NavigateTo($"crm/oportunidades/formulariojuridico/{Oportunidad.Id}?editar={editar.ToString().ToLower()}");
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 
 }

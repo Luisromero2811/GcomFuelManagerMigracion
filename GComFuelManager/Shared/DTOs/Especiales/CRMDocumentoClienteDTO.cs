@@ -1,4 +1,5 @@
 ﻿using GComFuelManager.Shared.Filtro;
+using GComFuelManager.Shared.Modelos;
 
 namespace GComFuelManager.Shared.DTOs.Especiales;
 public class CRMDocumentoClienteDTO : Parametros_Busqueda_Gen
@@ -17,5 +18,9 @@ public class CRMDocumentoClienteDTO : Parametros_Busqueda_Gen
     public string Url { get; set; } = string.Empty;
     public string Cliente { get; set; } = string.Empty;
     public string VendedorActividad { get; set; } = string.Empty;
-     public string VendedorOportunidad { get; set; } = string.Empty;
+    public string VendedorOportunidad { get; set; } = string.Empty;
+    public string? Comentarios { get; set; } = string.Empty;
+
+    public List<string> TipoDocumento { get; set; } = new();
+    public List<CRMDocumentoRevision> Revisiones { get; set; } = new();
 }

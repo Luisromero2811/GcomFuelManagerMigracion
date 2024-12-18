@@ -1,0 +1,1335 @@
+﻿@page "/crm/oportunidades/formulariojuridico/{OportunidadId:int}"
+
+@inject SweetAlertService Swal
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IJSRuntime Js
+
+<Card HeaderClass="d-flex justify-content-between">
+    <Header>
+        <div>
+            <b>Cuestionario conoce a tu cliente</b>
+        </div>
+        <div>
+            <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
+                <i class="fa fa-solid fa-arrow-left" /> Volver
+            </button>
+        </div>
+    </Header>
+    <Body>
+        <div class="col-12">
+            <EditForm Model="@ConoceClienteDTO" class="form col-12" OnValidSubmit="CreateCuestionario">
+                <div class="row g-1">
+                    <div class="col-12 col-md-3 my-1">
+                        <label>Nombre o Razón Social:</label>
+                        <InputText @bind-Value="@ConoceClienteDTO.RazonSocial" class="form-control" />
+                    </div>
+                    <div class="col-12 col-md-3 my-1">
+                        <label>Tipo de Cliente:</label>
+                        <InputSelect @bind-Value="@ConoceClienteDTO.TipoCliente" class="form-select form-select-sm">
+                            <option>-- Seleccione un Tipo de Cliente --</option>
+                            @foreach (var tipo in Cat_TipoClient)
+                            {
+                                <option value="@tipo.Id">@tipo.Valor</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-12 col-md-3 my-1">
+                        <label>Giro:</label>
+                        <InputSelect @bind-Value="@ConoceClienteDTO.Giro" class="form-select form-select-sm">
+                            <option>-- Seleccione un Giro --</option>
+                            @foreach (var giro in Cat_Giro)
+                            {
+                                <option value="@giro.Id">@giro.Valor</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-12 col-md-3 my-1">
+                        <label>Permiso CRE: (En su caso)</label>
+                        <InputText @bind-Value="@ConoceClienteDTO.CRE" class="form-control" />
+                    </div>
+                    <div class="col-12 col-md-3 my-1">
+                        <label>RFC:</label>
+                        <InputText @bind-Value="@ConoceClienteDTO.RFC" class="form-control" />
+                    </div>
+                    <div class="col-12 col-md-3 my-1">
+                        <label>Domicilio Fiscal:</label>
+                        <InputText @bind-Value="@ConoceClienteDTO.DomicilioFiscal" class="form-control" />
+                    </div>
+                    <div class="col-12 col-md-3 my-1">
+                        <label>Tipo de Entrega:</label>
+                        <InputSelect @bind-Value="@ConoceClienteDTO.TipoEntrega" class="form-select form-select-sm">
+                            <option>-- Seleccione un Tipo de Entrega --</option>
+                            @foreach (var giro in Cat_Tipo_Entrega)
+                            {
+                                <option value="@giro.Id">@giro.Valor</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <Card HeaderText="Domicilio de Entrega (Solo en entregas tipo Delivery)" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-12 col-md-3 my-1">
+                                <label>Calle:</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.Calle" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-2 my-1">
+                                <label>Número</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.Numero" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-3 my-1">
+                                <label>Colonia:</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.Colonia" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-2 my-1">
+                                <label>Clave del municipio CP</label>
+                                <InputNumber @bind-Value="@ConoceClienteDTO.CP" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-2 my-1">
+                                <label>Municipio:</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.Municipio" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-3 my-1">
+                                <label>Entidad Federativa:</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.EntidadFederal" class="form-control" />
+                            </div>
+                            <!--Latitud lo deje como coordenadas y longitud como longitud-->
+                            <div class="col-12 col-md-3 my-1">
+                                <label>Latitud:</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.Coordenadas" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-3 my-1">
+                                <label>Longitud:</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.Longitud" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-3 my-1">
+                                <label>Suministro:</label>
+                                <InputSelect @bind-Value="@ConoceClienteDTO.Suministro" class="form-select form-select-sm">
+                                    <option>-- Seleccione un Suministro --</option>
+                                    @foreach (var tipo in Cat_Suministro)
+                                    {
+                                        <option value="@tipo.Id">@tipo.Valor</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        </Body>
+                    </Card>
+                    <Card HeaderText="Gestión de Pago" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-12 col-md-3 my-1">
+                                <label>Pago:</label>
+                                <InputSelect @bind-Value="@ConoceClienteDTO.Pago" class="form-select form-select-sm">
+                                    <option>-- Seleccione un Pago --</option>
+                                    @foreach (var tipo in Cat_Pago)
+                                    {
+                                        <option value="@tipo.Id">@tipo.Valor</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-12 col-md-3 my-1">
+                                <label>Método de Pago:</label>
+                                <InputSelect @bind-Value="@ConoceClienteDTO.MetodoPago" class="form-select form-select-sm">
+                                    <option>-- Seleccione un Tipo de Cliente --</option>
+                                    @foreach (var tipo in Cat_Method_Pago)
+                                    {
+                                        <option value="@tipo.Id">@tipo.Valor</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-12 col-md-3 my-1">
+                                <label>Forma de Pago:</label>
+                                <InputSelect @bind-Value="@ConoceClienteDTO.FormaPago" class="form-select form-select-sm">
+                                    <option>-- Seleccione un Tipo de Cliente --</option>
+                                    @foreach (var tipo in Cat_Forma_Pago)
+                                    {
+                                        <option value="@tipo.Id">@tipo.Valor</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-12 col-md-3 my-1">
+                                <label>Uso de CFDI:</label>
+                                <InputSelect @bind-Value="@ConoceClienteDTO.CFDI" class="form-select form-select-sm">
+                                    <option>-- Seleccione un Uso de CFDI --</option>
+                                    @foreach (var tipo in Cat_Uso_CFDI)
+                                    {
+                                        <option value="@tipo.Id">@tipo.Valor</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        </Body>
+                    </Card>
+                    <Card HeaderText="Ejecutivo de Cuenta" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-12 col-md-12 my-1 d-flex flex-column justify-content-center align-items-center">
+                                <label class="mb-2 text-center">Nombre y Apellido del Ejecutivo:</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.Ejecutivo" class="form-control w-90" />
+                            </div>
+                        </Body>
+                    </Card>
+                    <Card HeaderText="Personal de Contacto" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-12 col-md-4 my-1">
+                                <label>Nombre:</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.NombrePersonalContacto" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-4 my-1">
+                                <label>Télefono</label>
+                                <InputNumber @bind-Value="@ConoceClienteDTO.TelefonoPersonalContacto" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-4 my-1">
+                                <label>E-MAIL</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.EmailPersonalContacto" class="form-control" />
+                            </div>
+                        </Body>
+                    </Card>
+                    <Card HeaderText="Encargado de Realizar los Pagos" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-12 col-md-4 my-1">
+                                <label>Nombre:</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.EncargadoPagoNombre" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-4 my-1">
+                                <label>Télefono</label>
+                                <InputNumber @bind-Value="@ConoceClienteDTO.EncargadoPagoTelefono" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-4 my-1">
+                                <label>E-MAIL</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.EncargadoPagoEmail" class="form-control" />
+                            </div>
+                        </Body>
+                    </Card>
+                    <Card HeaderText="Recepción de Facturas y Complementos de Pago" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-12 col-md-4 my-1">
+                                <label>Nombre:</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.RecepcionFacturasNombre" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-4 my-1">
+                                <label>Télefono</label>
+                                <InputNumber @bind-Value="@ConoceClienteDTO.RecepcionFacturasNumero" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-4 my-1">
+                                <label>E-MAIL</label>
+                                <InputText @bind-Value="@ConoceClienteDTO.RecepcionFacturasEmail" class="form-control" />
+                            </div>
+                        </Body>
+                    </Card>
+                    <Card HeaderText="Información Ética del Cliente" BodyClass="col-12">
+                        <Body>
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Pregunta</th>
+                                        <th scope="col">Respuesta</th>
+                                        <AuthorizeView Roles="Admin, CREAR_OPORTUNIDAD">
+                                            <Authorized Context="SubirArchivo">
+                                                <th scope="col">Subir Archivo</th>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                        <AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                                            <Authorized Context="DescargaDocumento">
+                                                <th scope="col">Descargar Documento</th>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>¿Cuenta con un Código de Ética? (En caso de respuesta afirmativa, anexar copia):</td>
+                                        <td>
+                                            <InputSelect @bind-Value="@ConoceClienteDTO.InfoEtica1" class="form-select form-select-sm">
+                                                <option>-- Seleccione una Opción --</option>
+                                                @foreach (var giro in Cat_InfoEtica)
+                                                {
+                                                    <option value="@giro.Id">@giro.Valor</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <AuthorizeView Roles="Admin, CREAR_OPORTUNIDAD">
+                                            <Authorized Context="SubirArchivo1">
+                                                <td>
+                                                    <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                                   MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoEtica1" />
+                                                </td>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                        <AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                                            <Authorized Context="DescargaDocumentoEtica1">
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdEtica1)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdEtica1))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </tr>
+                                    <tr>
+                                        <td>¿Cuenta con un Código de Conducta? (En caso de respuesta afirmativa, anexar copia):</td>
+                                        <td>
+                                            <InputSelect @bind-Value="@ConoceClienteDTO.InfoEtica2" class="form-select form-select-sm">
+                                                <option>-- Seleccione una Opción --</option>
+                                                @foreach (var giro in Cat_InfoEtica)
+                                                {
+                                                    <option value="@giro.Id">@giro.Valor</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <AuthorizeView Roles="Admin, CREAR_OPORTUNIDAD">
+                                            <Authorized Context="SubirArchivo2">
+                                                <td>
+                                                    <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                                   MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoEtica2" />
+                                                </td>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                        <AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                                            <Authorized Context="DescargaDocumentoEtica2">
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdEtica2)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdEtica2))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </tr>
+                                    <tr>
+                                        <td>¿Cuenta con una Política anticorrupción? (En caso de respuesta afirmativa, anexar copia):</td>
+                                        <td>
+                                            <InputSelect @bind-Value="@ConoceClienteDTO.InfoEtica3" class="form-select form-select-sm">
+                                                <option>-- Seleccione una Opción --</option>
+                                                @foreach (var giro in Cat_InfoEtica)
+                                                {
+                                                    <option value="@giro.Id">@giro.Valor</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <AuthorizeView Roles="Admin, CREAR_OPORTUNIDAD">
+                                            <Authorized Context="SubirArchivo3">
+                                                <td>
+                                                    <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                                   MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoEtica3" />
+                                                </td>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                        <AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                                            <Authorized Context="DescargaDocumentoEtica3">
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdEtica3)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdEtica3))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </tr>
+                                    <tr>
+                                        <td>¿Brinda capacitación a su personal en temas relacionados al combate a la corrupción?</td>
+                                        <td class="d-flex justify-content-center align-items-center">
+                                            <InputSelect @bind-Value="@ConoceClienteDTO.InfoEtica4" class="form-select form-select-sm">
+                                                <option>-- Seleccione una Opción --</option>
+                                                @foreach (var giro in Cat_InfoEtica)
+                                                {
+                                                    <option value="@giro.Id">@giro.Valor</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td>
+                                        </td>
+                                        <AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                                            <Authorized Context="DescargaDocumentoEtica4">
+                                                <td>
+                                                </td>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </tr>
+                                    <tr>
+                                        <td>¿Cuenta con algún medio o mecanismo institucional para denunciar temas relacionados a la corrupción?</td>
+                                        <td class="d-flex justify-content-center align-items-center">
+                                            <InputSelect @bind-Value="@ConoceClienteDTO.InfoEtica5" class="form-select form-select-sm">
+                                                <option>-- Seleccione una Opción --</option>
+                                                @foreach (var giro in Cat_InfoEtica)
+                                                {
+                                                    <option value="@giro.Id">@giro.Valor</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td>
+                                        </td>
+                                        <AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                                            <Authorized Context="DescargaDocumentoEticaCinco">
+                                                <td>
+                                                </td>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </tr>
+                                    <tr>
+                                        <td>¿Sus directivos hablan de forma clara sobre temas de corrupción y la responsabilidad de los empleados?</td>
+                                        <td class="d-flex justify-content-center align-items-center">
+                                            <InputSelect @bind-Value="@ConoceClienteDTO.InfoEtica6" class="form-select form-select-sm">
+                                                <option>-- Seleccione una Opción --</option>
+                                                @foreach (var giro in Cat_InfoEtica)
+                                                {
+                                                    <option value="@giro.Id">@giro.Valor</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td>
+                                        </td>
+                                        <AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                                            <Authorized Context="DescargaDocumentoEtica6">
+                                                <td>
+                                                </td>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </tr>
+                                    <tr>
+                                        <td>¿Conoce y dará cumplimiento de las leyes y reglamentos en materia de anticorrupción del país y otros que resulten relevantes para el acuerdo comercial?</td>
+                                        <td class="d-flex justify-content-center align-items-center">
+                                            <InputSelect @bind-Value="@ConoceClienteDTO.InfoEtica7" class="form-select form-select-sm">
+                                                <option>-- Seleccione una Opción --</option>
+                                                @foreach (var giro in Cat_InfoEtica)
+                                                {
+                                                    <option value="@giro.Id">@giro.Valor</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td>
+                                        </td>
+                                        <AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                                            <Authorized Context="DescargaDocumentoEtica7">
+                                                <td>
+                                                </td>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </Body>
+                    </Card>
+                    <AuthorizeView Roles="Admin, CREAR_OPORTUNIDAD">
+                        <Authorized Context="DocumentosAdicionales">
+                            <Card HeaderText="Documentación Legal" BodyClass="col-12 row">
+                                <Body>
+                                    <div class="row align-items-stretch">
+                                        <div class="col-12 col-md-3 my-1 d-flex flex-column">
+                                            <!--Se quedará como Documento cinco el acta constitutiva-->
+                                            <label><b>Acta Constitutiva</b></label>
+                                            <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                           MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional5" />
+                                        </div>
+                                        <div class="col-12 col-md-3 my-1 d-flex flex-column">
+                                            <!--DocumentoIdAdicional8-->
+                                            <label><b>Asambleas</b></label>
+                                            <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                           MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional8" />
+                                        </div>
+                                        <div class="col-12 col-md-3 my-1 d-flex flex-column">
+                                            <!--DocumentoIdAdicional9-->
+                                            <label><b>Poder del Representante Legal</b></label>
+                                            <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                           MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional9" />
+                                        </div><!--DocumentoIdAdicional10-->
+                                        <div class="col-12 col-md-3 my-1 d-flex flex-column">
+                                            <label><b>INE del Representante Legal.</b></label>
+                                            <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                           MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional10" />
+                                        </div>
+                                    </div>
+                                </Body>
+                            </Card>
+                            <Card HeaderText="Documentación adicional" BodyClass="col-12 row">
+                                <Body>
+                                    <div class="row align-items-stretch">
+                                        <div class="col-12 col-md-2 my-1 d-flex flex-column">
+                                            <label class="doc-label">
+                                                <b>Título de Permiso expedido por la CRE (Comercialización, Distribución o Transporte).</b>
+                                            </label>
+                                            <div class="subir-archivo-wrapper">
+                                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional1" />
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-2 my-1 d-flex flex-column">
+                                            <label class="doc-label">
+                                                <b>Constancia de Situación Fiscal Actualizada.</b>
+                                            </label>
+                                            <div class="subir-archivo-wrapper">
+                                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional2" />
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-2 my-1 d-flex flex-column">
+                                            <label class="doc-label">
+                                                <b>Opinión de Cumplimiento, Formato 32-D.</b>
+                                            </label>
+                                            <div class="subir-archivo-wrapper">
+                                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional3" />
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-2 my-1 d-flex flex-column">
+                                            <label class="doc-label">
+                                                <b>Comprobante de Domicilio (agua, luz, télefono) no mayor a 3 meses.</b>
+                                            </label>
+                                            <div class="subir-archivo-wrapper">
+                                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional4" />
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-2 my-1 d-flex flex-column">
+                                            <label class="doc-label"><b>Información Bancaria (Caratula Estado de Cuenta).</b></label>
+                                            <div class="subir-archivo-wrapper">
+                                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional6" />
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-2 my-1 d-flex flex-column">
+                                            <label class="doc-label"><b>Última Factura y Remisión Pemex (En su caso).</b></label>
+                                            <div class="subir-archivo-wrapper">
+                                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional7" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Body>
+                            </Card>
+                            <Card HeaderText="Contrato" BodyClass="col-12 row">
+                                <Body>
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="text-center">Descargar Contrato</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button"
+                                                                @onclick="@(() => DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional11)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional11))">
+                                                            <i class="fa fa-solid fa-download"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="text-center">Subir Archivo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
+                                                        <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                                       MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional11" />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </Body>
+                            </Card>
+                        </Authorized>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                        <Authorized Context="DocsLegales">
+                            <Card HeaderText="Documentación Legal" BodyClass="col-12 row">
+                                <Body>
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Documento Solicitado</th>
+                                                <th scope="col">Descargar Archivo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Acta Constitutiva</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional5)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional5))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Asambleas</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional8)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional8))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Poder del Representante Legal</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional9)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional9))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>INE del Representante Legal.</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional10)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional10))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </Body>
+                            </Card>
+                            <Card HeaderText="Documentación Adicional" BodyClass="col-12 row">
+                                <Body>
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Documento Solicitado</th>
+                                                <th scope="col">Descargar Archivo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Título de Permiso expedido por la CRE (Comercialización, Distribución o Transporte).</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional1)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional1))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Constancia de Situación Fiscal Actualizada.</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional2)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional2))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Opinión de Cumplimiento, Formato 32-D.</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional3)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional3))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Comprobante de Domicilio (agua, luz, télefono) no mayor a 3 meses.</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional4)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional4))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Información Bancaria (Caratula Estado de Cuenta).</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional6)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional6))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Última Factura y Remisión Pemex (En su caso).</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional7)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional7))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </Body>
+                            </Card>
+                            <Card HeaderText="Contrato" BodyClass="col-12 row">
+                                <Body>
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="text-center">Subir Archivo</th>
+                                                <th scope="col" class="text-center">Enviar Contrato</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
+                                                        <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                                       MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional11" />
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo mt-2" type="submit">
+                                                            <i class="fa-solid fa-comment"></i> Enviar Contrato
+                                                            @if (loading_guardar)
+                                                            {
+                                                                <SpinnerLoading />
+                                                            }
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="text-center">Descargar Contrato</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button"
+                                                                @onclick="@(() => DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional11)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional11))">
+                                                            <i class="fa fa-solid fa-download"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </Body>
+                            </Card>
+
+                        </Authorized>
+                    </AuthorizeView>
+                    <div class="col-12 col-md-6 my-1">
+                        <label>Firma</label>
+                        <InputText @bind-Value="@ConoceClienteDTO.Firma" class="form-control" />
+                    </div>
+                    <div class="col-12 col-md-6 my-1">
+                        <label>Fecha</label>
+                        <InputDate @bind-Value="@ConoceClienteDTO.FechaCreacion" class="form-control" Type="InputDateType.DateTimeLocal" />
+                    </div>
+                    <AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                        <Authorized Context="Comentarios">
+
+                            <div class="row">
+                                <div class="col-12 col-md-6 my-1">
+                                    <label>Comentarios:</label>
+                                    <InputTextArea @bind-Value="@ConoceClienteDTO.Comentarios" class="form-control" />
+                                </div>
+                                <div class="col-12 col-md-6 my-1 mt-4 d-flex align-items-center">
+                                    <button class="btn gcom-bg-amarillo" type="submit">
+                                        <label></label>
+                                        <i class="fa-solid fa-comment"></i> Enviar Comentarios
+                                        @if (loading_guardar)
+                                        {
+                                            <SpinnerLoading />
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+
+
+                            <div class="col-12 d-flex mt-4 justify-content-center my-1">
+                                <button class="btn gcom-bg-amarillo" type="button" @onclick="ConcluirOportunidad">
+                                    <i class="fa fa-solid fa-floppy-disk"></i> Concluir Oportunidad
+                                    @if (loading_guardar)
+                                    {
+                                        <SpinnerLoading />
+                                    }
+                                </button>
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
+
+
+                </div>
+                <AuthorizeView Roles="Admin, CREAR_OPORTUNIDAD">
+                    <Authorized Context="Controles">
+                        <div class="col-12 d-flex mt-3 justify-content-center">
+                            @if (!isEdit)
+                            {
+                                <div class="col-12 col-md-4 px-2">
+                                    <button class="btn gcom-bg-amarillo col-12" type="submit">
+                                        <i class="fa fa-solid fa-floppy-disk"></i> Guardar
+                                        @if (loading_guardar)
+                                        {
+                                            <SpinnerLoading />
+                                        }
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-12 btn-group">
+                                    <button class="btn gcom-bg-amarillo" type="submit">
+                                        <i class="fa fa-solid fa-floppy-disk"></i> Editar
+                                        @if (loading_guardar)
+                                        {
+                                            <SpinnerLoading />
+                                        }
+                                    </button>
+                                    <button class="btn gcom-bg-rojo" type="button" @onclick="Cancel_Activity">
+                                        <i class="fa fa-solid fa-cancel"></i> Cancelar
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+            </EditForm>
+        </div>
+    </Body>
+</Card>
+<style>
+    .doc-label {
+        display: block;
+        min-height: 4rem; /* Altura mínima para las etiquetas */
+        line-height: 1.5; /* Espaciado entre líneas */
+        margin-bottom: 0.5rem;
+        text-align: left; /* Justificar texto para uniformidad */
+        word-wrap: break-word; /* Permitir quiebres en palabras largas */
+    }
+
+    .row .col-md-3 {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+    }
+
+    .Subir_Archivo {
+        margin-top: auto; /* Se mantiene al fondo de la columna si hay espacio sobrante */
+    }
+
+    .subir-archivo-wrapper {
+        flex-shrink: 0; /* Evita que el contenedor del archivo se reduzca */
+        align-self: center; /* Alinea horizontalmente al centro */
+        margin-top: auto;
+    }
+</style>
+@code {
+
+    [Parameter]
+    public int OportunidadId { get; set; }
+    public bool Editar { get; set; }
+
+    bool isEdit = false;
+    bool loading_guardar = false;
+    bool loading_info = false;
+    //Instancias
+    public ConoceClienteOportunidad ConoceCliente { get; set; } = new();
+    public DocumentosConoceTuCliente DocumentosConoceTuCliente { get; set; } = new();
+    ConoceClienteOportunidadPostDTO ConoceClienteDTO = new();
+    ConoceClienteOportunidadDTO ConoceClienteDocsDTO = new();
+
+    //Listados//
+    List<CRMCatalogoValor> Cat_TipoClient = new();
+    List<CRMCatalogoValor> Cat_Giro = new();
+    List<CRMCatalogoValor> Cat_Tipo_Entrega = new();
+    List<CRMCatalogoValor> Cat_Pago = new();
+    List<CRMCatalogoValor> Cat_Method_Pago = new();
+    List<CRMCatalogoValor> Cat_Forma_Pago = new();
+    List<CRMCatalogoValor> Cat_Uso_CFDI = new();
+    List<CRMCatalogoValor> Cat_Suministro = new();
+    List<CRMCatalogoValor> Cat_InfoEtica = new();
+
+    CRMOportunidadPostDTO Oportunidad = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(
+            Obtener_Catalogo_Tipo_Cliente(),
+            Obtener_Catalogo_Giro(),
+            Obtener_Tipo_Entrega(),
+            Obtener_Suministro(),
+            Obtener_Pago(),
+            Obtener_Metodo_Pago(),
+            Obtener_Forma_Pago(),
+            Obtener_CFDI(),
+            Obtener_InfoEtica(),
+            ObtenerOportunidad()
+            );
+        var uri = new Uri(navigationManager.Uri);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        if (query.TryGetValue("editar", out var editarValue) && bool.TryParse(editarValue, out var editar))
+        {
+            Editar = editar;
+        }
+        if (Editar)
+        {
+            await ObtenerFormularioConoceCliente();
+        }
+    }
+
+    private async Task ObtenerFormularioConoceCliente()
+    {
+        var response = await repositorio.Get<ConoceClienteOportunidadPostDTO>($"api/crmformjuridico/obtenerform/{OportunidadId}");
+        if (!response.Error)
+        {
+            ConoceClienteDTO = response.Response;
+        }
+        else
+        {
+            await Swal.FireAsync("Error", "No se pudo cargar el formulario.", SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ObtenerOportunidad()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await repositorio.Get<CRMOportunidadPostDTO>($"api/crmoportunidad/{OportunidadId}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Oportunidad = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    //Peticiones-Funcionalidades//
+    private async Task CreateCuestionario()
+    {
+        try
+        {
+            ConoceClienteDTO.OportunidadId = OportunidadId;
+            var responseHttp = await repositorio.Post<ConoceClienteOportunidadPostDTO>($"api/crmformjuridico/create", ConoceClienteDTO);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Swal.FireAsync("Éxito", "Los datos fueron registrados de manera exitosa", SweetAlertIcon.Success);
+                ConoceClienteDTO = new();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void Cancel_Activity()
+    {
+        ConoceCliente = new();
+        isEdit = false;
+    }
+
+    private void DocumentoSubidoEtica1(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdEtica1 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+
+    private void DocumentoSubidoEtica2(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdEtica2 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private void DocumentoSubidoEtica3(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdEtica3 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private void DocumentoSubidoAdicional1(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional1 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private void DocumentoSubidoAdicional2(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional2 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private void DocumentoSubidoAdicional3(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional3 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private void DocumentoSubidoAdicional4(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional4 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+    //Documento adicional cinco será en este caso el acta constitutiva
+    private void DocumentoSubidoAdicional5(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional5 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+
+    private void DocumentoSubidoAdicional6(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional6 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+
+    private void DocumentoSubidoAdicional7(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional7 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private void DocumentoSubidoAdicional8(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional8 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private void DocumentoSubidoAdicional9(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional9 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+    private void DocumentoSubidoAdicional10(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional10 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private void DocumentoSubidoAdicional11(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional11 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private async Task Obtener_Catalogo_Tipo_Cliente()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMCatalogoValor>>($"api/crmformjuridico/catalogo/tipocliente");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_TipoClient = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Catalogo_Giro()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMCatalogoValor>>($"api/crmformjuridico/catalogo/giro");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Giro = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Tipo_Entrega()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMCatalogoValor>>($"api/crmformjuridico/catalogo/tipoentrega");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Tipo_Entrega = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Suministro()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMCatalogoValor>>($"api/crmformjuridico/catalogo/suministro");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Suministro = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Pago()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMCatalogoValor>>($"api/crmformjuridico/catalogo/pago");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Pago = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Metodo_Pago()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMCatalogoValor>>($"api/crmformjuridico/catalogo/metodopago");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Method_Pago = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Forma_Pago()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMCatalogoValor>>($"api/crmformjuridico/catalogo/formapago");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Forma_Pago = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_CFDI()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMCatalogoValor>>($"api/crmformjuridico/catalogo/CFDI");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Uso_CFDI = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_InfoEtica()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMCatalogoValor>>($"api/crmformjuridico/catalogo/InfoEtica");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_InfoEtica = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task DescargarDocumento(CRMDocumentoDTO? crm)
+    {
+        var response = await repositorio.Get<CRMDocumentoDTO>($"api/crmfile/download/{crm.Id}");
+        if (response.Error)
+        {
+
+            var message = await response.ObtenerMensajeError();
+            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+        else
+        {
+            await Js.GuardarComo(response.Response.NombreDocumento, response.Response.InfoBytes);
+        }
+    }
+
+    private bool TieneDocumento(int? documentoId)
+    {
+        return ConoceClienteDTO?.Documentos.Any(d => d.Id == documentoId) == true;
+    }
+
+    private async Task ConcluirOportunidad()
+    {
+        try
+        {
+            Oportunidad.EsConclusion = true;
+            var responseHttp = await repositorio.Post<CRMOportunidadPostDTO>($"api/crmoportunidad", Oportunidad);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Swal.FireAsync("Éxito", "La oportunidad fue concluida de manera exitosa", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+
+}
+

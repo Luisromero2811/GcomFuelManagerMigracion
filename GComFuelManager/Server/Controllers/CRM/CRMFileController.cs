@@ -47,47 +47,52 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var documentos = new List<CRMDocumento>().AsQueryable();
                 if (await userManager.IsInRoleAsync(user, "Admin"))
                 {
-                    documentos = context.CRMDocumentos.Where(x => x.Activo)
+                    documentos = context.CRMDocumentos.Where(x => x.Activo && string.IsNullOrEmpty(x.Identificador))
                         .Include(x => x.Actividades)
-                        .ThenInclude(x => x.Contacto)
-                        .ThenInclude(x => x.Cliente)
+                            .ThenInclude(x => x.Contacto)
+                            .ThenInclude(x => x.Cliente)
                         .Include(x => x.Actividades)
-                        .ThenInclude(x => x.Asuntos)
+                            .ThenInclude(x => x.Asuntos)
                         .Include(x => x.Oportunidades)
-                        .ThenInclude(x => x.CRMCliente)
+                            .ThenInclude(x => x.CRMCliente)
                         .Include(x => x.Actividades)
-                        .ThenInclude(x => x.Vendedor)
+                            .ThenInclude(x => x.Vendedor)
                         .Include(x => x.Oportunidades)
                         .ThenInclude(x => x.Vendedor)
+                        .Include(x => x.TipoDocumentos)
+                         .OrderByDescending(x => x.FechaCreacion)
                         .AsNoTracking()
                         .AsQueryable();
                 }
                 else if (await userManager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
                 {
+                    //Esta buscando que usuario COMERCIAL con el permiso LIDER_DE_EQUIPO esta haciendo la consulta
                     var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null) return NotFound();
-
+                    //Buscando a que equipo pertenece el COMERCIAL con permiso LIDER_DE_EQUIPO
                     var equipos = await context.CRMEquipos.AsNoTracking()
                         .Where(x => x.Activo && x.EquipoOriginadores.Any(e => e.OriginadorId == comercial.Id)).Select(x => x.Id).ToListAsync();
-
+                    //Obtenemos los vendedores relacionados al equipo
                     var relacion = await context.CRMEquipoVendedores.AsNoTracking()
                         .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => (int?)x.Key).ToListAsync();
-
+                    //Busca todas las actividades hechas por el vendedor ligado al equipo
                     var actividades = await context.CRMActividades.AsNoTracking().Where(x => relacion.Contains(x.Asignado) && equipos.Contains(x.EquipoId)).Select(x => x.Id).ToListAsync();
+                    //Busca todas las oportunidades hechas por el vendedor ligado al equipo
                     var oportunidades = await context.CRMOportunidades.AsNoTracking().Where(x => relacion.Contains(x.VendedorId) && equipos.Contains(x.EquipoId)).Select(x => x.Id).ToListAsync();
-
+                    //Obtiene los documentos relacionados a la o las actividades. Ejemplo actividad 1 cuenta con Documento1 y Documento2
                     var relaciondocumentosactividades = await context.CRMActividadDocumentos.AsNoTracking()
                         .Where(x => actividades.Contains(x.ActividadId)).Select(x => x.DocumentoId).ToListAsync();
-
+                    //Obtiene los documentos relacionados a la o las oportunidades. Ejemplo oportunidad 1 cuenta con Documento1 y Documento2
                     var relaciondocumentosoportunidades = await context.CRMOportunidadDocumentos.AsNoTracking()
                         .Where(x => oportunidades.Contains(x.OportunidadId)).Select(x => x.DocumentoId).ToListAsync();
-
+                    //Enlistamos los IDdocumentos
                     List<int>? idsdocumentos = new();
-
+                    //Juntamos los documentos en una sola lista por separado ya sea actividad u oportunidad
                     idsdocumentos.AddRange(relaciondocumentosactividades);
                     idsdocumentos.AddRange(relaciondocumentosoportunidades);
 
-                    documentos = context.CRMDocumentos.Where(x => x.Activo && idsdocumentos.Contains(x.Id))
+                    //Realizamos la consulta de los documentos relacionados principales que contengan el ID
+                    documentos = context.CRMDocumentos.Where(x => x.Activo && idsdocumentos.Contains(x.Id) && string.IsNullOrEmpty(x.Identificador))
                         .Include(x => x.Actividades)
                         .ThenInclude(x => x.Contacto)
                         .ThenInclude(x => x.Cliente)
@@ -95,18 +100,21 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .ThenInclude(x => x.Asuntos)
                         .Include(x => x.Oportunidades)
                         .ThenInclude(x => x.CRMCliente)
+                        .Include(x => x.TipoDocumentos)
                         .AsNoTracking()
-                        .OrderByDescending(x => x.FechaCreacion)
+                         .OrderByDescending(x => x.FechaCreacion)
                         .AsQueryable();
                 }
+
                 else
                 {
+                    //Obtenemos al usuario del Vendedor
                     var vendedor = await context.CRMVendedores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (vendedor is null) return NotFound();
-
+                    //Obtenemos tanto las actividades como las oportunidades que el vendedor ha realizado
                     var actividades = await context.CRMActividades.AsNoTracking().Where(x => x.Asignado.Equals(vendedor.Id)).Select(x => x.Id).ToListAsync();
                     var oportunidades = await context.CRMOportunidades.AsNoTracking().Where(x => x.VendedorId.Equals(vendedor.Id)).Select(x => x.Id).ToListAsync();
-
+                    //Buscamos los documentos subidos que se han relacionado a una actividad u oportunidad
                     var relaciondocumentosactividades = await context.CRMActividadDocumentos.AsNoTracking()
                         .Where(x => actividades.Contains(x.ActividadId)).Select(x => x.DocumentoId).ToListAsync();
 
@@ -114,20 +122,25 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Where(x => oportunidades.Contains(x.OportunidadId)).Select(x => x.DocumentoId).ToListAsync();
 
                     List<int>? idsdocumentos = new();
-
+                    
                     idsdocumentos.AddRange(relaciondocumentosactividades);
                     idsdocumentos.AddRange(relaciondocumentosoportunidades);
-
-                    documentos = context.CRMDocumentos.Where(x => x.Activo && idsdocumentos.Contains(x.Id))
+                    //Consultamos los documentos principales acorde a lo encontrado
+                    documentos = context.CRMDocumentos.Where(x => x.Activo && idsdocumentos.Contains(x.Id) && string.IsNullOrEmpty(x.Identificador) || x.Activo && !x.DocumentoTipoDocumentos.Any() && string.IsNullOrEmpty(x.Identificador))
                         .Include(x => x.Actividades)
                         .ThenInclude(x => x.Contacto)
                         .ThenInclude(x => x.Cliente)
                         .Include(x => x.Actividades)
-                        .ThenInclude(x=>x.Asuntos)
+                        .ThenInclude(x => x.Asuntos)
                         .Include(x => x.Oportunidades)
                         .ThenInclude(x => x.CRMCliente)
+                        .Include(x => x.Actividades)
+                            .ThenInclude(x => x.Vendedor)
+                        .Include(x => x.Oportunidades)
+                            .ThenInclude(x => x.Vendedor)
+                        .Include(x => x.TipoDocumentos)
                         .AsNoTracking()
-                        .OrderByDescending(x => x.FechaCreacion)
+                         .OrderByDescending(x => x.FechaCreacion)
                         .AsQueryable();
                 }
 

@@ -43,8 +43,8 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var result = await validator.ValidateAsync(cRMActividades);
-                if (!result.IsValid) { return BadRequest(result.Errors); }
+                //var result = await validator.ValidateAsync(cRMActividades);
+                //if (!result.IsValid) { return BadRequest(result.Errors); }
                 var actividad = mapper.Map<CRMActividadPostDTO, CRMActividades>(cRMActividades);
 
                 //Si el ID de la actividad viene en 0 se agrega un nuevo registro de lo contrario se edita el registro
@@ -52,13 +52,49 @@ namespace GComFuelManager.Server.Controllers
                 {
                     // Obtenemos la actividad actual de la base de datos para comparar
                     var actividadExistente = await context.CRMActividades
+                        .Include(x => x.Documentos)
                         .AsNoTracking() // Evita rastrear la entidad para no afectar el contexto actual
                         .FirstOrDefaultAsync(x => x.Id == actividad.Id);
 
                     if (actividadExistente != null)
                     {
-                        // Si la retroalimentación NO ha cambiado, actualizamos la fecha de modificación
-                        if (actividadExistente.Retroalimentacion == actividad.Retroalimentacion)
+                        // Variable para rastrear si se debe actualizar la fecha_mod
+                        bool actualizarFechaMod = false;
+
+                        // Validamos si la retroalimentación ha cambiado o está en blanco
+                        if (!string.IsNullOrWhiteSpace(cRMActividades.Retroalimentacion) &&
+                            actividadExistente.Retroalimentacion != cRMActividades.Retroalimentacion ||
+                            !string.IsNullOrWhiteSpace(cRMActividades.Comentarios) &&
+                            actividadExistente.Documento?.Comentarios != cRMActividades.Comentarios
+                            || Convert.ToInt32(cRMActividades.Version) == 1)
+                        {
+                            // Retroalimentación gestionada: ignoramos el cambio de fecha
+                            actividad.Fecha_Mod = actividadExistente.Fecha_Mod;
+                        }
+                        else
+                        {
+                            // Retroalimentación sin cambios o en blanco, evaluamos otras propiedades
+                            if (actividadExistente.Asunto != actividad.Asunto ||
+                                actividadExistente.Fecha_Creacion != actividad.Fecha_Creacion ||
+                                actividadExistente.Fecha_Ven != actividad.Fecha_Creacion ||
+                                actividadExistente.Prioridad != actividad.Prioridad ||
+                                actividadExistente.Asignado != actividad.Asignado ||
+                                actividadExistente.Desccripcion != actividad.Desccripcion ||
+                                actividadExistente.Estatus != actividad.Estatus ||
+                                actividadExistente.Contacto_Rel != actividad.Contacto_Rel ||
+                                actividadExistente.EquipoId != actividad.EquipoId ||
+                                actividadExistente.Documento?.Id != actividad.Documento?.Id ||
+                                actividadExistente.Documento?.NombreDocumento != actividad.Documento?.NombreDocumento ||
+                                actividadExistente.Documento?.FechaCaducidad != actividad.Documento?.FechaCaducidad ||
+                                actividadExistente.Documento?.Descripcion != actividad.Documento?.Descripcion)
+                            {
+                                // Otras propiedades cambiaron, actualizamos la fecha
+                                actualizarFechaMod = true;
+                            }
+                        }
+
+                        // Si otras propiedades cambiaron, actualizamos la fecha
+                        if (actualizarFechaMod)
                         {
                             actividad.Fecha_Mod = DateTime.Now;
                         }
@@ -81,6 +117,24 @@ namespace GComFuelManager.Server.Controllers
                         {
                             var docupdate = mapper.Map(documento, doc);
 
+
+                            var relacionesExistentes = context.DocumentoTipoDocumento.Where(x => x.DocumentoId == documento.Id);
+                            context.DocumentoTipoDocumento.RemoveRange(relacionesExistentes);
+
+                            // Registrar nuevas relaciones
+                            if (cRMActividades.TiposDocumentoIds?.Count > 0)
+                            {
+                                foreach (var tipoId in cRMActividades.TiposDocumentoIds)
+                                {
+                                    var nuevaRelacion = new DocumentoTipoDocumento
+                                    {
+                                        DocumentoId = documento.Id,
+                                        TipoDocumentoId = tipoId
+                                    };
+                                    await context.DocumentoTipoDocumento.AddAsync(nuevaRelacion);
+                                }
+                            }
+
                             if (!cRMActividades.DocumentoRelacionado.IsZero())
                             {
                                 var docrelacionad = await context.CRMDocumentos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == cRMActividades.DocumentoRelacionado);
@@ -98,6 +152,11 @@ namespace GComFuelManager.Server.Controllers
                                 {
                                     var docrelacionadorelacion = new CRMDocumentoRevision() { DocumentoId = documento.Id, RevisionId = docrelacionad.Id };
                                     await context.AddAsync(docrelacionadorelacion);
+
+                                    docrelacionad.Version = cRMActividades.VersionRevision;
+                                    actividad.Fecha_Mod = cRMActividades.Fecha_Mod;
+                                    context.Update(docrelacionad);
+
                                 }
                             }
 
@@ -190,7 +249,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var catalogo = context.CRMCatalogos.AsNoTracking().Include(x=>x.Valores).FirstOrDefault(x => x.Nombre.Equals("Catalogo_Actividad_Estatus"));
+                var catalogo = context.CRMCatalogos.AsNoTracking().Include(x => x.Valores).FirstOrDefault(x => x.Nombre.Equals("Catalogo_Actividad_Estatus"));
                 if (catalogo is null) return BadRequest("No existe el catalogo para los estatus");
                 return Ok(catalogo.Valores);
 
@@ -703,10 +762,69 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var actividad = await context.CRMActividades.AsNoTracking()
+                // Obtén la actividad junto con los documentos y tipos de documentos relacionados
+                var actividad = await context.CRMActividades
+                    .AsNoTracking()
                     .Where(x => x.Id == Id)
                     .Include(x => x.Documentos.OrderByDescending(y => y.FechaCreacion))
-                    .Select(x => mapper.Map<CRMActividadPostDTO>(x))
+                        .ThenInclude(doc => doc.DocumentoTipoDocumentos)
+                        .ThenInclude(dtd => dtd.TipoDocumento)
+                    .Select(x => new CRMActividadPostDTO
+                    {
+                        // Mapear propiedades principales
+                        Id = x.Id,
+                        Asunto = x.Asunto,
+                        Fecha_Creacion = x.Fecha_Creacion ?? DateTime.MinValue,
+                        Fecha_Mod = x.Fecha_Mod ?? DateTime.MinValue,
+                        Fch_Inicio = x.Fch_Inicio ?? DateTime.MinValue,
+                        Fecha_Ven = x.Fecha_Ven ?? DateTime.MinValue,
+                        Prioridad = x.Prioridad ?? 0,
+                        Asignado = x.Asignado ?? 0,
+                        Desccripcion = x.Desccripcion ?? string.Empty,
+                        Estatus = x.Estatus ?? 0,
+                        Contacto_Rel = x.Contacto_Rel,
+                        EquipoId = x.EquipoId,
+                        Retroalimentacion = x.Retroalimentacion ?? string.Empty,
+                        DocumentoId = x.Documentos.OrderByDescending(x => x.FechaCreacion).Select(x => x.Id).FirstOrDefault(),
+
+                        // Mapeo directo de propiedades del último documento
+                        NombreDocumento = x.Documentos
+                    .OrderByDescending(doc => doc.FechaCreacion)
+                    .Select(doc => doc.NombreDocumento)
+                    .FirstOrDefault() ?? string.Empty,
+                        FechaCaducidad = x.Documentos
+                    .OrderByDescending(doc => doc.FechaCreacion)
+                    .Select(doc => doc.FechaCaducidad)
+                    .FirstOrDefault(),
+                        Version = x.Documentos
+                    .OrderByDescending(doc => doc.FechaCreacion)
+                    .Select(doc => doc.Version)
+                    .FirstOrDefault() ?? string.Empty,
+                        Descripcion = x.Documentos
+                    .OrderByDescending(doc => doc.FechaCreacion)
+                    .Select(doc => doc.Descripcion)
+                    .FirstOrDefault() ?? string.Empty,
+
+                        DocumentoReciente = x.Documentos
+                          .OrderByDescending(doc => doc.FechaCreacion)
+                          .Select(doc => new CRMDocumentoDTO
+                           {
+                             Id = doc.Id,
+                             NombreDocumento = doc.NombreDocumento ?? string.Empty,
+                             FechaCaducidad = doc.FechaCaducidad,
+                             Version = doc.Version ?? string.Empty,
+                             Descripcion = doc.Descripcion ?? string.Empty,
+                             
+                           })
+                                .FirstOrDefault(),
+
+
+                        // IDs de tipos de documentos relacionados
+                        TiposDocumentoIds = x.Documentos
+                            .SelectMany(doc => doc.DocumentoTipoDocumentos.Select(dtd => dtd.TipoDocumento.Id))
+                            .Distinct()
+                            .ToList()
+                    })
                     .FirstOrDefaultAsync();
 
                 if (actividad is null)
@@ -715,6 +833,127 @@ namespace GComFuelManager.Server.Controllers
                 }
 
                 return Ok(actividad);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        //[HttpGet("{Id:int}")]
+        //public async Task<ActionResult> ObtenerCatalogoStatus([FromRoute] int Id)
+        //{
+        //    try
+        //    {
+        //        var actividad = await context.CRMActividades.AsNoTracking()
+        //            .Where(x => x.Id == Id)
+        //            .Include(x => x.Documentos.OrderByDescending(y => y.FechaCreacion))
+        //            .ThenInclude(doc => doc.DocumentoTipoDocumentos) // Relación Documentos -> DocumentoTipoDocumento
+        //            .ThenInclude(dtd => dtd.TipoDocumento)
+        //            .Select(x => mapper.Map<CRMActividadPostDTO>(x))
+        //            .FirstOrDefaultAsync();
+
+        //        if (actividad is null)
+        //        {
+        //            return NotFound();
+        //        }
+
+        //        return Ok(actividad);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
+
+        [HttpGet("tipodocumento")]
+        public async Task<ActionResult> GetAll([FromQuery] CRMTipoDocumentoDTO dTO)
+        {
+            try
+            {
+                var tiposDocumento = context.TipoDocumento
+                    .AsNoTracking()
+                    .OrderBy(x => x.Nombre)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(dTO.Nombre) || !string.IsNullOrWhiteSpace(dTO.Nombre))
+                    tiposDocumento = tiposDocumento.Where(v => v.Nombre!.ToLower().Contains(dTO.Nombre.ToLower()));
+
+                if (dTO.Paginacion)
+                {
+                    await HttpContext.InsertarParametrosPaginacion(tiposDocumento, dTO.Registros_por_pagina, dTO.Pagina);
+                    dTO.Pagina = HttpContext.ObtenerPagina();
+                    tiposDocumento = tiposDocumento.Skip((dTO.Pagina - 1) * dTO.Registros_por_pagina).Take(dTO.Registros_por_pagina);
+                }
+
+                var tiposdto = tiposDocumento.Select(x => mapper.Map<CRMTipoDocumentoDTO>(x));
+                return Ok(tiposdto);
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("crearTipos")]
+        public async Task<ActionResult> CreateDocumentTypes([FromBody] CRMTipoDocumentoDTO tipoDocumentoDTO)
+        {
+            try
+            {
+                if (tipoDocumentoDTO is null)
+                {
+                    return BadRequest();
+                }
+
+                var tipoDocumento = new TipoDocumento
+                {
+                    Id = tipoDocumentoDTO.Id,
+                    Nombre = tipoDocumentoDTO.Nombre,
+                    Activo = tipoDocumentoDTO.Activo
+                };
+
+                if (tipoDocumento.Id == 0)
+                {
+                    context.Add(tipoDocumento);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.Update(tipoDocumento);
+                    await context.SaveChangesAsync();
+                }
+
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("activos/{ID:int}")]
+        public async Task<ActionResult> ChangeStats([FromRoute] int Id, [FromBody] bool status)
+        {
+            try
+            {
+                if (Id == 0)
+                    return BadRequest();
+
+                var destino = context.TipoDocumento.Where(x => x.Id == Id).FirstOrDefault();
+                if (destino == null)
+                {
+                    return NotFound();
+                }
+
+                destino.Activo = status;
+
+                context.Update(destino);
+
+                await context.SaveChangesAsync();
+
+                return Ok();
             }
             catch (Exception e)
             {

@@ -84,6 +84,16 @@ namespace GComFuelManager.Server.Controllers.CRM
                             .AsQueryable();
                     }
                 }
+                else if (await manager.IsInRoleAsync(user, "SUBIR_CORRECCION_DOCUMENTO"))
+                {
+                    contactos = context.CRMContactos.AsNoTracking().Where(x => x.Activo)
+                      .Include(x => x.Estatus)
+                      .Include(x => x.Origen)
+                      .Include(x => x.Cliente)
+                      .Include(x => x.Vendedor)
+                      .Include(x => x.Division)
+                      .AsQueryable();
+                }
                 else
                 {
                     var vendedor = await context.CRMVendedores.FirstOrDefaultAsync(x => x.UserId == user.Id);

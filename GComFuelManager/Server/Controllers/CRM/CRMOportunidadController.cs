@@ -56,6 +56,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Include(x => x.Contacto)
                         .Include(x => x.Equipo)
                         .ThenInclude(x => x.Division)
+                        .Include(x => x.ConoceClienteOportunidad)
                         .OrderByDescending(x => x.FechaCreacion)
                         .AsQueryable();
                 }
@@ -79,8 +80,26 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Include(x => x.Contacto)
                         .Include(x => x.Equipo)
                         .ThenInclude(x => x.Division)
+                        .Include(x => x.ConoceClienteOportunidad)
                         .OrderByDescending(x => x.FechaCreacion)
                         .AsQueryable();
+                }
+                else if (await userManager.IsInRoleAsync(user, "VER_DOCUMENTOS_JURIDICO"))
+                {
+
+                    oportunidades = context.CRMOportunidades.AsNoTracking().Where(x => x.Activo && x.EtapaVentaId == 74 || x.Activo && x.EtapaVentaId == 132)
+                       .Include(x => x.UnidadMedida)
+                       .Include(x => x.Tipo)
+                       .Include(x => x.CRMCliente)
+                       .Include(x => x.EtapaVenta)
+                       .Include(x => x.Vendedor)
+                       .Include(x => x.Contacto)
+                       .Include(x => x.Equipo)
+                       .ThenInclude(x => x.Division)
+                       .Include(x => x.ConoceClienteOportunidad)
+                       .OrderByDescending(x => x.FechaCreacion)
+                       .AsQueryable();
+
                 }
                 else
                 {
@@ -96,6 +115,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Include(x => x.Contacto)
                         .Include(x => x.Equipo)
                         .ThenInclude(x => x.Division)
+                        .Include(x => x.ConoceClienteOportunidad)
                         .OrderByDescending(x => x.FechaCreacion)
                         .AsQueryable();
                 }
@@ -188,7 +208,76 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var oportunidad = await context.CRMOportunidades.AsNoTracking()
                     .Where(x => x.Id == id)
                     .Include(x => x.Documentos.OrderByDescending(y => y.FechaCreacion))
-                    .Select(x => mapper.Map<CRMOportunidadPostDTO>(x))
+                        .ThenInclude(x => x.DocumentoTipoDocumentos)
+                        .ThenInclude(x => x.TipoDocumento)
+                   .Select(x => new CRMOportunidadPostDTO
+                   {
+                       // Mapear propiedades principales
+                       Id = x.Id,
+                       Nombre_Opor = x.Nombre_Opor,
+                       ValorOportunidad = x.ValorOportunidad,
+                       UnidadMedidaId = x.UnidadMedidaId,
+                       Prox_Paso = x.Prox_Paso,
+                       VendedorId = x.VendedorId,
+                       CuentaId = x.CuentaId,
+                       ContactoId = x.ContactoId,
+                       PeriodoId = x.PeriodoId,
+                       TipoId = x.TipoId,
+                       FechaCreacion = x.FechaCreacion,
+                       FechaCierre = x.FechaCierre,
+                       EtapaVentaId = x.EtapaVentaId,
+                       Probabilidad = x.Probabilidad,
+                       OrigenPrductoId = x.OrigenPrductoId,
+                       TipoProductoId = x.TipoProductoId,
+                       ModeloVentaId = x.ModeloVentaId,
+                       VolumenId = x.VolumenId,
+                       FormaPagoId = x.FormaPagoId,
+                       DiasPagoId = x.DiasPagoId,
+                       CantidadEstaciones = x.CantidadEstaciones,
+                       CantidadLts = x.CantidadLts,
+                       PrecioLts = x.PrecioLts,
+                       TotalLts = x.TotalLts,
+                       EquipoId = x.EquipoId,
+                       DocumentoId = x.Documentos.OrderByDescending(x => x.FechaCreacion).Select(x => x.Id).FirstOrDefault(),
+
+                       // Mapeo directo de propiedades del último documento
+                       NombreDocumento = x.Documentos
+                    .OrderByDescending(doc => doc.FechaCreacion)
+                    .Select(doc => doc.NombreDocumento)
+                    .FirstOrDefault() ?? string.Empty,
+                       FechaCaducidad = x.Documentos
+                    .OrderByDescending(doc => doc.FechaCreacion)
+                    .Select(doc => doc.FechaCaducidad)
+                    .FirstOrDefault(),
+                       Version = x.Documentos
+                    .OrderByDescending(doc => doc.FechaCreacion)
+                    .Select(doc => doc.Version)
+                    .FirstOrDefault() ?? string.Empty,
+                       Descripcion = x.Documentos
+                    .OrderByDescending(doc => doc.FechaCreacion)
+                    .Select(doc => doc.Descripcion)
+                    .FirstOrDefault() ?? string.Empty,
+
+                       DocumentoReciente = x.Documentos
+                          .OrderByDescending(doc => doc.FechaCreacion)
+                          .Select(doc => new CRMDocumentoDTO
+                          {
+                              Id = doc.Id,
+                              NombreDocumento = doc.NombreDocumento ?? string.Empty,
+                              FechaCaducidad = doc.FechaCaducidad,
+                              Version = doc.Version ?? string.Empty,
+                              Descripcion = doc.Descripcion ?? string.Empty,
+
+                          })
+                                .FirstOrDefault(),
+
+
+                       // IDs de tipos de documentos relacionados
+                       TiposDocumentoIds = x.Documentos
+                            .SelectMany(doc => doc.DocumentoTipoDocumentos.Select(dtd => dtd.TipoDocumento.Id))
+                            .Distinct()
+                            .ToList()
+                   })
                     .FirstOrDefaultAsync();
                 if (oportunidad is null) { return NotFound(); }
 
@@ -250,6 +339,23 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 var oportunidad = mapper.Map<CRMOportunidadPostDTO, CRMOportunidad>(dto);
 
+                if (dto.EsConclusion)
+                {
+                    var estatusConcluida = await context.CRMCatalogoValores
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Valor.ToUpper().Equals("CONCLUIDA"));
+
+                    if (estatusConcluida is null) return NotFound("Estatus 'Concluida' no encontrado.");
+
+                    oportunidad.EtapaVentaId = estatusConcluida.Id;
+                    oportunidad.FechaConclusión = DateTime.Now; 
+
+                    context.Update(oportunidad);
+                    await context.SaveChangesAsync();
+
+                    return Ok("Oportunidad concluida exitosamente.");
+                }
+
                 if (oportunidad.DiasPagoId.IsZero())
                 {
                     if (na is null) return NotFound();
@@ -261,6 +367,11 @@ namespace GComFuelManager.Server.Controllers.CRM
                 {
                     if (estatus.Id == oportunidad.EtapaVentaId)
                     {
+
+                        if (oportunidad.FechaGanada == null)
+                        {
+                            oportunidad.FechaGanada = DateTime.Now;
+                        }
 
                         if (!await context.CRMOportunidades.AnyAsync(x => x.ContactoId == oportunidad.ContactoId && x.EtapaVentaId == estatus.Id))
                         {
@@ -319,6 +430,23 @@ namespace GComFuelManager.Server.Controllers.CRM
                         if (documento is not null)
                         {
                             var docupdate = mapper.Map(documento, doc);
+
+                            var relacionesExistentes = context.DocumentoTipoDocumento.Where(x => x.DocumentoId == documento.Id);
+                            context.DocumentoTipoDocumento.RemoveRange(relacionesExistentes);
+
+                            // Registrar nuevas relaciones
+                            if (dto.TiposDocumentoIds?.Count > 0)
+                            {
+                                foreach (var tipoId in dto.TiposDocumentoIds)
+                                {
+                                    var nuevaRelacion = new DocumentoTipoDocumento
+                                    {
+                                        DocumentoId = documento.Id,
+                                        TipoDocumentoId = tipoId
+                                    };
+                                    await context.DocumentoTipoDocumento.AddAsync(nuevaRelacion);
+                                }
+                            }
 
                             if (!dto.DocumentoRelacionado.IsZero())
                             {

@@ -1,9 +1,8 @@
-﻿using GComFuelManager.Shared.Modelos;
-
-namespace GComFuelManager.Shared.DTOs.CRM
+﻿using System;
+namespace GComFuelManager.Shared.Modelos
 {
-    public class CRMDocumentoPostDTO
-    {
+	public class DocumentosConoceTuCliente
+	{
         public int Id { get; set; }
         public string NombreArchivo { get; set; } = string.Empty;
         public string NombreDocumento { get; set; } = string.Empty;
@@ -20,6 +19,6 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string Url { get; set; } = string.Empty;
 
 
-        public List<CRMTipoDocumentoDTO> TipoDocumentos { get; set; } = new();
     }
 }
+

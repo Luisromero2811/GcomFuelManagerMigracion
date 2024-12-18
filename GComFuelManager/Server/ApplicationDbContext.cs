@@ -115,6 +115,119 @@ namespace GComFuelManager.Server
                 .HasForeignKey(x => x.Prioridad)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            //Conoce tu cliente a Catalogo Fijo de Tipo de Cliente
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.TiposCliente)
+                .WithMany()
+                .HasForeignKey(x => x.TipoCliente)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo Giro
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.Giros)
+                .WithMany()
+                .HasForeignKey(x => x.Giro)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo Tipo de entrega
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.TiposEntrega)
+                .WithMany()
+                .HasForeignKey(x => x.TipoEntrega)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo Suministros
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.Suministros)
+                .WithMany()
+                .HasForeignKey(x => x.Suministro)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo Pagos
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.Pagos)
+                .WithMany()
+                .HasForeignKey(x => x.Pago)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo Methodos de Pago
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.MetodosPago)
+                .WithMany()
+                .HasForeignKey(x => x.MetodoPago)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo Formas Pago
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.FormasPago)
+                .WithMany()
+                .HasForeignKey(x => x.FormaPago)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo CFDI
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.CFDIS)
+                .WithMany()
+                .HasForeignKey(x => x.CFDI)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo InfoEtica1
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.InfosEtica1)
+                .WithMany()
+                .HasForeignKey(x => x.InfoEtica1)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo InfoEtica1
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.InfosEtica2)
+                .WithMany()
+                .HasForeignKey(x => x.InfoEtica2)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo InfoEtica1
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.InfosEtica3)
+                .WithMany()
+                .HasForeignKey(x => x.InfoEtica3)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo InfoEtica1
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.InfosEtica4)
+                .WithMany()
+                .HasForeignKey(x => x.InfoEtica4)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            //Conoce tu cliente a Catalogo Fijo InfoEtica1
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.InfosEtica5)
+                .WithMany()
+                .HasForeignKey(x => x.InfoEtica5)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo InfoEtica1
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.InfosEtica6)
+                .WithMany()
+                .HasForeignKey(x => x.InfoEtica6)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Conoce tu cliente a Catalogo Fijo InfoEtica1
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.InfosEtica7)
+                .WithMany()
+                .HasForeignKey(x => x.InfoEtica7)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Oportunidad a ConoceClienteOportunidad
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasOne(x => x.CRMOportunidad)
+                .WithOne(x => x.ConoceClienteOportunidad)
+                .HasForeignKey<ConoceClienteOportunidad>(x => x.OportunidadId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<CRMContacto>()
                 .HasOne(x => x.Estatus)
                 .WithMany()
@@ -312,6 +425,23 @@ namespace GComFuelManager.Server
                 l => l.HasOne(x => x.Documento).WithMany(x => x.ActividadDocumentos).HasForeignKey(x => x.DocumentoId).OnDelete(DeleteBehavior.Restrict),
                 r => r.HasOne(x => x.Actividad).WithMany(x => x.ActividadDocumentos).HasForeignKey(x => x.ActividadId).OnDelete(DeleteBehavior.Restrict));
 
+            modelBuilder.Entity<CRMConoceClienteDocumentos>().HasKey(x => new { x.ConoceClienteId, x.DocumentoId});
+            modelBuilder.Entity<ConoceClienteOportunidad>()
+                .HasMany(x => x.Documentos)
+                .WithMany(x => x.conoceClienteOportunidades)
+                .UsingEntity<CRMConoceClienteDocumentos>(
+                l => l.HasOne(x => x.Documento).WithMany(x => x.CRMConoceClienteDocumentos).HasForeignKey(x => x.DocumentoId).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.ConoceCliente).WithMany(x => x.CRMConoceClienteDocumentos).HasForeignKey(x => x.ConoceClienteId).OnDelete(DeleteBehavior.Restrict));
+
+
+            modelBuilder.Entity<DocumentoTipoDocumento>().HasKey(x => new { x.DocumentoId, x.TipoDocumentoId });
+            modelBuilder.Entity<CRMDocumento>()
+                .HasMany(x => x.TipoDocumentos)
+                .WithMany(x => x.Documentos)
+                .UsingEntity<DocumentoTipoDocumento>(
+                l => l.HasOne(x => x.TipoDocumento).WithMany(x => x.DocumentoTipoDocumentos).HasForeignKey(dt => dt.TipoDocumentoId).OnDelete(DeleteBehavior.Restrict),
+                 j => j.HasOne(dt => dt.CRMDocumento).WithMany(d => d.DocumentoTipoDocumentos).HasForeignKey(dt => dt.DocumentoId).OnDelete(DeleteBehavior.Restrict));
+
             modelBuilder.Entity<CRMDocumentoRelacionado>().HasKey(x => new { x.DocumentoId, x.DocumentoRelacionadoId });
             modelBuilder.Entity<CRMDocumentoRevision>().HasKey(x => new { x.DocumentoId, x.RevisionId });
 
@@ -369,5 +499,10 @@ namespace GComFuelManager.Server
         public DbSet<CRMGrupo> CRMGrupos { get; set; }
         public DbSet<CRMGrupoRol> CRMGrupoRoles { get; set; }
         public DbSet<CRMOportunidadEstadoHistorial> CRMOportunidadEstadoHistoriales { get; set; }
+        public DbSet<TipoDocumento> TipoDocumento { get; set; }
+        public DbSet<DocumentoTipoDocumento> DocumentoTipoDocumento { get; set; }
+        public DbSet<ConoceClienteOportunidad> ConoceClienteOportunidad { get; set; }
+        public DbSet<DocumentosConoceTuCliente> DocumentosConoceTuCliente { get; set; }
+        public DbSet<CRMConoceClienteDocumentos> CRMConoceClienteDocumentos { get; set; }
     }
 }

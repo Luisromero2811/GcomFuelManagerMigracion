@@ -1,4 +1,5 @@
-﻿using GComFuelManager.Shared.Filtro;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using GComFuelManager.Shared.Filtro;
 
 namespace GComFuelManager.Shared.DTOs.CRM
 {
@@ -13,6 +14,7 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string Url { get; set; } = string.Empty;
         public int OportunidadId { get; set; }
         public int ActividadId { get; set; }
+        public string Identificador { get; set; } = string.Empty;
         public byte[] InfoBytes { get; set; } = Array.Empty<byte>();
     }
 }

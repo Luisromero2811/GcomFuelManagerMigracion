@@ -14,6 +14,8 @@
         public int TipoId { get; set; }
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
         public DateTime FechaCierre { get; set; } = DateTime.Today;
+        public DateTime? FechaGanada { get; set; }
+        public DateTime? FechaConclusión { get; set; }
         public int EtapaVentaId { get; set; }
         public decimal Probabilidad { get; set; }
         public int OrigenPrductoId { get; set; }
@@ -27,6 +29,7 @@
         public double PrecioLts { get; set; }
         public double TotalLts { get; set; }
         public int EquipoId { get; set; }
+        public bool EsConclusion { get; set; }
 
         //Documento
         public int DocumentoId { get; set; }
@@ -36,6 +39,9 @@
         public string Descripcion { get; set; } = string.Empty;
         public int DocumentoRelacionado { get; set; }
         public int DocumentoRevision { get; set; }
+        public List<int> TiposDocumentoIds { get; set; } = new();
 
+        public CRMDocumentoDTO? DocumentoReciente { get; set; }
+        public string? Comentarios { get; set; } = string.Empty;
     }
 }

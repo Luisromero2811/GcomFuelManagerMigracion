@@ -10,10 +10,14 @@
     <Authorized>
         <Card LoadingContent="loading_info" HeaderClass="d-flex justify-content-between">
             <Header>
-                <b>Documentos</b>
-                <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
-                    <i class="fa fa-solid fa-arrow-left" /> Volver
-                </button>
+                <div>
+                    <b>Documentos</b>
+                </div>
+                <div class="btn-group">
+                    <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </button>
+                </div>
             </Header>
         </Card>
         <div class="container-fluid overflow-scroll">
@@ -23,11 +27,13 @@
                         <th style="max-width:80px;"></th>
                         <th>Documento</th>
                         <th>Versión</th>
+                        <th>Tipo de Documento:</th>
                         <th>Actividad/Oportunidad</th>
                         <th>Vendedor:</th>
                         <th>Cuenta</th>
                         <th>Fecha de creacion</th>
                         <th>Fecha de caducidad</th>
+                        <th>Comentarios</th>
                     </tr>
                 </Cabeceras>
                 <Filtros>
@@ -42,12 +48,14 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
                         <td>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
                                 <input class="form-control" @bind-value="filtro.Cliente" @oninput="@((args)=>Filtrar(args,nameof(filtro.Cliente)))" />
                             </div>
                         </td>
+                        <td></td>
                         <td></td>
                         <td></td>
                     </tr>
@@ -62,15 +70,72 @@
                                 <button class="btn gcom-bg-amarillo" @onclick="@(()=>DescargarDocumento(item))">
                                     <i class="fa fa-solid fa-download" />
                                 </button>
+                                <AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                                    <Authorized Context="Action">
+                                        @if (item.ActividadId > 0)
+                                        {
+                                            <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/actividades/{item.ActividadId}")>
+                                                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                                            </NavLink>
+                                        }
+                                        else if (item.OportunidadId > 0)
+                                        {
+                                            <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/oportunidades/{item.OportunidadId}")>
+                                                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                                            </NavLink>
+                                        }
+                                        else
+                                        {
+                                        }
+                                    </Authorized>
+                                </AuthorizeView>
+                                @*<AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                                    <Authorized Context="Action">
+                                        @if (item.ActividadId > 0)
+                                        {
+                                            <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/actividades/{item.ActividadId}")>
+                                                <i class="fa-solid fa-comment"></i>
+                                            </NavLink>
+                                        }
+                                        else if (item.OportunidadId > 0)
+                                        {
+                                            <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/oportunidades/{item.OportunidadId}")>
+                                                <i class="fa-solid fa-comment"></i>
+                                            </NavLink>
+                                        }
+                                        else
+                                        {
+                                        }
+                                    </Authorized>
+                                </AuthorizeView>*@
+
                             </div>
                         </td>
                         <td>@item.NombreDocumento</td>
                         <td>@item.Version</td>
+                        <td>
+                            @if (item.TipoDocumento != null && item.TipoDocumento.Any())
+                            {
+                                foreach (var tipo in item.TipoDocumento)
+                                {
+                                    <span class="badge rounded-pill gcom-bg-amarillo me-1" style="font-size: 0.7rem; padding: 7px 12px;">@tipo</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="badge rounded-pill gcom-bg-amarillo me-1" style="font-size: 0.7rem; padding: 7px 12px;">Juridico</span>
+                            }
+                        </td>
                         <td>@item.Oportunidad@item.Actividad</td>
-                        <td>@item.VendedorActividad@item.VendedorOportunidad</td>
+                        <td>
+                            @(string.IsNullOrWhiteSpace(item.VendedorActividad) && string.IsNullOrWhiteSpace(item.VendedorOportunidad)
+        ? "JURIDICO"
+        : $"{item.VendedorActividad}{item.VendedorOportunidad}")
+                        </td>
                         <td>@item.ClienteOportunidad@item.ClienteActividad</td>
                         <td>@item.FechaCreacion.ToShortDateString()</td>
                         <td>@item.FechaCaducidad.ToShortDateString()</td>
+                        <td>@item.Comentarios</td>
                     </tr>
                 </Columnas>
             </Tabla>

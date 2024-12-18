@@ -39,6 +39,7 @@ namespace GComFuelManager.Server.Mappers
             CreateMap<CRMOportunidad, CRMOportunidadDTO>()
                 .ForMember(x => x.EtapaVenta, y => y.MapFrom(o => o.EtapaVenta.Valor))
                 .ForMember(x => x.Vendedor, y => y.MapFrom(o => o.Vendedor.FullName))
+                .ForMember(x => x.Comentarios, y => y.MapFrom(o => o.ConoceClienteOportunidad.Comentarios))
                 .ForMember(x => x.Cuenta, y => y.MapFrom(o => o.CRMCliente.Nombre))
                 .ForMember(x => x.Contacto, y => y.MapFrom(o => $"{o.Contacto.Nombre} {o.Contacto.Apellidos}"))
                 .ForMember(x => x.Medida, y => y.MapFrom(o => o.UnidadMedida.Abreviacion))
@@ -47,7 +48,8 @@ namespace GComFuelManager.Server.Mappers
                 .ForMember(x => x.Nombre_Opor, op => op.AddTransform(y => y.ToUpper()))
                 .ForMember(x => x.Contacto, op => op.AddTransform(y => y.ToUpper()))
                 .ForMember(x => x.Vendedor, op => op.AddTransform(y => y.ToUpper()))
-                .ForMember(x => x.Equipo, op => op.AddTransform(y => y.ToUpper()));
+                .ForMember(x => x.Equipo, op => op.AddTransform(y => y.ToUpper()))
+                .ForMember(x => x.TieneFormularioKYC, y => y.MapFrom(o => o.ConoceClienteOportunidad != null));
 
             CreateMap<CRMActividades, CRMActividadPostDTO>();
             CreateMap<CRMActividadDTO, CRMActividades>();
@@ -68,6 +70,57 @@ namespace GComFuelManager.Server.Mappers
                 .ForMember(x => x.Desccripcion, op => op.AddTransform(y => y.ToUpper()))
                 .ForMember(x => x.Retroalimentacion, op => op.AddTransform(y => y == null ? string.Empty : y.ToUpper()));
 
+            CreateMap<ConoceClienteOportunidad, ConoceClienteOportunidadPostDTO>()
+                .ForMember(x => x.DocumentoIdEtica1, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Etica1")
+                     ? c.Documentos.First(d => d.Identificador == "Etica1").Id
+                     : 0))
+                .ForMember(x => x.DocumentoIdEtica2, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Etica2")
+                     ? c.Documentos.First(d => d.Identificador == "Etica2").Id
+                     : 0))
+                .ForMember(x => x.DocumentoIdEtica3, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Etica3")
+                     ? c.Documentos.First(d => d.Identificador == "Etica3").Id
+                     : 0))
+                .ForMember(x => x.DocumentoIdAdicional1, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Adicional1")
+                     ? c.Documentos.First(d => d.Identificador == "Adicional1").Id
+                     : 0))
+                .ForMember(x => x.DocumentoIdAdicional2, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Adicional2")
+                     ? c.Documentos.First(d => d.Identificador == "Adicional2").Id
+                     : 0))
+                .ForMember(x => x.DocumentoIdAdicional3, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Adicional3")
+                     ? c.Documentos.First(d => d.Identificador == "Adicional3").Id
+                     : 0))
+                .ForMember(x => x.DocumentoIdAdicional4, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Adicional4")
+                     ? c.Documentos.First(d => d.Identificador == "Adicional4").Id
+                     : 0))
+                .ForMember(x => x.DocumentoIdAdicional5, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Adicional5")
+                     ? c.Documentos.First(d => d.Identificador == "Adicional5").Id
+                     : 0))
+                .ForMember(x => x.DocumentoIdAdicional6, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Adicional6")
+                     ? c.Documentos.First(d => d.Identificador == "Adicional6").Id
+                     : 0))
+                .ForMember(x => x.DocumentoIdAdicional7, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Adicional7")
+                     ? c.Documentos.First(d => d.Identificador == "Adicional7").Id
+                     : 0))
+                  .ForMember(x => x.DocumentoIdAdicional8, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Adicional8")
+                     ? c.Documentos.First(d => d.Identificador == "Adicional8").Id
+                     : 0))
+                   .ForMember(x => x.DocumentoIdAdicional9, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Adicional9")
+                     ? c.Documentos.First(d => d.Identificador == "Adicional9").Id
+                     : 0))
+                        .ForMember(x => x.DocumentoIdAdicional10, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Adicional10")
+                     ? c.Documentos.First(d => d.Identificador == "Adicional10").Id
+                     : 0))
+                        .ForMember(x => x.DocumentoIdAdicional11, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Contrato")
+                     ? c.Documentos.First(d => d.Identificador == "Contrato").Id
+                     : 0))
+            .ForMember(x => x.NombreDocumento, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any()
+                     ? c.Documentos.First().NombreDocumento
+                     : string.Empty));
+
+
+            CreateMap<ConoceClienteOportunidadPostDTO, ConoceClienteOportunidad>()
+                 .ForMember(x => x.Documentos, op => op.Ignore()); ;
+            CreateMap<ConoceClienteOportunidad, ConoceClienteOportunidad>();
 
             CreateMap<CRMVendedor, CRMVendedor>()
                 .ForMember(x => x.UserId, o => o.Ignore());
@@ -151,6 +204,9 @@ namespace GComFuelManager.Server.Mappers
             CreateMap<CRMCatalogoValor, CRMCatalogoValorPostDTO>();
             CreateMap<CRMCatalogoValorPostDTO, CRMCatalogoValor>();
 
+            CreateMap<TipoDocumento, CRMTipoDocumentoDTO>()
+                .ForMember(x => x.Nombre, y => y.MapFrom(c => c.Nombre))
+                .ForMember(x => x.Activo, op => op.Ignore());
         }
     }
 }

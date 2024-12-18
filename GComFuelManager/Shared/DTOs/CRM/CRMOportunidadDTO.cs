@@ -13,7 +13,10 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string Cuenta { get; set; } = string.Empty;
         public string EtapaVenta { get; set; } = string.Empty;
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        public DateTime? FechaGanada { get; set; }
+        public DateTime? FechaConclusión { get; set; }
         public decimal Probabilidad { get; set; }
+        public string Comentarios { get; set; } = string.Empty;
         public bool Activo { get; set; } = true;
         public string Contacto { get; set; } = string.Empty;
         public string Medida { get; set; } = string.Empty;
@@ -23,5 +26,6 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public int EquipoId { get; set; }
         public string Division { get; set; } = string.Empty;
         public int CuentaId { get; set; }
+        public bool TieneFormularioKYC { get; set; }
     }
 }

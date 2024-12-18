@@ -2,9 +2,10 @@
 @inject IRepositorio http
 @inject SweetAlertService swal
 @inject IJSRuntime js
-@attribute [Authorize(Roles = "Admin, VER_MODULO_OPORTUNIDADES")]
+@inject NavigationManager navigation
+@attribute [Authorize(Roles = "Admin, VER_MODULO_OPORTUNIDADES, VER_DOCUMENTOS_JURIDICO")]
 
-<AuthorizeView Roles="Admin, VER_MODULO_OPORTUNIDADES">
+<AuthorizeView Roles="Admin, VER_MODULO_OPORTUNIDADES, VER_DOCUMENTOS_JURIDICO">
     <Authorized>
         <Card HeaderClass="d-flex justify-content-between">
             <Header>
@@ -25,21 +26,25 @@
 
                 </Authorized>
             </AuthorizeView>
-            <div class="col-md-2 col-12">
-                <button class="btn col-12 gcom-bg-amarillo btn-sm g-1" @onclick="ExportarOportunidades">
-                    <i class="fa fa-solid fa-file-excel"></i>
-                    Exportar
-                </button>
-            </div>
+            <AuthorizeView Roles="Admin, VER_MODULO_OPORTUNIDADES">
+                <Authorized Context="ExportOportunidad">
+                    <div class="col-md-2 col-12">
+                        <button class="btn col-12 gcom-bg-amarillo btn-sm g-1" @onclick="ExportarOportunidades">
+                            <i class="fa fa-solid fa-file-excel"></i>
+                            Exportar
+                        </button>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
         </div>
 
-        <AuthorizeView Roles="Admin, VER_OPORTUNIDADES">
+        <AuthorizeView Roles="Admin, VER_OPORTUNIDADES, VER_DOCUMENTOS_JURIDICO">
             <Authorized Context="VEROPORTUNIDADES">
                 <div class="ancho-tabla">
                     <Tabla Datos="Oportunidades" Cargando="loading_info">
                         <Cabeceras>
                             <tr>
-                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD, VER_DOCUMENTOS">
+                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD, VER_DOCUMENTOS, VER_DOCUMENTOS_JURIDICO">
                                     <Authorized Context="ACCIONES">
                                         <th style="max-width:185px;"></th>
                                     </Authorized>
@@ -48,17 +53,20 @@
                                 <th>Cuenta</th>
                                 <th>Contacto</th>
                                 <th>Fecha de Creación</th>
+                                <th>Oportunidad Ganada</th>
+                                <th>Oportunidad Concluida</th>
                                 <th>Etapa de venta</th>
                                 <th>Valor</th>
                                 <th>Division</th>
                                 <th>Equipo</th>
                                 <th>Vendedor</th>
                                 <th>Probabilidad</th>
+                                <th>Comentarios área juridica</th>
                             </tr>
                         </Cabeceras>
                         <Filtros>
                             <tr>
-                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD, VER_DOCUMENTOS">
+                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD, VER_DOCUMENTOS, VER_DOCUMENTOS_JURIDICO">
                                     <Authorized Context="ACCIONES">
                                         <td></td>
                                     </Authorized>
@@ -81,6 +89,8 @@
                                         <input class="form-control form-control-sm" @bind-value="filtro.Contacto" @oninput="FiltrarContacto" />
                                     </div>
                                 </td>
+                                <td></td>
+                                <td></td>
                                 <td></td>
                                 <td>
                                     <div class="input-group input-group-sm">
@@ -108,14 +118,26 @@
                                     </div>
                                 </td>
                                 <td></td>
+                                <td></td>
                             </tr>
                         </Filtros>
                         <Columnas Context="item">
                             <tr>
-                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD, VER_DOCUMENTOS">
+                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD, VER_DOCUMENTOS, VER_DOCUMENTOS_JURIDICO">
                                     <Authorized Context="ACCIONES">
                                         <td>
                                             <div class="btn-group" role="group">
+                                                <AuthorizeView Roles="Admin, VER_DOCUMENTOS_JURIDICO">
+                                                    <Authorized Context="KYC">
+                                                        @if (item.TieneFormularioKYC)
+                                                        {
+                                                            <button class="btn gcom-bg-amarillo" @onclick="() => IrAFormularioConoceTuCliente(item.Id)">
+                                                                <i class="fa fa-solid fa-edit" />
+                                                            </button>
+                                                        }
+                                                    </Authorized>
+                                                </AuthorizeView>
+
                                                 <AuthorizeView Roles="Admin, EDITAR_OPORTUNIDAD">
                                                     <Authorized Context="EDITAROPORTUNIDAD">
                                                         <NavLink class="btn gcom-bg-amarillo" href=@($"crm/oportunidades/formulario/{item.Id}")>
@@ -164,6 +186,8 @@
                                     </AuthorizeView>
                                 </td>
                                 <td>@item.FechaCreacion</td>
+                                <td>@item.FechaGanada</td>
+                                <td>@item.FechaConclusión</td>
                                 <td>@item.EtapaVenta</td>
                                 <td>$ @item.ValorOportunidad.ToString("N", CultureInfo.InvariantCulture)</td>
                                 <td>@item.Division</td>
@@ -192,6 +216,7 @@
                                     </AuthorizeView>
                                 </td>
                                 <td>@item.Probabilidad %</td>
+                                <td>@item.Comentarios</td>
                             </tr>
                         </Columnas>
                     </Tabla>
@@ -396,5 +421,25 @@
         }
 
     }
+
+    private async Task IrAFormularioConoceTuCliente(int oportunidadId)
+    {
+        try
+        {
+            // Realiza una llamada al backend para verificar si existe un registro relacionado
+            var response = await http.Get<ConoceClienteOportunidad>($"api/crmformjuridico/verificar/{oportunidadId}");
+
+            // Si la respuesta no tiene error, existe un formulario relacionado
+            bool editar = response != null && response.Response != null;
+
+            // Redirige al formulario con el estado basado en la existencia del registro
+            navigation.NavigateTo($"crm/oportunidades/formulariojuridico/{oportunidadId}?editar={editar.ToString().ToLower()}");
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 
 }

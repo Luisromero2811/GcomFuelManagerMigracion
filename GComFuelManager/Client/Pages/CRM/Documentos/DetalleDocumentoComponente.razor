@@ -4,10 +4,10 @@
 @inject SweetAlertService swal
 @inject IJSRuntime js
 @inject NavigationManager navigate
-@attribute [Authorize(Roles = "Admin, VER_DETALLE_DOCUMENTO")]
+@attribute [Authorize(Roles = "Admin, VER_DETALLE_DOCUMENTO, VER_DETALLE_DOCUMENTO_JURIDICO")]
 
 
-<AuthorizeView Roles="Admin, VER_DETALLE_DOCUMENTO">
+<AuthorizeView Roles="Admin, VER_DETALLE_DOCUMENTO, VER_DETALLE_DOCUMENTO_JURIDICO">
     <Authorized>
         <Card LoadingContent="loading_info" HeaderClass="d-flex justify-content-between"
               BodyClass="col-12">
@@ -147,6 +147,7 @@
 @code {
     [Parameter] public int OportunidadId { get; set; }
     [Parameter] public int ActividadId { get; set; }
+    [Parameter] public int FormKycId { get; set; }
 
     CRMDocumentoDetalleDTO Documento = new();
     bool loading_info = false;

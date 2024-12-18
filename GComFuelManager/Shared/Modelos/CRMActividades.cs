@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using GComFuelManager.Shared.DTOs.CRM;
+using OfficeOpenXml.Attributes;
 
 namespace GComFuelManager.Shared.Modelos
 {
@@ -20,6 +21,8 @@ namespace GComFuelManager.Shared.Modelos
         public bool Activo { get; set; } = true;
         public int EquipoId { get; set; }
         public string? Retroalimentacion { get; set; } = string.Empty;
+        [NotMapped]
+        public List<int> TiposDocumentoIds { get; set; } = new();
 
         public CRMCatalogoValor Asuntos { get; set; } = null!;
         public CRMCatalogoValor? Prioridades { get; set; } = null!;
@@ -27,10 +30,13 @@ namespace GComFuelManager.Shared.Modelos
         public CRMVendedor? Vendedor { get; set; } = null!;
         public CRMContacto Contacto { get; set; } = null!;
         public CRMEquipo Equipo { get; set; } = null!;
+        [NotMapped]
+        public CRMDocumento? Documento { get; set; } = null!;
 
         //Documentos
         public List<CRMDocumento> Documentos { get; set; } = new();
         public List<CRMActividadDocumento> ActividadDocumentos { get; set; } = new();
+
 
         public CRMActividadExcelDTO Asignacion_Datos()
         {

@@ -14,6 +14,8 @@
         public int TipoId { get; set; }
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
         public DateTime FechaCierre { get; set; } = DateTime.Today;
+        public DateTime? FechaGanada { get; set; }
+        public DateTime? FechaConclusión { get; set; }
         public int EtapaVentaId { get; set; }
         public decimal Probabilidad { get; set; }
         public bool Activo { get; set; } = true;
@@ -45,5 +47,8 @@
         public List<CRMDocumento> Documentos { get; set; } = new();
         public List<CRMOportunidadDocumento> OportunidadDocumentos { get; set; } = new();
         public List<CRMOportunidadEstadoHistorial> HistorialEstados { get; set; } = new();
+
+        //Relacion con ConoceClienteOportunidad
+        public ConoceClienteOportunidad? ConoceClienteOportunidad { get; set; } = null;
     }
 }

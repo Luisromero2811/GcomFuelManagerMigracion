@@ -1,0 +1,207 @@
+﻿@page "/crm/listado/tipodocumento"
+@inject SweetAlertService Swal
+@inject IRepositorio repositorio
+@inject NotificationService ns
+@inject DialogService ds
+@inject IJSRuntime Js
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <Card LoadingContent="loading_info" HeaderClass="d-flex justify-content-between">
+            <Header>
+                <b>Gestión de Clasificación de Tipos de Documento</b>
+                <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
+                    <i class="fa fa-solid fa-arrow-left"></i> Volver
+                </button>
+            </Header>
+            <Body>
+                <EditForm Model="@TipoDocumento" class="col-12 row" OnValidSubmit="@GestionTipo" Context="TiposDocumento">
+                    <div class="col-12 row mb-3 justify-content-center">
+                        <div class="col-4">
+                            <label>Tipo de Documento:</label>
+                            <InputText @bind-Value="TipoDocumento.Nombre" class="form-control" MaxLenght="20" />
+                        </div>
+                        <div class="col-4 d-flex mt-auto">
+                            @if (!isEdit)
+                            {
+                                <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                                    <i class="fa fa-solid fa-plus"></i> Registrar Tipo de Documento
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="col mx-2 btn gcom-bg-amarillo" type="submit">
+                                    <i class="fa fa-solid fa-check"></i>
+                                </button>
+                                <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit" type="button">
+                                    <i class="fa fa-solid fa-xmark"></i>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </EditForm>
+            </Body>
+        </Card>
+        <Card>
+            <Header>
+                <b>Tabla de Tipos de Documentos</b>
+            </Header>
+            <Body>
+                <div class="container-fluid overflow-scroll">
+                    <Tabla Datos="TiposDocumentos" Cargando="loading_info">
+                        <Cabeceras>
+                            <tr>
+                                <th>Nombre del Tipo de Documento</th>
+                                <th>Activo</th>
+                                <th>Editar</th>
+                            </tr>
+                        </Cabeceras>
+                        <Columnas Context="item">
+                            <tr>
+                                <td>@item.Nombre</td>
+                                <td>
+                                    <div class="form-check form-switch mx-2">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="@item.Id" checked="@item.Activo"
+                                               @onchange="((ChangeEventArgs e) => HabilitarDeshabilitar(item, e))" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>@SetDestino(item))">
+                                        <i class="fa fa-solid fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </Columnas>
+                    </Tabla>
+                </div>
+            </Body>
+        </Card>
+    </Authorized>
+</AuthorizeView>
+
+
+@code {
+
+    bool isEdit = false;
+
+    public CRMTipoDocumentoDTO TipoDocumento { get; set; } = new CRMTipoDocumentoDTO();
+    List<CRMTipoDocumentoDTO> TiposDocumentos = new();
+    private bool loading_info = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Valores();
+    }
+
+    Dictionary<string, string> query = new();
+    private async Task Obtener_Valores(string value = "")
+    {
+        try
+        {
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var responseHttp = await repositorio.Get<List<CRMTipoDocumentoDTO>>($"api/actividades/tipodocumento?{uri}");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                TiposDocumentos = responseHttp.Response!;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GestionTipo()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<CRMTipoDocumentoDTO>($"api/actividades/crearTipos", TipoDocumento);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Swal.FireAsync("Exito", $"Tipo de Documento {TipoDocumento.Nombre} gestionado exitosamente", SweetAlertIcon.Success);
+                await Obtener_Valores();
+                StateHasChanged();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task cancelEdit()
+    {
+        isEdit = false;
+        TipoDocumento = new CRMTipoDocumentoDTO();
+    }
+
+    private void SetDestino(CRMTipoDocumentoDTO destinos)
+    {
+        try
+        {
+            isEdit = true;
+            TipoDocumento = destinos;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+
+    private async Task HabilitarDeshabilitar(CRMTipoDocumentoDTO destinos, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var responseHttp = await repositorio.Put<bool>($"api/actividades/activos/{destinos.Id}", status);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                if (status)
+                {
+                    await Message($"Tipo de documento {destinos.Nombre} ha sido habilitado", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"Tipo de documento {destinos.Nombre} ha sido deshabilitado", SweetAlertIcon.Info);
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string Message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1800,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
+    }
+
+}
+
