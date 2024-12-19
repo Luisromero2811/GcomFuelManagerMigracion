@@ -19,7 +19,7 @@
                     <div class="col-12 row g-2">
                         <div class="col-4">
                             <label>Producto</label>
-                            <InputSelect @bind-Value="Inventario.ProductoId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
+                            <InputSelect @bind-Value="Inventario.ProductoId" class="form-select form-select-sm" disabled="@(!Id.IsZero() || IsEdit || IsEdit)">
                                 <option>-- Productos --</option>
                                 @foreach (var item in Productos)
                                 {
@@ -30,7 +30,7 @@
                         </div>
                         <div class="col-4">
                             <label>Sitio</label>
-                            <InputSelect @bind-Value="Inventario.SitioId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
+                            <InputSelect @bind-Value="Inventario.SitioId" class="form-select form-select-sm" disabled="@(!Id.IsZero() || IsEdit)">
                                 <option>-- Sitios --</option>
                                 @foreach (var item in Sitios)
                                 {
@@ -41,7 +41,7 @@
                         </div>
                         <div class="col-4">
                             <label>Almacen</label>
-                            <InputSelect @bind-Value="Inventario.AlmacenId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
+                            <InputSelect @bind-Value="Inventario.AlmacenId" class="form-select form-select-sm" disabled="@(!Id.IsZero() || IsEdit)">
                                 <option>-- Almacenes --</option>
                                 @foreach (var item in Almacenes)
                                 {
@@ -52,7 +52,7 @@
                         </div>
                         <div class="col-4">
                             <label>Localidad</label>
-                            <InputSelect @bind-Value="Inventario.LocalidadId" class="form-select form-select-sm" disabled="@(!Id.IsZero())">
+                            <InputSelect @bind-Value="Inventario.LocalidadId" class="form-select form-select-sm" disabled="@(!Id.IsZero() || IsEdit)">
                                 <option>-- Localidades --</option>
                                 @foreach (var item in Localidades)
                                 {
@@ -63,7 +63,7 @@
                         </div>
                         <div class="col-4">
                             <label>Tipo de movimiento</label>
-                            <InputSelect @bind-Value="Inventario.TipoMovimientoId" class="form-select form-select-sm" @bind-Value:after="CargarMenuInventario">
+                            <InputSelect @bind-Value="Inventario.TipoMovimientoId" class="form-select form-select-sm" @bind-Value:after="CargarMenuInventario" disabled="@(IsEdit)">
                                 <option>-- Tipo de movimiento --</option>
                                 @foreach (var item in TiposMovimientos)
                                 {
