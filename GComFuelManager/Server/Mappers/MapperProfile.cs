@@ -113,6 +113,9 @@ namespace GComFuelManager.Server.Mappers
                         .ForMember(x => x.DocumentoIdAdicional11, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "Contrato")
                      ? c.Documentos.First(d => d.Identificador == "Contrato").Id
                      : 0))
+                         .ForMember(x => x.DocumentoIdAdicional12, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any(d => d.Identificador == "ContratoFinal")
+                     ? c.Documentos.First(d => d.Identificador == "ContratoFinal").Id
+                     : 0))
             .ForMember(x => x.NombreDocumento, y => y.MapFrom(c => c.Documentos != null && c.Documentos.Any()
                      ? c.Documentos.First().NombreDocumento
                      : string.Empty));

@@ -99,6 +99,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                                 nameof(crmClienteOportunidad.DocumentoIdAdicional9) => "Adicional9",
                                 nameof(crmClienteOportunidad.DocumentoIdAdicional10) => "Adicional10",
                                 nameof(crmClienteOportunidad.DocumentoIdAdicional11) => "Contrato",
+                                nameof(crmClienteOportunidad.DocumentoIdAdicional12) => "ContratoFinal",
                                 _ => string.Empty,
                             };
 

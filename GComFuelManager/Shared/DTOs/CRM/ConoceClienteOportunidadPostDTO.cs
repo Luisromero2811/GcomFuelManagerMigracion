@@ -86,8 +86,10 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public int? DocumentoIdAdicional9 { get; set; }
         //INE del representante legal
         public int? DocumentoIdAdicional10 { get; set; }
-        //Contrato Final
+        //Contrato
         public int? DocumentoIdAdicional11 { get; set; }
+        //Contrato Final
+        public int? DocumentoIdAdicional12 { get; set; }
 
         public string? IdentificadorDocumentoIdEtica1 { get; set; } = string.Empty;
         public string? IdentificadorDocumentoIdEtica2 { get; set; } = string.Empty;

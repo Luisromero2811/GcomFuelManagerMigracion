@@ -543,7 +543,7 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var catalogo = await context.CRMCatalogos.AsNoTracking().Include(x => x.Valores.Where(y => y.Activo && !x.Nombre.Equals("CONCLUIDA"))).FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Etapa"));
+                var catalogo = await context.CRMCatalogos.AsNoTracking().Include(x => x.Valores.Where(y => y.Activo && !y.Valor.Equals("CONCLUIDA"))).FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Etapa"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para etapa de venta"); }
                 return Ok(catalogo.Valores);
             }

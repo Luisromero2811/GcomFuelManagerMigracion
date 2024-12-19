@@ -534,7 +534,7 @@
                                                 <td class="text-center">
                                                     <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
                                                         <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
-                                                                       MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional11" />
+                                                                       MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional12" />
                                                     </div>
                                                 </td>
                                             </tr>
@@ -726,8 +726,8 @@
                                                 <td class="text-center">
                                                     <div class="d-flex justify-content-center align-items-center">
                                                         <button class="btn gcom-bg-amarillo" type="button"
-                                                                @onclick="@(() => DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional11)))"
-                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional11))">
+                                                                @onclick="@(() => DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional12)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional12))">
                                                             <i class="fa fa-solid fa-download"></i>
                                                         </button>
                                                     </div>
@@ -1095,6 +1095,15 @@
         if (!doc.Id.IsZero())
         {
             ConoceClienteDTO.DocumentoIdAdicional11 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private void DocumentoSubidoAdicional12(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional12 = doc.Id;
             ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
         }
     }
