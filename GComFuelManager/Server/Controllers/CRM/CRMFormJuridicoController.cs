@@ -72,7 +72,8 @@ namespace GComFuelManager.Server.Controllers.CRM
                      (crmClienteOportunidad.DocumentoIdAdicional8, nameof(crmClienteOportunidad.DocumentoIdAdicional8)),
                      (crmClienteOportunidad.DocumentoIdAdicional9, nameof(crmClienteOportunidad.DocumentoIdAdicional9)),
                      (crmClienteOportunidad.DocumentoIdAdicional10, nameof(crmClienteOportunidad.DocumentoIdAdicional10)),
-                     (crmClienteOportunidad.DocumentoIdAdicional11, nameof(crmClienteOportunidad.DocumentoIdAdicional11))
+                     (crmClienteOportunidad.DocumentoIdAdicional11, nameof(crmClienteOportunidad.DocumentoIdAdicional11)),
+                     (crmClienteOportunidad.DocumentoIdAdicional12, nameof(crmClienteOportunidad.DocumentoIdAdicional12))
                 };
 
                 foreach (var (documentoId, propiedad) in documentos)
