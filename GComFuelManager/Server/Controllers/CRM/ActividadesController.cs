@@ -66,7 +66,7 @@ namespace GComFuelManager.Server.Controllers
                             actividadExistente.Retroalimentacion != cRMActividades.Retroalimentacion ||
                             !string.IsNullOrWhiteSpace(cRMActividades.Comentarios) &&
                             actividadExistente.Documento?.Comentarios != cRMActividades.Comentarios
-                            || Convert.ToInt32(cRMActividades.Version) == 1)
+                            || (!string.IsNullOrEmpty(cRMActividades.Version) && Convert.ToInt32(cRMActividades.Version) == 1))
                         {
                             // Retroalimentación gestionada: ignoramos el cambio de fecha
                             actividad.Fecha_Mod = actividadExistente.Fecha_Mod;

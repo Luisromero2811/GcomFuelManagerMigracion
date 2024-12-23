@@ -37,7 +37,8 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public List<CRMDocumentoDTO> Documentos { get; set; } = new();
         public CRMDocumentoDTO? DocumentoReciente { get; set; }
         public string? Comentarios { get; set; } = string.Empty;
-        
+        public string? Identificador { get; set; } = string.Empty;
+
     }
 }
 

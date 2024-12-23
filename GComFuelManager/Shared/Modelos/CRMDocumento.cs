@@ -19,7 +19,7 @@ namespace GComFuelManager.Shared.Modelos
         public string Directorio { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
 
-        public string Identificador { get; set; } = string.Empty;
+        public string? Identificador { get; set; } = string.Empty;
 
         public List<CRMOportunidad> Oportunidades { get; set; } = new();
         public List<CRMOportunidadDocumento> OportunidadDocumentos { get; set; } = new();
