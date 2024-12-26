@@ -418,13 +418,13 @@
                             <Card HeaderText="Documentación Legal" BodyClass="col-12 row">
                                 <Body>
                                     <div class="row align-items-stretch">
-                                        <div class="col-12 col-md-3 my-1 d-flex flex-column">
+                                        <div class="col-12 col-md-2 my-1 d-flex flex-column">
                                             <!--Se quedará como Documento cinco el acta constitutiva-->
                                             <label><b>Acta Constitutiva</b></label>
                                             <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
                                                            MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional5" />
                                         </div>
-                                        <div class="col-12 col-md-3 my-1 d-flex flex-column">
+                                        <div class="col-12 col-md-2 my-1 d-flex flex-column">
                                             <!--DocumentoIdAdicional8-->
                                             <label><b>Asambleas</b></label>
                                             <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
@@ -440,6 +440,12 @@
                                             <label><b>INE del Representante Legal.</b></label>
                                             <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
                                                            MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional10" />
+                                        </div>
+                                        <!--Convenio de Confidencial-->
+                                        <div class="col-12 col-md-2 my-1 d-flex flex-column">
+                                            <label><b>Convenio de Confidencialidad</b></label>
+                                            <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label=""
+                                                           MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubidoAdicional13" />
                                         </div>
                                     </div>
                                 </Body>
@@ -595,6 +601,17 @@
                                                     <div class="d-flex justify-content-center align-items-center">
                                                         <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional10)))"
                                                                 disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional10))">
+                                                            <i class="fa fa-solid fa-download" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Convenio de Confidencialidad.</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <button class="btn gcom-bg-amarillo" type="button" @onclick="@(()=>DescargarDocumento(ConoceClienteDTO.Documentos.FirstOrDefault(x => x.Id == ConoceClienteDTO.DocumentoIdAdicional13)))"
+                                                                disabled="@(!TieneDocumento(ConoceClienteDTO.DocumentoIdAdicional13))">
                                                             <i class="fa fa-solid fa-download" />
                                                         </button>
                                                     </div>
@@ -1104,6 +1121,15 @@
         if (!doc.Id.IsZero())
         {
             ConoceClienteDTO.DocumentoIdAdicional12 = doc.Id;
+            ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private void DocumentoSubidoAdicional13(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            ConoceClienteDTO.DocumentoIdAdicional13 = doc.Id;
             ConoceClienteDTO.NombreDocumento = doc.NombreDocumento;
         }
     }

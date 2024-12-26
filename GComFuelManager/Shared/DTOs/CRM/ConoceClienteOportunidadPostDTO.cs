@@ -90,6 +90,8 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public int? DocumentoIdAdicional11 { get; set; }
         //Contrato Final
         public int? DocumentoIdAdicional12 { get; set; }
+        //Convenio de Confidencialidad
+        public int? DocumentoIdAdicional13 { get; set; }
 
         public string? IdentificadorDocumentoIdEtica1 { get; set; } = string.Empty;
         public string? IdentificadorDocumentoIdEtica2 { get; set; } = string.Empty;
