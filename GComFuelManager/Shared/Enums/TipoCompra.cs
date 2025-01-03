@@ -3,6 +3,7 @@
     public enum TipoCompra
     {
         Rack,
-        Delivery
+        Delivery,
+        NA
     }
 }
