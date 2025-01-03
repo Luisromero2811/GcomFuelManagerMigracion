@@ -387,7 +387,7 @@
                                         <select class="form-select form-select-sm" @bind="item.OrdenEmbarque.ModeloCompra">
                                             @foreach (var item in Enum.GetValues(typeof(TipoCompra)))
                                             {
-                                                <option>@item</option>
+                                                <option value="@item">@(((TipoCompra)item).Description())</option>
                                             }
                                         </select>
                                     }
