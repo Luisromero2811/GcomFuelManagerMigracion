@@ -96,18 +96,44 @@ namespace GComFuelManager.Server.Helpers
                 if (!string.IsNullOrEmpty(userId) && !string.IsNullOrWhiteSpace(userId))
                 {
                     var user = await userManager.FindByNameAsync(userId);
-
-                    Id = user!.Id;
-                    return Id;
+                    if (user is not null)
+                    {
+                        Id = user.Id;
+                        return Id;
+                    }
                 }
             }
 
             throw new UsuarioIdsException("Usuario no valido");
         }
 
-        public Task<IdentityUsuario> GetUsuario()
+        public async Task<IdentityUsuario> GetUsuario()
         {
-            throw new NotImplementedException();
+            string Id = string.Empty;
+
+            var authHeader = httpContext.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+
+            if (authHeader != null && authHeader.StartsWith("Bearer "))
+            {
+                Id = authHeader.Substring("Bearer ".Length);
+            }
+
+            var handler = new JwtSecurityTokenHandler();
+
+            if (handler.CanReadToken(Id))
+            {
+                var token = handler.ReadJwtToken(Id);
+
+                var userId = token.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName)?.Value;
+                if (!string.IsNullOrEmpty(userId) && !string.IsNullOrWhiteSpace(userId))
+                {
+                    var user = await userManager.FindByNameAsync(userId);
+                    if (user is not null)
+                        return user;
+                }
+            }
+
+            throw new UsuarioIdsException("Usuario no valido");
         }
     }
 }
