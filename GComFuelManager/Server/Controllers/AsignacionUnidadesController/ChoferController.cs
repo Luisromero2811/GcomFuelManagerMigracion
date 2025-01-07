@@ -1,16 +1,6 @@
-using System;
-using Microsoft.AspNetCore.Mvc;
-using GComFuelManager.Shared.DTOs;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Diagnostics;
-using System.ServiceModel;
-using ServiceReference6;
-using ServiceReference3;
-using GComFuelManager.Shared.Modelos;
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {

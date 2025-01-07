@@ -6,17 +6,10 @@ namespace GComFuelManager.Shared.Modelos
 {
 	public class Producto
 	{
-        //5
-        [JsonProperty("cod"), Key]
-		public byte Cod { get; set; }//FK
-
-		[JsonProperty("den"), MaxLength(50)]
+        [ Key]
+		public byte Cod { get; set; }
 		public string? Den { get; set; } = string.Empty;
-
-		[JsonProperty("codsyn"), MaxLength(10)]
 		public string? Codsyn { get; set; } = string.Empty;
-
-		[JsonProperty("activo")]
 		public bool? Activo { get; set; } = true;
 
         public short? Id_Tad { get; set; } = 0;
@@ -37,8 +30,10 @@ namespace GComFuelManager.Shared.Modelos
                 return string.Empty;
             }
         }
-
-        //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
+        public override string ToString()
+        {
+            return Den ?? string.Empty;
+        }
     }
 }
 

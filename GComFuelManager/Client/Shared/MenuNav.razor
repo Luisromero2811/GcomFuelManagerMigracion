@@ -5,52 +5,18 @@
 
 <AuthorizeView Context="MenuGeneral">
     <Authorized>
-        @*<div class="col-12 gcom-bg-rojo text-white  d-flex row m-0">
-            <div class="col-md-6 d-flex">
-                <button class="btn gcom-bg-rojo my-auto text-white" @onclick="OpenMenuLateral">
-                    <i class="fa fa-solid fa-bars"></i>
-                </button>
-            </div>
-            <div class="col-md-6 d-flex gcom-bg-rojo-dark">
-                <div class="col-md-6 text-center d-flex justify-content-end" style="text-overflow:ellipsis">
+        <div class="col-12 gcom-bg-rojo text-white d-flex justify-content-between">
+            <button class="btn gcom-bg-rojo text-white" @onclick="OpenMenuLateral" id="buttonSidepanel">
+                <i class="fa fa-solid fa-bars"></i>
+            </button>
+            <div class="d-flex px-4 align-items-center gcom-bg-rojo-dark">
+                <div class="d-flex justify-content-between">
                     @if (MenuGeneral.User.Identity is not null)
                     {
-                        <h6 class="my-auto">
-                            <small> @MenuGeneral.User.Claims.Where(x => x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name</small>
-                        </h6>
+                        <small class="my-auto">@MenuGeneral.User.Identity.Name</small>
                     }
+                    <button class="btn btn-sm text-white" style="white-space:nowrap" @onclick="@CerrarSesion">Cerrar sesión</button>
                 </div>
-                <div class="col-md-6 text-center my-auto">
-                    <button class="btn btn-sm text-white col-12" @onclick="@CerrarSesion">Cerrar sesion</button>
-                </div>
-            </div>
-        </div>*@
-        @*<div class="col-12 gcom-bg-rojo text-white d-flex justify-content-between align-items-center">
-            <button class="btn gcom-bg-rojo text-white" @onclick="OpenMenuLateral">
-                <i class="fa fa-solid fa-bars"></i>
-            </button>
-
-                @if (MenuGeneral.User.Identity is not null)
-                {
-                    <h6>
-                        <small>@MenuGeneral.User.Claims.Where(x => x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name</small>
-                    </h6>
-                }
-
-            <button class="btn btn-sm text-white" @onclick="@CerrarSesion">Cerrar sesión</button>
-        </div>*@
-        <div class="col-12 gcom-bg-rojo text-white d-flex justify-content-between align-items-center">
-            <button class="btn gcom-bg-rojo text-white" @onclick="OpenMenuLateral">
-                <i class="fa fa-solid fa-bars"></i>
-            </button>
-            <div class="d-flex me-4 align-items-center gcom-bg-rojo-dark">
-                @if (MenuGeneral.User.Identity is not null)
-                {
-                    <h6 class="me-2">
-                        <small>@MenuGeneral.User.Claims.Where(x => x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name</small>
-                    </h6>
-                }
-                <button class="btn btn-sm text-white ml-md-2" @onclick="@CerrarSesion">Cerrar sesión</button>
             </div>
         </div>
 

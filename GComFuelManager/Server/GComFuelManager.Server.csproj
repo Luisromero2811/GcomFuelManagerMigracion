@@ -9,8 +9,10 @@
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " />
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
   <ItemGroup>
-    <PackageReference Include="EPPlus" Version="6.2.0" />
-    <PackageReference Include="MailKit" Version="4.0.0" />
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="EPPlus" Version="7.5.2" />
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="MailKit" Version="4.9.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
@@ -25,13 +27,11 @@
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
-    <PackageReference Include="System.ServiceModel.Duplex" Version="4.10.*" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
     <PackageReference Include="System.ServiceModel.Federation" Version="4.10.*" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.10.*" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="4.10.*" />
-    <PackageReference Include="System.ServiceModel.Security" Version="4.10.*" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.52.0" />
+    <PackageReference Include="System.ServiceModel.Security" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="7.0.5" />
   </ItemGroup>
 
@@ -51,8 +51,10 @@
     <None Remove="Controllers\Porcentajes\" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Connected Services\" />
     <Folder Include="Controllers\PedidoController\" />
     <Folder Include="Controllers\AsignacionUnidadesController\" />
     <Folder Include="Controllers\SeguimientoOrdenController\" />
+    <Folder Include="Extensions\" />
   </ItemGroup>
 </Project>

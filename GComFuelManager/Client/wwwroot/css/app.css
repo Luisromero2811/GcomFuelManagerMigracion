@@ -19,7 +19,7 @@ a, .btn-link {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 .content {
@@ -194,19 +194,19 @@ a, .btn-link {
     background-color: #F0F0F0;
 }
 
-.diesel{
+.diesel {
     background-color: #AEAAA9;
 }
 
-.regular{
+.regular {
     background-color: #528234;
 }
 
-.regular-vdm{
+.regular-vdm {
     background-color: #8FD154;
 }
 
-.premium{
+.premium {
     background-color: #AC0608;
 }
 
@@ -216,5 +216,25 @@ a, .btn-link {
 }
 
 .ancho-tabla {
-    width: calc(100vw - 100px);
+    width: calc(100vw - 3.5rem);
+    overflow: scroll;
+}
+
+/* typical phone screen resolution */
+@media only screen and (max-width : 667px) {
+    .ancho-tabla {
+        width: calc(100vw - 1rem);
+    }
+}
+/* landscape orientation */
+@media only screen and (min-width : 375px) and (max-width : 667px) and (orientation : landscape) {
+    .ancho-tabla {
+        width: calc(100vw - 3.5rem);
+    }
+}
+/* portrait orientation */
+@media only screen and (min-width : 375px) and (max-width : 667px) and (orientation : portrait) {
+    .ancho-tabla {
+        width: calc(100vw - 1rem);
+    }
 }

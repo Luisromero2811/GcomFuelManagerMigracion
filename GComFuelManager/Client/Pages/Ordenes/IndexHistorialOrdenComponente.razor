@@ -1,0 +1,144 @@
+﻿@page "/orden/historial"
+@inject IRepositorio http
+@inject SweetAlertService Swal
+
+<Card LoadingContent="loading">
+    <Header>
+        <b>Historial de órdenes</b>
+    </Header>
+    <ChildContent>
+        <div class="col-12 row">
+            <div class="col-md-4 col-12">
+                <label>De: </label>
+                <InputDate class="form-control" @bind-Value="Filtro.Fecha_Inicio" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>A: </label>
+                <InputDate class="form-control" @bind-Value="Filtro.Fecha_Fin" />
+            </div>
+            <div class="col-md-4 col-12 d-flex">
+                <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="CargarOrdenes">
+                    <i class="fa fa-solid fa-magnifying-glass" /> Buscar ordenes
+                </button>
+            </div>
+        </div>
+    </ChildContent>
+</Card>
+
+<div class="ancho-tabla">
+    <Tabla Datos="Ordenes">
+        <Cabeceras>
+            <tr>
+                <th style="width:200px;">Terminal</th>
+                <th style="width:200px;">Fecha de orden</th>
+                <th style="width:200px;">Folio de orden</th>
+                <th style="width:200px;">BOL / Enbarque</th>
+                <th style="width:200px;">Destino</th>
+                <th style="width:200px;">Producto</th>
+                <th style="width:200px;">Volumen solicitado</th>
+                <th style="width:200px;">Volumen cargado</th>
+                <th style="width:200px;">Transportista</th>
+                <th style="width:200px;">Unidad</th>
+                <th style="width:200px;">Chofer</th>
+                <th style="width:100px;">Estado de la orden</th>
+            </tr>
+        </Cabeceras>
+        <Filtros>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><input class="form-control" @bind-value="Filtro.BOL" @bind-value:event="oninput" @bind-value:after="CargarOrdenes" /></td>
+                <td><input class="form-control" @bind-value="Filtro.Destino" @bind-value:event="oninput" @bind-value:after="CargarOrdenes" /></td>
+                <td><input class="form-control" @bind-value="Filtro.Producto" @bind-value:event="oninput" @bind-value:after="CargarOrdenes" /></td>
+                <td></td>
+                <td></td>
+                <td><input class="form-control" @bind-value="Filtro.Transportista" @bind-value:event="oninput" @bind-value:after="CargarOrdenes" /></td>
+                <td><input class="form-control" @bind-value="Filtro.Tonel" @bind-value:event="oninput" @bind-value:after="CargarOrdenes" /></td>
+                <td><input class="form-control" @bind-value="Filtro.Chofer" @bind-value:event="oninput" @bind-value:after="CargarOrdenes" /></td>
+                <td></td>
+            </tr>
+        </Filtros>
+        <Columnas Context="item">
+            <tr>
+                <td>@item.FechaCarga</td>
+                <td>@item.FechaCarga</td>
+                <td>@item.Folio</td>
+                <td>@item.BOL</td>
+                <td>@item.Destino</td>
+                <td>@item.Producto</td>
+                <td>@item.Volumen</td>
+                <td>@item.VolumenCargado</td>
+                <td>@item.Transportista</td>
+                <td>@item.Tonel</td>
+                <td>@item.Chofer</td>
+                <td>@item.Estado</td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+
+<div class="col-12">
+    <PaginacionComponent PaginaActual="Filtro.Pagina_ACtual" PaginasTotales="Filtro.Total_paginas" PaginaSeleccionada="SeleccionarPagina" />
+    <div class="col-12">
+        <p>Total de registros: @Filtro.Total_registros</p>
+    </div>
+</div>
+
+@code {
+    bool loading = false;
+    HistorialOrdenDTO Filtro = new();
+    List<HistorialOrdenDTO> Ordenes = new();
+    Dictionary<string, string> Query = new();
+
+    Dictionary<string, string> SetFiltro()
+    {
+        Query[nameof(HistorialOrdenDTO.BOL)] = Filtro.BOL;
+        Query[nameof(HistorialOrdenDTO.Destino)] = Filtro.Destino;
+        Query[nameof(HistorialOrdenDTO.Producto)] = Filtro.Producto;
+        Query[nameof(HistorialOrdenDTO.Transportista)] = Filtro.Transportista;
+        Query[nameof(HistorialOrdenDTO.Tonel)] = Filtro.Tonel;
+        Query[nameof(HistorialOrdenDTO.Chofer)] = Filtro.Chofer;
+        Query[nameof(HistorialOrdenDTO.Pagina)] = Filtro.Pagina.ToString();
+        Query[nameof(HistorialOrdenDTO.Pagina_ACtual)] = Filtro.Pagina_ACtual.ToString();
+        Query[nameof(HistorialOrdenDTO.Fecha_Inicio)] = Filtro.Fecha_Inicio.ToString("MM/dd/yyyy");
+        Query[nameof(HistorialOrdenDTO.Fecha_Fin)] = Filtro.Fecha_Fin.ToString("MM/dd/yyyy");
+        return Query;
+    }
+
+    async Task CargarOrdenes()
+    {
+        try
+        {
+            loading = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            var response = await http.Get<List<HistorialOrdenDTO>>($"api/pedido/historial?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                loading = false;
+            }
+            else
+            {
+                Ordenes = response.Response;
+                loading = false;
+                Filtro.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+                Filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                Filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            loading = false;
+        }
+    }
+
+    private async Task SeleccionarPagina(int pagina)
+    {
+        Filtro.Pagina = pagina;
+        Filtro.Pagina_ACtual = pagina;
+        await CargarOrdenes();
+    }
+}

@@ -4,12 +4,9 @@ using GComFuelManager.Client.Auth;
 using GComFuelManager.Client.Helpers;
 using GComFuelManager.Client.Helpers.Validations;
 using GComFuelManager.Client.Repositorios;
-using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Radzen;
 using System.Globalization;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -30,10 +27,6 @@ void ConfigureServices(IServiceCollection services)
 {
     services.AddSweetAlert2();
     services.AddScoped<IRepositorio, Repositorio>();
-    services.AddScoped<DialogService>();
-    services.AddScoped<NotificationService>();
-    services.AddScoped<TooltipService>();
-    services.AddScoped<ContextMenuService>();
 
     services.AddAuthorizationCore();
 
@@ -47,22 +40,6 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddScoped<RenovadorToken>();
     services.AddSingleton(new CultureInfo("es-MX"));
-    services.AddScoped<OrdenCierreAdminValidation>();
-    services.AddScoped<OrdenCierreClientValidation>();
-    services.AddScoped<PedidoOrdenValidation>();
-    services.AddScoped<AsignacionUnidadValidation>();
-    services.AddScoped<UsuarioInfoValidation>();
-    services.AddScoped<CodigoClienteValidation>();
-    services.AddScoped<ContactoInternoValidation>();
-    services.AddScoped<AsignarGrupoClienteValidation>();
-    services.AddScoped<AsignarGrupoValidation>();
-    services.AddScoped<AsignacionZonaValidation>();
-    services.AddScoped<AsignarContactoValidation>();
-    services.AddScoped<AsignarContactoClienteValidation>();
-    services.AddScoped<AsignarZonaClienteValidation>();
-    services.AddScoped<ClienteDestinoValidation>();
-
-    services.AddScoped<PreciosValidation>();
 
     services.AddScoped<Constructor_De_URL_Parametros>();
 }

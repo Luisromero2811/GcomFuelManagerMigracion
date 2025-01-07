@@ -7,29 +7,36 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GComFuelManager.Shared.Modelos
 {
-	public class Chofer
-	{
-		[JsonProperty("cod"), Key]
-		public int Cod { get; set; }
+    public class Chofer
+    {
+        [Key]
+        public int Cod { get; set; }
+        public string? Den { get; set; } = string.Empty;
+        public int? Codtransport { get; set; } = 0;
+        public string? Dricod { get; set; } = string.Empty;
+        public string? Shortden { get; set; } = string.Empty;
+        public bool? Activo { get; set; } = true;
+        public string? RFC { get; set; } = string.Empty;
 
-		[JsonProperty("den"), MaxLength(128)]
-		public string? Den { get; set; } = string.Empty;
+        [NotMapped] public Transportista? Transportista { get; set; } = null!;
+        [NotMapped] public Tonel? Tonel { get; set; } = null!;
 
-		[JsonProperty("codtransport")]
-		public int? Codtransport { get; set; } = 0;
+        [NotMapped]
+        public string Fullname
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Den) && !string.IsNullOrEmpty(Shortden) && Den.ToLower().Equals(Shortden.ToLower()))
+                    return Shortden;
+                else
+                    return $"{Den} {Shortden}";
+            }
+        }
 
-		[JsonProperty("dricod"), MaxLength(6)]
-		public string? Dricod { get; set; } = string.Empty;
-
-		[JsonProperty("shortden"), MaxLength(128)]
-		public string? Shortden { get; set; } = string.Empty;
-
-		[JsonProperty("activo")]
-		public bool? Activo { get; set; } = true;
-		public string? RFC { get; set; } = string.Empty;
-
-		[NotMapped] public Transportista? Transportista { get; set; } = null!;
-		[NotMapped] public Tonel? Tonel { get; set; } = null!;
+        public override string ToString()
+        {
+            return Fullname;
+        }
     }
 }
 

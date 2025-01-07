@@ -1,32 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GComFuelManager.Shared.Modelos;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using OfficeOpenXml.Attributes;
+﻿using GComFuelManager.Shared.Filtros;
 
 namespace GComFuelManager.Shared.DTOs
 {
-    public class HistorialOrdenDTO
+    public class HistorialOrdenDTO : Parametros_Busqueda_Gen
     {
-        [DisplayName("Orden de Compra")]
-        public string? OrdenCompra { get; set; } = string.Empty;
-        public string? Cliente { get; set; } = string.Empty;
-        public string? Destino { get; set; } = string.Empty;
-        public string? Producto { get; set; } = string.Empty;
-        [EpplusIgnore]
-        public double? Volumen { get; set; } = 0;
-        [DisplayName("Volumen")]
-        public string Volumenes { get { return Volumen!.Value.ToString("N2"); } }
-        [DisplayName("Fecha de Carga")]
-        public string? FechaCarga { get; set; } = string.Empty;
-        public string? Transportista { get; set; } = string.Empty;
-        public string? Unidad { get; set; } = string.Empty;
-        public int? Compartimento { get; set; } = 0;
-        public string? Operador { get; set; } = string.Empty;
-        public int? Bin { get; set; } = 0;
-	}
+        public string Terminal { get; set; } = string.Empty;
+        public DateTime FechaCarga { get; set; } = DateTime.Now;
+        public string? Folio { get; set; } = string.Empty;
+        public string BOL { get; set; } = string.Empty;
+        public string Destino { get; set; } = string.Empty;
+        public string Producto { get; set; } = string.Empty;
+        public double? Volumen { get; set; }
+        public double? VolumenCargado { get; set; }
+        public string Transportista { get; set; } = string.Empty;
+        public string Tonel { get; set; } = string.Empty;
+        public string Chofer { get; set; } = string.Empty;
+        public string Estado { get; set; } = string.Empty;
+    }
 }

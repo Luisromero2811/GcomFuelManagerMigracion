@@ -1,4 +1,5 @@
 ﻿using GComFuelManager.Server;
+using GComFuelManager.Server.Automaper;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -46,12 +47,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ClockSkew = TimeSpan.Zero
     });
 
+builder.Services.AddAutoMapper(typeof(AutomapperModel));
+
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();
 builder.Services.AddScoped<IVencimientoService, VencimientoEmailService>();
 builder.Services.AddScoped<IPreciosService, PreciosService>();
 builder.Services.AddScoped<IValidacionCierreEmailService, ValidacionCierreEmailService>();
 builder.Services.AddScoped<IValidacionOrdenEmailService, ValidacionOrdenEmailService>();
+builder.Services.AddScoped<IUsuarioHelper, UsuarioHelper>();
 builder.Services.AddSingleton<RequestToFile>();
 builder.Services.AddSingleton<VerifyUserToken>();
 builder.Services.AddSingleton<VerifyUserId>();
@@ -66,7 +70,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 
 var app = builder.Build();
 
-using(var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     applicationDbContext.Database.Migrate();

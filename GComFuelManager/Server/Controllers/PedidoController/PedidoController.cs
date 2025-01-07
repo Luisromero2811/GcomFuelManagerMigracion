@@ -1,4 +1,5 @@
-﻿using GComFuelManager.Server.Helpers;
+﻿using AutoMapper;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
@@ -7,7 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using OnePlace.Shared.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,172 +28,81 @@ namespace GComFuelManager.Server.Controllers
         private readonly VerifyUserId verifyUser;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly User_Terminal terminal;
+        private readonly IUsuarioHelper helper;
+        private readonly IMapper mapper;
 
-        public PedidoController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> userManager, User_Terminal _Terminal)
+        public PedidoController(ApplicationDbContext context,
+                                VerifyUserId verifyUser,
+                                UserManager<IdentityUsuario> userManager,
+                                User_Terminal _Terminal,
+                                IUsuarioHelper helper,
+                                IMapper mapper)
         {
             this.context = context;
             this.verifyUser = verifyUser;
             this.userManager = userManager;
             terminal = _Terminal;
+            this.helper = helper;
+            this.mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<ActionResult> Get()
+        [HttpGet("historial")]
+        public async Task<ActionResult> Get([FromQuery] HistorialOrdenDTO historial)
         {
             try
             {
-                var pedidos = await context.OrdenEmbarque
-                    .Include(x => x.Destino)
-                    .Include(x => x.Tad)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Tonel)
-                    .Take(10000)
-                    .ToListAsync();
-                return Ok(pedidos);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-
-
-
-        //Method para obtener pedidos mediante un rango de fechas
-        [HttpPost("filtrar")]
-        public async Task<ActionResult> GetDate([FromBody] FechasF fechas)
-        {
-            try
-            {
-                List<OrdenEmbarque> ordens = new List<OrdenEmbarque>();
-
-                ordens = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                    && x.Bolguidid == null)
-                    .Include(x => x.Chofer)
-                    .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Estado)
-                    .Include(x => x.OrdenCompra)
-                    .Include(x => x.Tad)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
+                var ordenes = context.OrdenEmbarque.Where(x => x.Fchpet >= historial.Fecha_Inicio && x.Fchpet <= historial.Fecha_Fin)
                     .Include(x => x.OrdenCierre)
-                    .OrderBy(x => x.Fchpet)
-                    .Take(10000)
-                    .ToListAsync();
-
-                ordens.OrderByDescending(x => x.Bin);
-
-                return Ok(ordens);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        //Method para obtener pedidos mediante rango de fechas y checbox seleccionado
-        //REALIZAR TRES CONDICIONES, UNA POR CADA RADIOBUTTON, QUE SEA EN TRUE SE HARÁ EL MISMO FILTRO POR FECHAS EN WHERE AÑADIENDO LOS CAMPOS QUE UTILIZAN CADA CLAUSULA
-        [HttpPost("filtro")]
-        public async Task<ActionResult> GetDateRadio([FromBody] FechasF fechas)
-        {
-            try
-            {
-                if (fechas.Estado == 1)
-                {
-                    //Traerme al bolguid is not null, codest =3 y transportista activo en 1 --Ordenes Sin Cargar--
-                    var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista.Activo == true)
                     .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Chofer)
+                    .Include(x => x.Tonel.Transportista)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Orden.Estado)
+                    .Include(x => x.Estado)
                     .Include(x => x.Tad)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
-                    .Include(x => x.Chofer)
-                    .Include(x => x.Estado)
-                    //.Select(x => new OrdenesDTO() { Referencia = x.Folio })
-                    .Select(o => new Orden()
+                    .AsQueryable();
+
+                if (historial.BOL.IsNull())
+                    ordenes = ordenes.Where(x => x.Orden != null && x.Orden.BatchId.HasValue && x.Orden.BatchId.Value.ToString().StartsWith(historial.BOL));
+
+                if (historial.Destino.IsNull())
+                    ordenes = ordenes.Where(x => x.Destino != null && !x.Destino.Den.IsNullOrEmpty() && x.Destino.Den!.ToLower().StartsWith(historial.Destino.ToLower()));
+
+                if (historial.Producto.IsNull())
+                    ordenes = ordenes.Where(x => x.Producto != null && !x.Producto.Den.IsNullOrEmpty() && x.Producto.Den!.ToLower().StartsWith(historial.Destino.ToLower()));
+
+                if (historial.Transportista.IsNull())
+                    ordenes = ordenes.Where(x => x.Transportista != null && !x.Transportista.Den.IsNullOrEmpty() && x.Transportista.Den!.ToLower().StartsWith(historial.Transportista.ToLower()));
+
+                if (historial.Tonel.IsNull())
+                    ordenes = ordenes.Where(x => x.Tonel != null && !x.Tonel.Den.IsNullOrEmpty() && x.Tonel.Den!.ToLower().StartsWith(historial.Tonel.ToLower()));
+
+                if (historial.Chofer.IsNull())
+                    ordenes = ordenes.Where(x => x.Chofer != null && !x.Chofer.Den.IsNullOrEmpty() && x.Chofer.Den!.ToLower().StartsWith(historial.Chofer.ToLower()));
+
+                await HttpContext.InsertarParametrosPaginacion(ordenes, historial.Registros_por_pagina, historial.Pagina);
+                historial.Pagina = HttpContext.ObtenerPagina();
+
+                var ordenesdto = ordenes
+                    .Select(x => new HistorialOrdenDTO
                     {
-                        Cod = o.Cod,
-                        Ref = "ENER-" + o.Folio.ToString(),
-                        //Ref = o.ref
-                        Fchcar = o.Fchcar,
-                        Estado = o.Estado,
-                        Destino = o.Destino,
-                        Producto = o.Producto,
-                        Vol2 = o.Vol,
-                        Vol = null!,
-                        Bolguiid = null!,
-                        BatchId = null!,
-                        Tonel = o.Tonel,
-                        Chofer = o.Chofer
+                        Terminal = x.Tad != null ? x.Tad.ToString() : string.Empty,
+                        FechaCarga = x.Fchcar ?? DateTime.MinValue,
+                        Folio = x.FolioSyn ?? string.Empty,
+                        BOL = x.Orden != null ? x.Orden.BatchId.ToString() : string.Empty,
+                        Destino = x.Destino != null ? x.Destino.ToString() : string.Empty,
+                        Producto = x.Producto != null ? x.Producto.ToString() : string.Empty,
+                        Volumen = x.Vol ?? 0,
+                        VolumenCargado = x.Orden != null ? x.Orden.Vol : 0,
+                        Transportista = x.Tonel != null ? x.Tonel.Transportista != null ? x.Tonel.Transportista.ToString() : string.Empty : string.Empty,
+                        Tonel = x.Tonel != null ? x.Tonel.ToString() : string.Empty,
+                        Chofer = x.Chofer != null ? x.Chofer.ToString() : string.Empty,
+                        Estado = x.Orden != null ? x.Orden.Estado.den ?? string.Empty : x.Estado.den ?? string.Empty
                     })
-                    .OrderBy(x => x.Fchcar)
-                    .Take(10000)
-                    .ToListAsync();
-                    return Ok(pedidosDate);
-                }
-                else if (fechas.Estado == 2)
-                {
-                    //Traerme al transportista activo en 1 y codest = 26 --Ordenes Cargadas--
-                    var pedidosDate = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20)
-                    .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Estado)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Chofer)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
-                    .OrderBy(x => x.Fchcar)
-                    .Take(10000)
-                    .ToListAsync();
-                    return Ok(pedidosDate);
-                }
-                else if (fechas.Estado == 3)
-                {
-                    //Traerme al transportista activo en 1 --Ordenes en trayecto-- 
-                    var pedidosDate = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 26)
-                    .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
-                    .Include(x => x.Estado)
-                    .Include(x => x.Chofer)
-                    .OrderBy(x => x.Fchcar)
-                    .Take(10000)
-                    .ToListAsync();
-                    return Ok(pedidosDate);
-                }
-                else if (fechas.Estado == 4)
-                {
-                    //Ordenes canceladas
-                    var pedidosDate = await context.Orden
-                        .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 14)
-                        .Include(x => x.Destino)
-                        .ThenInclude(x => x.Cliente)
-                        .Include(x => x.Producto)
-                        .Include(x => x.Tonel)
-                        .ThenInclude(x => x.Transportista)
-                        .Include(x => x.Estado)
-                        .Include(x => x.Chofer)
-                        .OrderBy(x => x.Fchcar)
-                        .Take(10000)
-                        .ToListAsync();
-                    return Ok(pedidosDate);
-                }
-                else
-                {
-                    return BadRequest();
-                }
+                    .Skip((historial.Pagina - 1) * historial.Registros_por_pagina)
+                    .Take(historial.Registros_por_pagina);
 
-
+                return Ok(ordenesdto);
             }
             catch (Exception e)
             {
@@ -220,21 +132,6 @@ namespace GComFuelManager.Server.Controllers
                     return BadRequest();
                 await context.SaveChangesAsync(id, 2);
                 return Ok(orden);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        [Route("binNumber")]
-        [HttpGet]
-        public async Task<ActionResult> GetLastBin()
-        {
-            try
-            {
-                var bin = await context.OrdenEmbarque.Select(x => x.Bin).OrderBy(x => x).LastOrDefaultAsync();
-                return Ok(bin);
             }
             catch (Exception e)
             {
@@ -522,163 +419,6 @@ namespace GComFuelManager.Server.Controllers
         [HttpPost("create/all")]
         public async Task<ActionResult> GetFolioToOrden([FromBody] OrdenCierre ordenCierre)
         {
-            //try
-            //{
-            //    if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
-            //    {
-            //        var cierre = context.OrdenCierre.Where(x => x.Folio == ordenCierre.Folio_Perteneciente).ToList();
-            //        if (cierre is not null)
-            //        {
-            //            if (cierre.Where(x => x.CodPrd == ordenCierre.CodPrd).Count() == 0)
-            //            {
-            //                return BadRequest("El producto seleccionado no se encuentra en el cierre");
-            //            }
-            //        }
-            //    }
-
-            //    var id = await verifyUser.GetId(HttpContext, userManager);
-            //    if (string.IsNullOrEmpty(id))
-            //        return BadRequest();
-
-            //    if (ordenCierre is null)
-            //        return BadRequest("No se encontro ninguna orden");
-
-            //    string folio = string.Empty;
-
-            //    if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
-            //    folio = context.OrdenCierre.FirstOrDefault(x => x.CodDes == ordenCierre.CodDes && x.CodCte == ordenCierre.CodCte && x.CodPrd == ordenCierre.CodPrd
-            //    && x.CodPed != 0 && x.FchCierre == DateTime.Today && x.Estatus == true)?.Folio ?? string.Empty;
-
-            //    //var user = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == HttpContext.User.FindFirstValue(ClaimTypes.Name));
-            //    //if (user == null)
-            //    //    return NotFound();
-
-            //    //Va y busca al usuario del cliente
-            //    var user = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
-            //    if (user == null)
-            //        return NotFound();
-            //    //Si el cliente es comprador
-            //    if (await userManager.IsInRoleAsync(user, "Comprador"))
-            //    {
-            //        var userSis = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
-            //        if (userSis == null)
-            //            return NotFound();
-            //        ordenCierre.CodCte = userSis.CodCte;
-            //        ordenCierre.CodGru = userSis.CodGru;
-            //        ordenCierre.Vendedor = userSis.Den;
-            //    }
-
-
-            //    if (string.IsNullOrEmpty(folio))
-            //    {
-            //        var consecutivo = context.Consecutivo.First(x => x.Nombre == "Folio");
-            //        if (consecutivo is null)
-            //        {
-            //            Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Folio" };
-            //            context.Add(Nuevo_Consecutivo);
-            //            await context.SaveChangesAsync();
-            //            consecutivo = Nuevo_Consecutivo;
-            //        }
-            //        else
-            //        {
-            //            consecutivo.Numeracion++;
-            //            context.Update(consecutivo);
-            //            await context.SaveChangesAsync();
-            //        }
-
-            //        context.Update(consecutivo);
-            //        await context.SaveChangesAsync();
-
-            //        var cliente = context.Cliente.FirstOrDefault(x => x.Cod == ordenCierre.CodCte);
-
-            //        if (cliente is null)
-            //            return BadRequest("No se encontro el cliente");
-
-            //        if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
-            //            ordenCierre.Folio = $"O{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(cliente is not null && !string.IsNullOrEmpty(cliente.CodCte) ? $"-{cliente.CodCte}" : "-DFT")}";
-            //        else
-            //            ordenCierre.Folio = $"OP{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(cliente is not null && !string.IsNullOrEmpty(cliente.CodCte) ? $"-{cliente.CodCte}" : "-DFT")}";
-
-            //    }
-
-            //    var bin = context.OrdenEmbarque.Select(x => x.Bin).OrderBy(x => x).LastOrDefault();
-
-            //    var bincount = context.OrdenEmbarque.Count(x => x.Bin == bin);
-
-            //    var count = context.OrdenCierre.Count(x => x.Folio == folio && x.CodDes == ordenCierre.CodDes && x.CodCte == ordenCierre.CodCte
-            //    && x.CodPrd == ordenCierre.CodPrd);
-
-            //    OrdenEmbarque ordenEmbarque = new()
-            //    {
-            //        Codest = 9,
-            //        Codtad = ordenCierre.CodTad,
-            //        Codprd = ordenCierre.CodPrd,
-            //        Pre = ordenCierre.Precio,
-            //        Vol = ordenCierre.Volumen,
-            //        Coddes = ordenCierre.CodDes,
-            //        Fchpet = DateTime.Now,
-            //        Fchcar = ordenCierre.FchCar,
-            //        Bin = count == 0 || bincount >= 2 ? ++bin : count % 2 == 0 ? ++bin : bin,
-            //        //Codusu = user?.Cod,
-            //        Moneda = ordenCierre.Moneda,
-            //        Equibalencia = ordenCierre.Equibalencia
-            //    };
-
-            //    context.Add(ordenEmbarque);
-            //    await context.SaveChangesAsync();
-
-            //    ordenCierre.Producto = null!;
-            //    ordenCierre.Destino = null!;
-            //    ordenCierre.Grupo = null!;
-            //    ordenCierre.OrdenEmbarque = null!;
-            //    ordenCierre.OrdenPedidos = null!;
-            //    ordenCierre.Cliente = null!;
-
-            //    ordenCierre.CodPed = ordenEmbarque.Cod;
-            //    ordenCierre.FchVencimiento = ordenCierre.FchCierre?.AddDays(5);
-
-            //    context.Add(ordenCierre);
-
-            //    await context.SaveChangesAsync();
-
-            //    if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
-            //    {
-            //        var cierre = context.OrdenCierre.FirstOrDefault(x => x.Folio == ordenCierre.Folio_Perteneciente);
-
-            //        if (cierre is not null)
-            //        {
-            //            ordenCierre.TipoPago = cierre.TipoPago ?? string.Empty;
-            //            context.Update(ordenCierre);
-
-            //            OrdenPedido ordenPedido = new()
-            //            {
-            //                CodPed = ordenEmbarque.Cod,
-            //                CodCierre = cierre?.Cod ?? 0,
-            //                Folio = ordenCierre.Folio_Perteneciente,
-            //            };
-
-            //            context.Add(ordenPedido);
-            //            await context.SaveChangesAsync();
-            //        }
-            //    }
-
-            //    var newOrden = context.OrdenCierre.Where(x => x.Cod == ordenCierre.Cod)
-            //        .Include(x => x.Producto)
-            //        .Include(x => x.Destino)
-            //        .Include(x => x.Cliente)
-            //        .Include(x => x.OrdenEmbarque)
-            //        .ThenInclude(x => x.Tad)
-            //        .Include(x => x.OrdenEmbarque)
-            //        .ThenInclude(x => x.Estado)
-            //        .Include(x => x.OrdenPedidos)
-            //        .FirstOrDefault();
-
-            //    return Ok(newOrden);
-            //}
-            //catch (Exception e)
-            //{
-            //    return BadRequest(e.Message);
-            //}
             var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
             if (id_terminal == 0)
                 return BadRequest();

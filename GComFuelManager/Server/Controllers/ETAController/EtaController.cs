@@ -1,18 +1,12 @@
-﻿using System;
+﻿using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using GComFuelManager.Shared.DTOs;
-using GComFuelManager.Shared.Modelos;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Security.Claims;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using GComFuelManager.Server.Helpers;
 
 namespace GComFuelManager.Server.Controllers.ETAController
 {

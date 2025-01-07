@@ -14,7 +14,7 @@ using System.Text;
 namespace GComFuelManager.Server.Controllers.Auth
 {
     [ApiController]
-    [Route("api/cuentas")]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUsuario> userManager;
@@ -56,52 +56,44 @@ namespace GComFuelManager.Server.Controllers.Auth
                     if (user_asp is null)
                         return BadRequest("El usuario no tiene acceso al sistema");
 
-                    var terminal = context.Tad.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(info.Terminal));
-                    if (terminal is null)
-                    {
-                        var user = await userManager.FindByNameAsync(info.UserName);
-                        if (user is not null)
-                        {
-                            if (await userManager.IsInRoleAsync(user, "Obtencion de Ordenes") || await userManager.IsInRoleAsync(user, "Consulta Precios"))
-                            {
-                                terminal = new() { Cod = 0 };
-                                info.Terminal = "Interno";
-                            }
-                            else
-                                return BadRequest("No tiene acceso a esta terminal");
-                        }
-                        else
-                            return BadRequest("No tiene acceso a esta terminal");
-                    }
+                    //var terminal = context.Tad.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(info.Terminal));
+                    //if (terminal is null)
+                    //{
+                    //    var user = await userManager.FindByNameAsync(info.UserName);
+                    //    if (user is not null)
+                    //    {
+                    //        if (await userManager.IsInRoleAsync(user, "Obtencion de Ordenes") || await userManager.IsInRoleAsync(user, "Consulta Precios"))
+                    //        {
+                    //            terminal = new() { Cod = 0 };
+                    //            info.Terminal = "Interno";
+                    //        }
+                    //        else
+                    //            return BadRequest("No tiene acceso a esta terminal");
+                    //    }
+                    //    else
+                    //        return BadRequest("No tiene acceso a esta terminal");
+                    //}
 
                     if (usuario.IsClient)
                     {
                         var cliente = context.Cliente.FirstOrDefault(x => x.Cod == usuario.CodCte);
                         if (cliente is null) { return BadRequest("No existe el cliente"); }
-
-                        var cliente_terminal = context.Cliente.FirstOrDefault(x => x.Den == cliente.Den && x.Id_Tad == terminal.Cod);
-                        if (cliente_terminal is null) { return BadRequest("No existe el cliente en la terminal"); }
                     }
 
-                    if (context.Usuario_Tad.Any(x => x.Id_Usuario == user_asp.Id && x.Id_Terminal == terminal!.Cod))
+                    var resultado = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
+                    if (resultado.Succeeded)
                     {
-                        var resultado = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
-                        if (resultado.Succeeded)
-                        {
-                            var token = await BuildToken(info);
+                        var token = await BuildToken(info);
 
-                            return Ok(token);
-                        }
-                        else
-                            return BadRequest("Nombre de usuario y/o contraseña no validos");
+                        return Ok(token);
                     }
                     else
-                        return BadRequest("No tiene acceso a esta terminal");
+                        return BadRequest("Nombre de usuario y/o contraseña no validos");
                 }
                 else
                     return BadRequest("El usuario no tiene acceso al sistema");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error interno del servidor al iniciar sesion.");
             }
@@ -126,22 +118,18 @@ namespace GComFuelManager.Server.Controllers.Auth
 
         private async Task<UserTokenDTO> BuildToken(UsuarioInfo info)
         {
-            if (!context.Tad.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Equals(info.Terminal) && x.Activo == true) && info.Terminal != "Interno")
-                return new UserTokenDTO();
+            //if (!context.Tad.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Equals(info.Terminal) && x.Activo == true) && info.Terminal != "Interno")
+            //    return new UserTokenDTO();
 
             var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Name, info.UserName),
-                new Claim(JwtRegisteredClaimNames.UniqueName, info.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("Terminal",info.Terminal)
+                new(ClaimTypes.Name, info.UserName),
+                new(JwtRegisteredClaimNames.UniqueName, info.UserName),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             if (string.IsNullOrEmpty(info.UserName))
                 throw new ArgumentNullException(nameof(info.UserName));
-
-            if (string.IsNullOrEmpty(info.Terminal))
-                throw new ArgumentNullException(nameof(info.Terminal));
 
             var usuario = await userManager.FindByNameAsync(info.UserName);
             if (usuario != null)
@@ -150,7 +138,7 @@ namespace GComFuelManager.Server.Controllers.Auth
 
                 foreach (var role in roles)
                 {
-                    claims.Add(new Claim(ClaimTypes.Role, role));
+                    claims.Add(new(ClaimTypes.Role, role));
                 }
             }
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwtkey"]!));
@@ -230,7 +218,7 @@ namespace GComFuelManager.Server.Controllers.Auth
 
                 return new JwtSecurityTokenHandler().ValidateToken(token, validationParameters, out Token_validado);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw new InvalidOperationException();
             }

@@ -1,0 +1,36 @@
+﻿﻿@if (LoadingContent)
+{
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped bg-warning progress-bar-animated" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+}
+<div class="card @CardClass">
+    @if (Header is not null)
+    {
+        <div class="card-header @HeaderClass">
+            @Header
+        </div>
+    }
+    @if (Header is null && !string.IsNullOrEmpty(HeaderText))
+    {
+        <div class="card-header @HeaderClass">
+            <b>@HeaderText</b>
+        </div>
+    }
+    @if (ChildContent is not null)
+    {
+        <div class="card-body @BodyClass">
+            @ChildContent
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public RenderFragment? Header { get; set; } = null!;
+    [Parameter] public string HeaderText { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ChildContent { get; set; } = null!;
+    [Parameter] public bool LoadingContent { get; set; } = false;
+    [Parameter] public string CardClass { get; set; } = string.Empty;
+    [Parameter] public string HeaderClass { get; set; } = string.Empty;
+    [Parameter] public string BodyClass { get; set; } = string.Empty;
+}

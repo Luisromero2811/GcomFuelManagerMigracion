@@ -1,0 +1,130 @@
+﻿@page "/orden/crear"
+@inject IRepositorio http
+@inject SweetAlertService Swal
+
+<Card LoadingContent="loading">
+    <Header>
+        <b>Crear orden</b>
+    </Header>
+    <ChildContent>
+        <EditForm Model="Orden">
+            <DataAnnotationsValidator />
+
+            <div class="col-12 row">
+                <div class="col-md-4 col-12">
+                    <label>Destino</label>
+                    <DropDownFilter TListado="DestinoDTO" TValue="int" @bind-Valor="Orden.DestinoId" Listado="Destinos" Default_Placeholder="Seleccione un destino">
+                        <RenderValue Context="v1">
+                            @v1.Den
+                        </RenderValue>
+                        <Render Context="v">
+                            @v.Den
+                        </Render>
+                    </DropDownFilter>
+                    <InputSelect class="d-none" @bind-Value="Orden.DestinoId" />
+                    <ValidationMessage For="@(()=>Orden.DestinoId)" />
+                </div>
+                <div class="col-md-4 col-12">
+                    <label>Producto</label>
+                    <InputSelect @bind-Value="Orden.ProductoId">
+                        @foreach (var item in Productos)
+                        {
+                            <option value="@item.Id">@item.Producto</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(()=>Orden.ProductoId)" />
+                </div>
+                <div class="col-md-4 col-12">
+                    <label>Fecha de carga en terminal</label>
+                    <InputDate @bind-Value="Orden.FechaCarga" class="form-control" />
+                    <ValidationMessage For="@(()=>Orden.FechaCarga)" />
+                </div>
+                <div class="col-md-4 col-12">
+                    <label>Fecha deseada de recepción</label>
+                    <InputDate @bind-Value="Orden.FechaCarga" class="form-control" />
+                    <ValidationMessage For="@(()=>Orden.FechaDeseadaCarga)" />
+                </div>
+            </div>
+        </EditForm>
+    </ChildContent>
+</Card>
+
+@code {
+    bool loading = false;
+    OrdenPostDTO Orden = new();
+
+    List<DestinoDTO> Destinos = new();
+    List<ProductoDTO> Productos = new();
+    List<int> Cantidades = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(
+            ObtenerDestinos(),
+            ObtenerProductos()
+        );
+    }
+
+    public async Task ObtenerProductos()
+    {
+        try
+        {
+            var response = await http.Get<List<int>>("api/destino");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cantidades = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task ObtenerDestinos()
+    {
+        try
+        {
+            var response = await http.Get<List<int>>("api/cantidad");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cantidades = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task ObtenerCantidades()
+    {
+        try
+        {
+            var response = await http.Get<List<int>>("api/cantidad");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cantidades = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

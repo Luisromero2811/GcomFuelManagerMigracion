@@ -33,11 +33,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0)
-                    return BadRequest();
-
-                var productos = await context.Producto.Where(x => x.Activo == true && x.Id_Tad == id_terminal).OrderBy(x => x.Den).ToListAsync();
+                var productos = await context.Producto.Where(x => x.Activo == true).OrderBy(x => x.Den).ToListAsync();
                 return Ok(productos);
             }
             catch (Exception e)

@@ -1,19 +1,12 @@
-﻿using GComFuelManager.Shared.DTOs;
+﻿using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+//using ServiceReference6;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System.Diagnostics;
-using System.ServiceModel;
-//using ServiceReference6;
-using ServiceReference8;
-using System.Drawing;
-using System;
-using Microsoft.AspNetCore.Identity;
-using GComFuelManager.Server.Identity;
 using System.Security.Claims;
 
 namespace GComFuelManager.Server.Controllers.Cierres
@@ -52,7 +45,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
             try
             {
                 Cliente clientes = new Cliente();
-                
+
                 var usuario = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
                 //Si el usuario no existe
                 if (usuario == null)
@@ -62,7 +55,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (isClient)
                 {
                     var user = context.Usuario.Find(usuario.UserCod);
-                    
+
                     if (user is null)
                         return BadRequest("No existe el usuario.");
                     if (!user.IsClient)
@@ -70,7 +63,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     clientes = context.Cliente.Find(user!.CodCte!);
                 }
-                
+
                 return Ok(clientes);
             }
             catch (Exception e)

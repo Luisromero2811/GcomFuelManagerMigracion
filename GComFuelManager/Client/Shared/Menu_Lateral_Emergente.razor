@@ -84,60 +84,39 @@
 
     protected override async Task OnInitializedAsync()
     {
-        //configuracion
         Menus.Add(new Menu()
-        {
-            isMenu = true,
-            name = "Configuracion",
-            icon = "gear",
-            roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo",
-            Menus = new()
-{
-                    new()
-                    {
-                        isMenu = true,
-                        name = "Actualizacion de registros",
-                        icon = "rotate",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial",
-                        Menus = new()
-{
-                            new()
-                            {
-                                name = "Relacionar datos",
-                                icon = "user-tie",
-                                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes",
-                                path = "asignar-cliente-destino"
-                            },
-                        }
-                    },
-                }
-        });
+            {
+                isMenu = false,
+                name = "Inicio",
+                icon = "house",
+                roles = "Admin, Administrador Sistema, Comprador",
+                path = "/inicio"
+            });
 
-        //ordenes
-           Menus.Add(new Menu()
-           {
-               isMenu = true,
-               name = "Ordenes",
-               icon = "rectangle-list",
-               roles = "Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios",
-               Menus = new()
+        Menus.Add(new Menu()
+            {
+                isMenu = true,
+                name = "Ordenes",
+                icon = "rectangle-list",
+                roles = "Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios",
+                Menus = new()
         {
                        new()
                        {
                            name = "Órdenes",
                            icon = "rectangle-list",
                            roles = "Admin, Administrador Sistema, Comprador",
-                           path = "pedidos"
+                           path = "orden/crear"
                        },
                        new()
                        {
                            name = "Historial de órdenes",
                            icon = "truck-ramp-box",
                            roles = "Admin, Administrador Sistema, Comprador",
-                           path = "orden"
+                           path = "orden/historial"
                        },
                    }
-           });
+            });
 
     }
 

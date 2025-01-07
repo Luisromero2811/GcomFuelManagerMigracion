@@ -112,7 +112,7 @@ namespace GComFuelManager.Client.Auth
             query["t"] = token;
             var url = Constructor_De_URL_Parametros.Generar_URL(query);
 
-            var nuevoTokenResponse = await repositorio.Get<UserTokenDTO>($"api/cuentas/renovarToken?{url}");
+            var nuevoTokenResponse = await repositorio.Get<UserTokenDTO>($"api/auth/renovarToken?{url}");
             var nuevoToken = nuevoTokenResponse.Response!;
 
             if (string.IsNullOrWhiteSpace(token) || string.IsNullOrEmpty(token))

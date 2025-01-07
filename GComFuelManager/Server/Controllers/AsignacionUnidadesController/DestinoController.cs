@@ -19,66 +19,24 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
     public class DestinoController : ControllerBase
     {
         private readonly ApplicationDbContext context;
-        private readonly VerifyUserToken verifyUser;
-        private readonly UserManager<IdentityUsuario> userManager;
-        private readonly VerifyUserId verify;
-        private readonly User_Terminal _terminal;
+        private readonly IUsuarioHelper usuarioHelper;
 
-        public DestinoController(ApplicationDbContext context, VerifyUserToken verifyUser, UserManager<IdentityUsuario> userManager, VerifyUserId verify, User_Terminal _Terminal)
+        public DestinoController(ApplicationDbContext context, IUsuarioHelper usuarioHelper)
         {
             this.context = context;
-            this.verifyUser = verifyUser;
-            this.userManager = userManager;
-            this.verify = verify;
-            this._terminal = _Terminal;
+            this.usuarioHelper = usuarioHelper;
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult> Get()
-        //{
-        //    try
-        //    {
-        //        var destinos = await context.Destino
-        //            .Where(x => x.Activo == true)
-        //            .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den })
-        //            .ToListAsync();
-        //        return Ok(destinos);
-        //    }
-        //    catch (Exception e)
-        //    {
-
-        //        return BadRequest(e.Message);
-        //    }
-        //}
-
-        [HttpGet("comprador")]
-        public ActionResult GetClientComprador()
+        [HttpGet]
+        public async Task<ActionResult> GetClientComprador()
         {
             try
             {
-                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0)
-                    return BadRequest();
+                var user = await usuarioHelper.GetUsuario();
 
-                var userId = verifyUser.GetName(HttpContext);
 
-                if (string.IsNullOrEmpty(userId))
-                    return BadRequest();
 
-                var user = context.Usuario.FirstOrDefault(x => x.Usu == userId);
-                if (user == null)
-                    return BadRequest();
-
-                var cliente = context.Cliente.FirstOrDefault(x => x.Cod == user.CodCte);
-                if (cliente is null) { return BadRequest("El cliente no existe"); }
-
-                var cliente_terminal = context.Cliente.FirstOrDefault(x => x.Den == cliente.Den && x.Id_Tad == id_terminal);
-                if (cliente_terminal is null) { return BadRequest("No existe el cliente en la terminal"); }
-
-                var destinos = context.Destino.IgnoreAutoIncludes().Where(x => x.Codcte == cliente_terminal.Cod && x.Activo == true && x.Id_Tad == id_terminal)
-                    .IgnoreAutoIncludes().OrderBy(x => x.Den).ToList();
-
-                return Ok(destinos);
+                return Ok();
             }
             catch (Exception e)
             {
