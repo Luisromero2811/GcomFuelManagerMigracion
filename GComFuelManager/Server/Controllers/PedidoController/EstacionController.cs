@@ -437,7 +437,7 @@ namespace GComFuelManager.Server.Controllers
                 var id_terminal = await helper.GetTerminalIdAsync();
 
                 var estaciones = await context.Destino
-                    .Where(x => x.Id_Tad == id_terminal)
+                    .Where(x => x.Id_Tad == id_terminal && x.Activo)
                     .Include(x => x.Cliente)
                     .OrderBy(x => x.Den)
                     .ToListAsync();

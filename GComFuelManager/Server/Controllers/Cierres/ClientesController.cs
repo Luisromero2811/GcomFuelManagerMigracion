@@ -660,7 +660,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 var clientes = await context.Cliente
                     .AsNoTracking()
-                    .Where(x => x.Id_Tad == id_terminal)
+                    .Where(x => x.Id_Tad == id_terminal && x.Activo)
                     .Include(x => x.Grupo)
                     .OrderBy(x => x.Den)
                     .ToListAsync();
