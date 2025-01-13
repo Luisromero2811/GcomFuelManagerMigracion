@@ -44,7 +44,7 @@ namespace GComFuelManager.Shared.Modelos
 
             gestion_.Contacto_Rel = (Contacto?.Nombre ?? "") + " " + (Contacto?.Apellidos ?? "");
             gestion_.Asunto = Asuntos?.Valor;
-            gestion_.Cuenta_Rel = Contacto.Cliente.Nombre ?? "No Asignado";
+            gestion_.Cuenta_Rel = Contacto?.Cliente.Nombre ?? "No Asignado";
             gestion_.Prioridad = Prioridades?.Valor;
             gestion_.Fecha_Creacion = (DateTime)Fecha_Creacion;
             gestion_.Fch_Inicio = Fch_Inicio;

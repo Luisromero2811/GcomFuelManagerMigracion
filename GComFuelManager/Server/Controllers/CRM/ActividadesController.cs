@@ -495,14 +495,11 @@ namespace GComFuelManager.Server.Controllers
 
                 var actividades = new List<CRMActividades>().AsQueryable();
 
-                if (!DateTime.TryParse(actividadDTO.Fecha_Creacion.ToString(), out DateTime Fecha_Inicio)) { return BadRequest("La fecha de inicio no tiene un formato valido."); }
-                if (!DateTime.TryParse(actividadDTO.Fecha_Ven.ToString(), out DateTime Fecha_Fin)) { return BadRequest("La fecha de fin no tiene un formato valido."); }
-
                 if (await manager.IsInRoleAsync(user, "Admin"))
                 {
                     //Consulta a la entidad CRMActividades
                     actividades = context.CRMActividades
-                       .Where(x => x.Fecha_Creacion >= Fecha_Inicio && x.Fecha_Creacion <= Fecha_Fin && x.Estados.Valor.Equals("Completada"))
+                       .Where(x => x.Fecha_Creacion >= actividadDTO.Fecha_Creacion && x.Fecha_Creacion <= actividadDTO.Fecha_Ven && x.Estados.Valor.Equals("Completada"))
                        .Include(x => x.Asuntos)
                        .Include(x => x.Estados)
                        .Include(x => x.Contacto)
@@ -534,6 +531,7 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Asuntos)
                         .Include(x => x.Estados)
                         .Include(x => x.Contacto)
+                        .ThenInclude(x => x.Cliente)
                         .Include(x => x.Prioridades)
                         .Include(x => x.Vendedor)
                         .OrderByDescending(x => x.Fecha_Mod)
@@ -551,6 +549,7 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.Asuntos)
                        .Include(x => x.Estados)
                        .Include(x => x.Contacto)
+                       .ThenInclude(x => x.Cliente)
                        .Include(x => x.Prioridades)
                        .Include(x => x.Vendedor)
                        .OrderByDescending(x => x.Fecha_Mod)
@@ -681,6 +680,7 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Asuntos)
                         .Include(x => x.Estados)
                         .Include(x => x.Contacto)
+                        .ThenInclude(x => x.Cliente)
                         .Include(x => x.Prioridades)
                         .Select(x => x.Asignacion_Datos())
                         .ToList();
@@ -721,6 +721,7 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Asuntos)
                         .Include(x => x.Estados)
                         .Include(x => x.Contacto)
+                        .ThenInclude(x => x.Cliente)
                         .Include(x => x.Prioridades)
                         .Select(x => x.Asignacion_Datos())
                     .ToList();
