@@ -13,6 +13,8 @@ namespace GComFuelManager.Shared.DTOs.Reportes.CRM
         public string Prioridad { get; set; } = string.Empty;
         [DisplayName("Estado de actividad")]
         public string Estatus { get; set; } = string.Empty;
+        [DisplayName("Cuenta Relacionada")]
+        public string Cuenta_Rel { get; set; } = string.Empty;
         [DisplayName("Fecha de Inicio")]
         public DateTime? Fch_Inicio { get; set; } = DateTime.Now;
         [DisplayName("Fecha de Vencimiento")]
