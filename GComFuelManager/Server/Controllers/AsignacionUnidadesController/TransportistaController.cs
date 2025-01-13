@@ -740,7 +740,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             {
                 var idtad = await helper.GetTerminalIdAsync();
                 var gruposts = await context.GrupoTransportista
-                    .Where(x => x.Id_Tad == idtad)
+                    .Where(x => x.Id_Tad == idtad && x.Activo)
                     .OrderBy(x => x.den)
                     .ToListAsync();
 
@@ -771,7 +771,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             {
                 var idtad = await helper.GetTerminalIdAsync();
                 var gruposts = await context.Transportista
-                    .Where(x => x.Id_Tad == idtad)
+                    .Where(x => x.Id_Tad == idtad && x.Activo == true)
                     .Include(x => x.GrupoTransportista)
                     .OrderBy(x => x.Den)
                     .ToListAsync();

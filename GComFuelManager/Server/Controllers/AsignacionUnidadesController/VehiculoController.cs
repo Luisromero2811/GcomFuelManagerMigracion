@@ -623,7 +623,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             {
                 var idtad = await helper.GetTerminalIdAsync();
 
-                var toneles = await context.Tonel.Where(x => x.Id_Tad == idtad)
+                var toneles = await context.Tonel.Where(x => x.Id_Tad == idtad && x.Activo == true)
                                                  .Include(x => x.Transportista)
                                                  .OrderBy(x => x.Tracto)
                                                  .ToListAsync();
