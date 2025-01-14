@@ -682,6 +682,7 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Contacto)
                         .ThenInclude(x => x.Cliente)
                         .Include(x => x.Prioridades)
+                         .Include(x => x.Vendedor)
                         .Select(x => x.Asignacion_Datos())
                         .ToList();
 
