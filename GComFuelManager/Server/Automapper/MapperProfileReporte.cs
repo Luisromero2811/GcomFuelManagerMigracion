@@ -207,6 +207,8 @@ namespace GComFuelManager.Server.Automapper
             CreateMap<Chofer, CatalogoChoferDTO>();
             CreateMap<Tonel, CatalogoVehiculoDTO>();
             CreateMap<InventarioCierreDTO, InventarioConsolidacionDTO>();
+            CreateMap<AnalisisOrdenCargada, AnalisisOrdenCargadaExcelDTO>()
+                .ForMember(x => x.Operador, op => op.MapFrom(x => $"{x.OperadorFullName}"));
         }
     }
 }

@@ -150,7 +150,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var clientes = await context.Cliente.Where(x => x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).OrderBy(x => x.Den).ToListAsync();
+                var clientes = await context.Cliente.Where(x => x.Activo == true).Include(x => x.Terminales).OrderBy(x => x.Den).ToListAsync();
                 return Ok(clientes);
             }
             catch (Exception e)

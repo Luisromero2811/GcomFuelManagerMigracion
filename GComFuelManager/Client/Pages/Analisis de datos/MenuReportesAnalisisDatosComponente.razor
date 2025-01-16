@@ -1,0 +1,38 @@
+﻿@page "/analisisdatos"
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Analisis de datos")]
+<Card HeaderText="Analisis de datos" />
+
+<div class="col-12 d-flex mt-2">
+    @foreach (var item in MenuItems)
+    {
+        <div class="card" style="width: 18rem;">
+            <NavLink href="@item.URL">
+                <img src="@item.Img" class="card-img-top" alt="@item.Titulo" />
+                <div class="card-body">
+                    <b>@item.Titulo</b>
+                </div>
+            </NavLink>
+        </div>
+    }
+</div>
+
+@code {
+    List<MenuAnalisis> MenuItems = new();
+
+    protected override void OnInitialized()
+    {
+        MenuItems.Add(new()
+            {
+                URL = "analisisdatos/ordenescargadas",
+                Titulo = "Analisis de ordenes cargadas",
+                Img = "img/analisis.png"
+            });
+    }
+
+    private class MenuAnalisis
+    {
+        public string URL { get; set; } = string.Empty;
+        public string Titulo { get; set; } = string.Empty;
+        public string Img { get; set; } = string.Empty;
+    }
+}

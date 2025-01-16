@@ -1,0 +1,173 @@
+﻿@page "/analisisdatos/ordenescargadas"
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Analisis de datos")]
+@inject SweetAlertService Swal
+@inject IRepositorio http
+@inject IJSRuntime js
+
+<Card HeaderText="Buscar ordenes" LoadingContent="loading">
+    <Body>
+        <div class="col-12 row">
+            <div class="col-4">
+                <label>De:</label>
+                <InputDate @bind-Value="Filtro.Fecha_Inicio" class="form-control form-control-sm" />
+            </div>
+            <div class="col-4">
+                <label>A:</label>
+                <InputDate @bind-Value="Filtro.Fecha_Fin" class="form-control form-control-sm" />
+            </div>
+            <div class="col-3 d-flex">
+                <button class="col-12 mt-auto gcom-bg-amarillo btn btn-sm" @onclick="ObtenerOrdenes">
+                    <i class="fa fa-solid fa-magnifying-glass" /> Buscar
+                </button>
+            </div>
+        </div>
+    </Body>
+</Card>
+<div class="col-12 d-flex justify-content-end my-2">
+    <div class="col-3">
+        <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="ExpotarDatos">
+            <i class="fa fa-solid fa-file-excel" /> Excel
+        </button>
+    </div>
+</div>
+<div class="ancho-tabla" style="height:calc(100vh - 18rem);">
+    <Tabla Datos="Ordenes">
+        <Cabeceras>
+            <tr>
+                <th class="resizable-column" style="width: 200px;">Terminal</th>
+                <th class="resizable-column" style="width: 200px;">Destino</th>
+                <th class="resizable-column" style="width: 200px;">Tipo de venta</th>
+                <th class="resizable-column" style="width: 200px;">Producto</th>
+                <th class="resizable-column" style="width: 200px;">Volumen</th>
+                <th class="resizable-column" style="width: 200px;">Importe de compra</th>
+                <th class="resizable-column" style="width: 200px;">Precio de compra s/impuestos</th>
+                <th class="resizable-column" style="width: 200px;">BOL / Remision</th>
+                <th class="resizable-column" style="width: 200px;">Factura de proveedor</th>
+                <th class="resizable-column" style="width: 200px;">Fecha de carga</th>
+                <th class="resizable-column" style="width: 200px;">Transportista</th>
+                <th class="resizable-column" style="width: 200px;">Operador</th>
+                <th class="resizable-column" style="width: 200px;">Unidades / Placas / Sellos / Pedimento</th>
+                <th class="resizable-column" style="width: 200px;">Cliente</th>
+                <th class="resizable-column" style="width: 200px;">Precio de venta c/impuestos</th>
+                <th class="resizable-column" style="width: 200px;">Numero de orden</th>
+            </tr>
+        </Cabeceras>
+        <Filtros>
+            <tr>
+                <td><InputText @bind-Value="Filtro.Terminal" @bind-Value:after="ObtenerOrdenes" class="form-control form-control-sm" /></td>
+                <td><InputText @bind-Value="Filtro.Destino" @bind-Value:after="ObtenerOrdenes" class="form-control form-control-sm" /></td>
+                <td></td>
+                <td><InputText @bind-Value="Filtro.Producto" @bind-Value:after="ObtenerOrdenes" class="form-control form-control-sm" /></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><InputText @bind-Value="Filtro.BOL" @bind-Value:after="ObtenerOrdenes" class="form-control form-control-sm" /></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><InputText @bind-Value="Filtro.Cliente" @bind-Value:after="ObtenerOrdenes" class="form-control form-control-sm" /></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </Filtros>
+        <Columnas Context="item">
+            <tr>
+                <td>@item.Terminal</td>
+                <td>@item.Destino</td>
+                <td>@item.TipoVenta</td>
+                <td>@item.Producto</td>
+                <td>@item.Volumen.ToString("#,##0.00")</td>
+                <td>@item.ImporteCompra</td>
+                <td>@item.PrecioCompra</td>
+                <td>@item.BOL</td>
+                <td>@item.Factura</td>
+                <td>@item.FechaCarga</td>
+                <td>@item.Transportista</td>
+                <td>@item.Operador</td>
+                <td>@item.Unidad</td>
+                <td>@item.Cliente</td>
+                <td>@item.PrecioVenta</td>
+                <td>@item.NumeroOrden</td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+
+@code {
+    AnalisisOrdenCargada Filtro = new();
+    List<AnalisisOrdenCargada> Ordenes = new();
+    bool loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Filtro.Fecha_Inicio = DateTime.Today.AddDays(-1);
+        Filtro.Fecha_Fin = DateTime.Today.AddDays(1);
+        await ObtenerOrdenes();
+    }
+
+    private Dictionary<string, string> SetParametros(bool IsExcel = false)
+    {
+        Dictionary<string, string> keys = new();
+        keys[nameof(Filtro.Fecha_Inicio)] = Filtro.Fecha_Inicio.ToString("MM-dd-yyyy");
+        keys[nameof(Filtro.Fecha_Fin)] = Filtro.Fecha_Fin.ToString("MM-dd-yyyy");
+        keys[nameof(Filtro.Terminal)] = Filtro.Terminal ?? string.Empty;
+        keys[nameof(Filtro.Cliente)] = Filtro.Cliente ?? string.Empty;
+        keys[nameof(Filtro.Destino)] = Filtro.Destino ?? string.Empty;
+        keys[nameof(Filtro.Producto)] = Filtro.Producto ?? string.Empty;
+        keys[nameof(Filtro.BOL)] = Filtro.BOL.ToString() ?? string.Empty;
+        keys[nameof(Filtro.Excel)] = IsExcel.ToString();
+        return keys;
+    }
+
+    private async Task ObtenerOrdenes()
+    {
+        try
+        {
+            loading = true;
+            var parametros = Constructor_De_URL_Parametros.Generar_URL(SetParametros());
+            var response = await http.Get<List<AnalisisOrdenCargada>>($"api/analisisdatos/ordenescargadas?{parametros}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                Ordenes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ExpotarDatos()
+    {
+        try
+        {
+            loading = true;
+            var parametros = Constructor_De_URL_Parametros.Generar_URL(SetParametros(true));
+            var response = await http.Get<byte[]>($"api/analisisdatos/ordenescargadas?{parametros}");
+            if (response.Error)
+            {
+                loading = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                await js.GuardarComo($"AnalisisDeDatosOrdenesCargadas_{DateTime.Now:ddMMyyyyHHmmss}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

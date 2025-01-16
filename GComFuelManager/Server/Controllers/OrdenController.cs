@@ -1,8 +1,6 @@
 ﻿using GComFuelManager.Server.Helpers;
-using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
@@ -17,47 +15,45 @@ namespace GComFuelManager.Server.Controllers
     public class OrdenController : ControllerBase
     {
         private readonly ApplicationDbContext context;
-        private readonly User_Terminal terminal;
-        private readonly VerifyUserToken verifyUser;
-        private readonly UserManager<IdentityUsuario> userManager;
+        private readonly IUsuarioHelper usuarioHelper;
+        private readonly IPrecioHelper precioHelper;
 
-        public OrdenController(ApplicationDbContext context, User_Terminal _Terminal, VerifyUserToken verifyUser, UserManager<IdentityUsuario> userManager)
+        public OrdenController(ApplicationDbContext context, IUsuarioHelper usuarioHelper, IPrecioHelper precioHelper)
         {
             this.context = context;
-            terminal = _Terminal;
-            this.verifyUser = verifyUser;
-            this.userManager = userManager;
+            this.usuarioHelper = usuarioHelper;
+            this.precioHelper = precioHelper;
         }
 
         private record Productos_Grafica(string Producto, double? Volumen);
 
-        [HttpGet("grafico")]
-        public ActionResult Datos_Graficos()
-        {
-            try
-            {
-                DateTime fecha_inicio = new(2023, 12, 1);
-                DateTime fecha_fin = new(2023, 12, 31);
+        //[HttpGet("grafico")]
+        //public ActionResult Datos_Graficos()
+        //{
+        //    try
+        //    {
+        //        DateTime fecha_inicio = new(2023, 12, 1);
+        //        DateTime fecha_fin = new(2023, 12, 31);
 
-                var ordenes = context.Orden.Where(x => x.Fchcar >= fecha_inicio && x.Fchcar <= fecha_fin && x.Codest != 14).Select(x => new { x.Vol, x.Producto.Den }).ToList();
+        //        var ordenes = context.Orden.Where(x => x.Fchcar >= fecha_inicio && x.Fchcar <= fecha_fin && x.Codest != 14).Select(x => new { x.Vol, x.Producto.Den }).ToList();
 
-                var productos = ordenes.DistinctBy(x => x.Den).Select(x => x.Den);
+        //        var productos = ordenes.DistinctBy(x => x.Den).Select(x => x.Den);
 
-                List<Productos_Grafica> producto_total = new();
+        //        List<Productos_Grafica> producto_total = new();
 
-                foreach (var product in productos)
-                {
-                    var total = ordenes.Where(x => x.Den == product).Sum(x => x.Vol);
-                    producto_total.Add(new(product, total));
-                }
+        //        foreach (var product in productos)
+        //        {
+        //            var total = ordenes.Where(x => x.Den == product).Sum(x => x.Vol);
+        //            producto_total.Add(new(product, total));
+        //        }
 
-                return Ok(producto_total);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
+        //        return Ok(producto_total);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
 
         [HttpGet("{Referencia}")]
         public ActionResult Obtener_Por_Referencia([FromRoute] string Referencia)
@@ -158,8 +154,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0) { return BadRequest(); }
+                var id_terminal = usuarioHelper.GetTerminalId();
 
                 var MaxAllowedFile = 1;
                 long MaxFileSize = 1024 * 10204 * 15;
@@ -444,27 +439,24 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpGet("facturacion")]
-        public ActionResult Buscar_Ordenes_Con_Archivos_Factura([FromQuery] Orden_Facturacion param)
+        public async Task<ActionResult> Buscar_Ordenes_Con_Archivos_Factura([FromQuery] Orden_Facturacion param)
         {
             try
             {
-
                 if (param.Fecha_Inicio > param.Fecha_Fin) { return BadRequest("La fecha de inicio no puede ser mayor a la fecha de fin"); }
 
                 var dias = param.Fecha_Fin - param.Fecha_Inicio;
 
                 if (dias.Days > 3) { return BadRequest("No puede consultar en un rango mayor a 3 dias"); }
 
-                var ordenes = context.Orden.Where(x => x.Fchcar != null && x.Fchcar >= param.Fecha_Inicio && x.Fchcar <= param.Fecha_Fin && x.Codest == 20 && x.Bolguiid != null && x.isEnergas == true
-                && x.OrdenEmbarque != null && x.OrdenEmbarque.Codest == 20)
+                var ordenes = context.Orden.AsNoTracking()
+                    .Where(x => x.Fchcar != null && x.Fchcar >= param.Fecha_Inicio && x.Fchcar <= param.Fecha_Fin && x.Codest == 20 && x.Bolguiid != null && x.isEnergas == true
+                    && x.OrdenEmbarque != null && x.OrdenEmbarque.Codest == 20)
                     .Include(x => x.Producto)
-                    .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.Destino.Cliente)
+                    .Include(x => x.Tonel.Transportista)
                     .Include(x => x.Chofer)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Archivos)
+                    .Include(x => x.OrdenEmbarque.Archivos)
                     .Include(x => x.Terminal)
                     .OrderByDescending(x => x.Fchcar)
                     .AsQueryable();
@@ -484,7 +476,7 @@ namespace GComFuelManager.Server.Controllers
                 if (!string.IsNullOrEmpty(param.BOL) && !string.IsNullOrWhiteSpace(param.BOL))
                     ordenes = ordenes.Where(x => x.BatchId != null && x.BatchId != 0 && x.BatchId.Value.ToString().Contains(param.BOL));
 
-                var ordenes_validas = ordenes.ToList();
+                var ordenes_validas = await ordenes.ToListAsync();
 
                 List<Orden> orden_Facturacion = new();
 
@@ -493,7 +485,7 @@ namespace GComFuelManager.Server.Controllers
                     if (ordenes_validas[i].OrdenEmbarque is not null)
                     {
                         if (ordenes_validas[i].OrdenEmbarque!.Pre is not null)
-                            ordenes_validas[i].OrdenEmbarque!.Pre = Obtener_Precio_Del_Dia_De_Orden_Cargada(ordenes_validas[i].Cod).Precio;
+                            ordenes_validas[i].OrdenEmbarque!.Pre = await precioHelper.ObtenerPrecioPorIdOrdenAsync(ordenes_validas[i].Cod);
 
                         if (ordenes_validas.Count(x => x.Ref == ordenes_validas[i].Ref && x.Bolguiid == ordenes_validas[i].Bolguiid
                         && x.BatchId == ordenes_validas[i].BatchId && x.CompartmentId == ordenes_validas[i].CompartmentId) > 1)
@@ -504,7 +496,7 @@ namespace GComFuelManager.Server.Controllers
                                 if (context.Orden.Count(x => x.Ref == ordenes_validas[i].Ref && x.Bolguiid == ordenes_validas[i].Bolguiid
                                 && x.BatchId == ordenes_validas[i].BatchId && x.CompartmentId == ordenes_validas[i].CompartmentId) > 1)
                                 {
-                                    var volumen = context.Orden.Where(x => x.Ref == ordenes_validas[i].Ref && x.Bolguiid == ordenes_validas[i].Bolguiid
+                                    var volumen = context.Orden.AsNoTracking().Where(x => x.Ref == ordenes_validas[i].Ref && x.Bolguiid == ordenes_validas[i].Bolguiid
                                     && x.BatchId == ordenes_validas[i].BatchId && x.CompartmentId == ordenes_validas[i].CompartmentId).Sum(x => x.Vol);
 
                                     ordenes_validas[i].Vol = volumen;
@@ -552,6 +544,8 @@ namespace GComFuelManager.Server.Controllers
                         c.PrintHeaders = true;
                         c.TableStyle = TableStyles.Medium2;
                     });
+                    ws.Cells[1, 5, ws.Dimension.End.Row, 5].Style.Numberformat.Format = "#,##0.00";
+                    ws.Cells[1, 10, ws.Dimension.End.Row, 10].Style.Numberformat.Format = "dd/MM/yyyy HH:mm:ss";
                     ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
                     return Ok(excel.GetAsByteArray());
                 }
@@ -567,14 +561,6 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                //var orden = context.OrdenEmbarque.Where(x => x.Cod == Id && x.Codtad == terminal)
-                //    .Include(x => x.Orden)
-                //    .Include(x => x.OrdenCierre)
-                //    .IgnoreAutoIncludes()
-                //    .FirstOrDefault();
-
-                //if (orden is null)
-                //    return new PrecioBolDTO();
 
                 PrecioBolDTO precio = new();
 
@@ -705,72 +691,6 @@ namespace GComFuelManager.Server.Controllers
                 return new PrecioBolDTO();
             }
         }
-        private PrecioBolDTO Obtener_Precio_Del_Dia_De_Orden_Cargada(long? id_orden)
-        {
-            try
-            {
-                var orden = context.Orden.FirstOrDefault(x => x.Cod == id_orden);
-
-                PrecioBolDTO precio = new();
-
-                var precioVig = context.Precio.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == orden.Id_Tad)
-                    .Select(x => new { x.Pre, x.FchDia })
-                    .OrderByDescending(x => x.FchDia)
-                    .FirstOrDefault();
-
-                var precioPro = context.PrecioProgramado.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == orden.Id_Tad)
-                    .Select(x => new { x.Pre, x.FchDia })
-                    .OrderByDescending(x => x.FchDia)
-                    .FirstOrDefault();
-
-                var precioHis = context.PreciosHistorico.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd
-                    && orden.Fchcar != null && x.FchDia.Date <= orden.Fchcar.Value.Date && x.Id_Tad == orden.Id_Tad)
-                    .Select(x => new { x.pre, x.FchDia })
-                    .OrderByDescending(x => x.FchDia)
-                    .FirstOrDefault();
-
-                if (precioHis is not null)
-                    precio.Precio = precioHis.pre;
-
-                if (orden != null && precioVig is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today)
-                    if (precioVig.FchDia.Date == DateTime.Today.Date)
-                        precio.Precio = precioVig.Pre;
-
-                if (orden != null && precioPro is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today && context.PrecioProgramado.Any())
-                    if (precioPro.FchDia.Date == DateTime.Today.Date)
-                        precio.Precio = precioPro.Pre;
-
-                if (orden != null && context.OrdenPedido.Any(x => x.CodPed == orden.Cod))
-                {
-                    var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.Cod && !string.IsNullOrEmpty(x.Folio)).Select(x => x.Folio).FirstOrDefault();
-
-                    if (!string.IsNullOrEmpty(ordenepedido) && !string.IsNullOrWhiteSpace(ordenepedido))
-                    {
-                        var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido && x.Id_Tad == orden.Id_Tad
-                         && x.CodPrd == orden.Codprd).FirstOrDefault();
-
-                        if (cierre is not null)
-                            precio.Precio = cierre.Precio;
-                    }
-                }
-
-                if (orden is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
-                {
-                    precio.Precio = orden.OrdenEmbarque?.Pre;
-
-                    if (orden.OrdenCierre is not null)
-                        precio.Fecha_De_Precio = orden.OrdenCierre.fchPrecio;
-                }
-
-                precio.Moneda = !string.IsNullOrEmpty(precio.Moneda) ? precio.Moneda : "MXN";
-
-                return precio;
-            }
-            catch (Exception)
-            {
-                return new PrecioBolDTO();
-            }
-        }
 
         [HttpGet("modificacion")]
         public async Task<ActionResult> Obtener_Orden_A_Modificar([FromQuery] ModificarOrdenDTO dTO)
@@ -843,7 +763,7 @@ namespace GComFuelManager.Server.Controllers
 
                             foreach (var orden in ordenescargadas)
                             {
-                                orden.Precio = Obtener_Precio_Del_Dia_De_Orden_Cargada(orden.Id_Orden).Precio;
+                                orden.Precio = precioHelper.ObtenerPrecioPorIdOrden(orden.Id_Orden);
                             }
                         }
 
@@ -864,9 +784,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var id_user = await verifyUser.GetId(HttpContext, userManager);
-                if (string.IsNullOrEmpty(id_user))
-                    return BadRequest();
+                var id_user = await usuarioHelper.GetUserId();
 
                 var orden = await context.Orden.FirstOrDefaultAsync(x => x.Cod == id);
 
@@ -896,16 +814,11 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var id = await verifyUser.GetId(HttpContext, userManager);
-                if (string.IsNullOrEmpty(id))
-                    return BadRequest();
+                var id = await usuarioHelper.GetUserId();
 
-                var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0)
-                    return BadRequest();
+                var id_terminal = usuarioHelper.GetTerminalId();
 
-                var usuario = await userManager.FindByIdAsync(id);
-                if (usuario is null) { return NotFound(); }
+                var usuario = await usuarioHelper.GetUsuario();
 
                 var user = context.Usuario.Find(usuario.UserCod);
                 if (user is null) { return NotFound(); }
@@ -969,9 +882,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var id = await verifyUser.GetId(HttpContext, userManager);
-                if (string.IsNullOrEmpty(id))
-                    return BadRequest();
+                var id = await usuarioHelper.GetUserId();
 
                 var ordenembarque = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == id_orden);
                 if (ordenembarque is null) { return NotFound(); }

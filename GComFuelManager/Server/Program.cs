@@ -64,6 +64,7 @@ builder.Services.AddSingleton<User_Terminal>();
 builder.Services.AddSingleton(new CultureInfo("es-Mx"));
 
 builder.Services.AddScoped<IUsuarioHelper, UsuarioHelper>();
+builder.Services.AddScoped<IPrecioHelper, PrecioHelper>();
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
