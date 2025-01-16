@@ -150,11 +150,11 @@ namespace GComFuelManager.Server.Controllers
                             CustRDD = x.Fchcar,
                             Material = x.Producto?.Identificador_Externo ?? string.Empty,
                             MaterialDescriptionName = x.Producto?.Den ?? string.Empty,
-                            SOOrderQty = x.Vol,
+                            SOOrderQty = x.Tonel != null ? (double?)(x.Tonel.Capcom.HasValue ? (double)x.Tonel.Capcom : x.Tonel.Capcom2.HasValue ? (double)x.Tonel.Capcom2 : x.Tonel.Capcom3.HasValue ? (double)x.Tonel.Capcom3 : (double?)x.Tonel.Capcom4) ?? 0 : 0,
                             StationNameMX = x.Destino?.Den ?? string.Empty,
                             TankCount = x.Tonel?.Tanque,
                             EQUIPO = x.Tonel?.Tracto ?? string.Empty,
-                            OPERADOR = x.Chofer?.Den ?? string.Empty,
+                            OPERADOR = x.Chofer?.FullName ?? string.Empty,
                             TRANSPORTISTA = x.Tonel?.Transportista?.Den ?? string.Empty,
                             LICENCIAOPERADOR = x.Chofer?.Licencia ?? string.Empty
                         });
