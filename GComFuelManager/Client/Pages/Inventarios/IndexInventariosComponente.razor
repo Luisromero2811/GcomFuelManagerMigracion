@@ -293,6 +293,7 @@
                 <th style="width: 150px;" class="resizable-column">Cantidad</th>
                 <th style="width: 150px;" class="resizable-column">Cantidad facturada</th>
                 <th style="width: 150px;" class="resizable-column">Sobrante / Faltante</th>
+                <th style="width: 150px;" class="resizable-column">Porcentaje de diferencia</th>
                 <th style="width: 150px;" class="resizable-column">Unidad de medida</th>
                 <th style="width: 150px;" class="resizable-column">Temperatura</th>
                 <th style="width: 150px;" class="resizable-column">Fecha de ejecucion de cierre</th>
@@ -371,6 +372,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
                 <td>
                     <select class="form-select form-select-sm"
                             onchange="@((ChangeEventArgs args)=>Filtrar(args,nameof(Filtro.UnidadMedidaId)))">
@@ -425,6 +427,7 @@
                 <td>@item.Cantidad.ToString("N2", CultureInfo.InvariantCulture)</td>
                 <td>@item.CantidadFacturada.ToString("N2", CultureInfo.InvariantCulture)</td>
                 <td class="@(item.Diferencia < 0 ? "text-danger" : "text-success")">@item.Diferencia.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td class="@(item.Porcentaje < 0 ? "text-danger" : "text-success")">@item.PorcentajeFormato</td>
                 <td>@item.UnidadMedida</td>
                 <td>@item.Temperatura.ToString("#.## °", CultureInfo.InvariantCulture)</td>
                 <td>@(item.FechaCierre?.ToString("dd/MM/yyyy hh:mm tt") ?? "----")</td>
@@ -435,6 +438,41 @@
                 <td>@item.OrigenDestino</td>
             </tr>
         </Columnas>
+        <FilaInferior>
+            <tr>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Inventarios">
+                    <Authorized>
+                        <td style="width: 80px;"></td>
+                    </Authorized>
+                </AuthorizeView>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>Total</td>
+                <td>@InventarioTotal.TotalCantidad.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td>@InventarioTotal.TotalCantidadFacturada.ToString("N2", CultureInfo.InvariantCulture)</td>
+                <td class="@(InventarioTotal.TotalDiferencia < 0 ? "text-danger" : "text-success")">@InventarioTotal.TotalDiferencia</td>
+                <td class="@(InventarioTotal.Porcentaje < 0 ? "text-danger" : "text-success")">@InventarioTotal.PorcentajeFormato</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </FilaInferior>
     </Tabla>
 </div>
 <div class="col-12">
@@ -455,7 +493,8 @@
     bool CierreAbierto = false;
     Dictionary<string, string> query = new();
 
-    List<InventarioDTO> Inventarios = new List<InventarioDTO>();
+    InventarioTotalesDTO InventarioTotal = new();
+    List<InventarioDTO> Inventarios = new();
 
     IEnumerable<Producto> Productos = new List<Producto>();
     IEnumerable<CatalogoValorDTO> Sitios = new List<CatalogoValorDTO>();
@@ -523,7 +562,7 @@
             loading = true;
             query[nameof(Filtro.Excel)] = false.ToString();
             var url = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
-            var response = await http.Get<List<InventarioDTO>>($"api/inventario?{url}");
+            var response = await http.Get<InventarioTotalesDTO>($"api/inventario?{url}");
             if (response.Error)
             {
                 loading = false;
@@ -532,7 +571,8 @@
             else
             {
                 loading = false;
-                Inventarios = response.Response;
+                InventarioTotal = response.Response;
+                Inventarios = InventarioTotal.Inventarios.ToList();
                 Filtro.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
                 Filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
                 Filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
@@ -789,7 +829,7 @@
             query[nameof(Filtro.Excel)] = false.ToString();
             query[nameof(Filtro.PorFecha)] = true.ToString();
             var url = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
-            var response = await http.Get<List<InventarioDTO>>($"api/inventario?{url}");
+            var response = await http.Get<InventarioTotalesDTO>($"api/inventario?{url}");
             if (response.Error)
             {
                 loading = false;
@@ -798,7 +838,8 @@
             else
             {
                 loading = false;
-                Inventarios = response.Response;
+                InventarioTotal = response.Response;
+                Inventarios = InventarioTotal.Inventarios.ToList();
                 Filtro.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
                 Filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
                 Filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);

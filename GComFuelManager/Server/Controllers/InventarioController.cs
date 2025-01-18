@@ -2,7 +2,6 @@
 using FluentValidation;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
-using GComFuelManager.Server.Migrations;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Enums;
 using GComFuelManager.Shared.Extensiones;
@@ -16,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
+using System.Drawing;
 using System.Linq.Dynamic.Core;
 
 namespace GComFuelManager.Server.Controllers
@@ -116,7 +116,7 @@ namespace GComFuelManager.Server.Controllers
                     inventarios = inventarios.Where(x => x.CierreId == inventario.CierreId);
 
                 if (inventario.PorFecha)
-                    inventarios = inventarios.Where(x => x.FechaRegistro >= inventario.Fecha_Inicio && x.FechaRegistro <= inventario.Fecha_Fin);
+                    inventarios = inventarios.Where(x => x.FechaMovimiento >= inventario.Fecha_Inicio && x.FechaMovimiento <= inventario.Fecha_Fin);
 
                 if (inventario.FechaNULL)
                     inventarios = inventarios.Where(x => x.FechaCierre == null);
@@ -134,22 +134,56 @@ namespace GComFuelManager.Server.Controllers
                 if (!string.IsNullOrEmpty(inventario.OrigenDestino) && !string.IsNullOrWhiteSpace(inventario.OrigenDestino))
                     inventarios = inventarios.Where(x => !string.IsNullOrEmpty(x.OrigenDestino.Valor) && x.OrigenDestino.Valor.ToLower().Contains(inventario.OrigenDestino.ToLower()));
 
+                var invetariosconvertidos = inventarios.ToList().Select(x =>
+                {
+                    if (!x.TipoMovimiento.Abreviacion.IsNull())
+                    {
+                        if (x.TipoMovimiento.Abreviacion!.ToInt() >= 20)
+                        {
+                            x.Cantidad *= -1;
+                            x.CantidadLTS *= -1;
+                            x.CantidadFacturada *= -1;
+                        }
+                    }
+                    return x;
+                }).ToList();
+
+                InventarioTotalesDTO inventariototal = new()
+                {
+                    TotalCantidad = invetariosconvertidos.Where(x => x.TipoMovimiento.Abreviacion != "01").Sum(x => x.CantidadLTS),
+                    TotalCantidadFacturada = invetariosconvertidos.Where(x => x.TipoMovimiento.Abreviacion != "01").Sum(x => x.CantidadFacturada)
+                };
+
                 if (inventario.Excel)
                 {
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;
                     ExcelPackage excel = new();
                     ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Inventarios");
-                    ws.Cells["A1"].LoadFromCollection(inventarios.Select(mapper.Map<InventarioExcelDTO>), op =>
+                    ws.Cells["A1"].LoadFromCollection(inventarios.OrderBy(x => x.TipoMovimiento.Abreviacion).Select(mapper.Map<InventarioExcelDTO>), op =>
                     {
                         op.TableStyle = TableStyles.Medium2;
                         op.PrintHeaders = true;
                     });
 
-                    ws.Cells[1, 12, ws.Dimension.End.Row, 16].Style.Numberformat.Format = "#,##0.00";
+                    var filaporcentajes = ws.Dimension.End.Row + 1;
+                    ws.Cells[filaporcentajes, 13, filaporcentajes, 17].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    ws.Cells[filaporcentajes, 13, filaporcentajes, 17].Style.Fill.BackgroundColor.SetColor(Color.LightSteelBlue);
+                    ws.Cells[filaporcentajes, 13].Value = "Total";
+                    ws.Cells[filaporcentajes, 14].Value = inventariototal.TotalCantidad;
+                    ws.Cells[filaporcentajes, 15].Value = inventariototal.TotalCantidadFacturada;
+                    ws.Cells[filaporcentajes, 16].Value = inventariototal.TotalDiferencia;
+                    ws.Cells[filaporcentajes, 17].Value = inventariototal.Porcentaje;
+
+                    ws.Cells[filaporcentajes, 14, filaporcentajes, 16].Style.Numberformat.Format = "#,##0.00";
+                    ws.Cells[filaporcentajes, 17].Style.Numberformat.Format = "##0.00%";
+
+                    ws.Cells[1, 12, ws.Dimension.End.Row, 15].Style.Numberformat.Format = "#,##0.00";
                     ws.Cells[1, 18, ws.Dimension.End.Row, 18].Style.Numberformat.Format = "# °";
                     ws.Cells[1, 1, ws.Dimension.End.Row, 2].Style.Numberformat.Format = "dd/MM/yyyy hh:mm:ss";
                     ws.Cells[1, 9, ws.Dimension.End.Row, 9].Style.Numberformat.Format = "dd/MM/yyyy";
                     ws.Cells[1, 10, ws.Dimension.End.Row, 11].Style.Numberformat.Format = "hh:mm";
+                    ws.Cells[1, 16, ws.Dimension.End.Row, 16].Style.Numberformat.Format = "#,##0.00";
+                    ws.Cells[1, 17, ws.Dimension.End.Row, 17].Style.Numberformat.Format = "##0.00%";
 
                     ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
                     return Ok(excel.GetAsByteArray());
@@ -163,7 +197,9 @@ namespace GComFuelManager.Server.Controllers
                     .Skip((inventario.Pagina - 1) * inventario.Registros_por_pagina)
                     .Take(inventario.Registros_por_pagina);
 
-                return Ok(inventariodto);
+                inventariototal.Inventarios = inventariodto;
+
+                return Ok(inventariototal);
             }
             catch (Exception e)
             {

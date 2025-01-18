@@ -220,7 +220,7 @@ a, .btn-link {
 }
 
 .ancho-tabla {
-    width: calc(100vw - 3.5rem);
+    width: calc(100vw - 4.5rem);
     overflow: scroll;
 }
 
@@ -233,7 +233,7 @@ a, .btn-link {
 /* landscape orientation */
 @media only screen and (min-width : 375px) and (max-width : 667px) and (orientation : landscape) {
     .ancho-tabla {
-        width: calc(100vw - 3.5rem);
+        width: calc(100vw - 4.5rem);
     }
 }
 /* portrait orientation */
