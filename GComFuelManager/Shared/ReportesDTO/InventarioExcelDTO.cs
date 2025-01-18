@@ -2,6 +2,16 @@
 
 namespace GComFuelManager.Shared.ReportesDTO
 {
+
+    public class InventarioTotalesExcelDTO
+    {
+        public double TotalCantidad { get; set; } = 0;
+        public double TotalCantidadFacturada { get; set; } = 0;
+        public double TotalDiferencia { get; set; } = 0;
+        public double Porcentaje => (TotalDiferencia == 0 ? 1 : TotalDiferencia) / (TotalCantidadFacturada == 0 ? 1 : TotalCantidadFacturada);
+
+        public IEnumerable<InventarioExcelDTO> Inventarios { get; set; } = new List<InventarioExcelDTO>();
+    }
     public class InventarioExcelDTO
     {
         [DisplayName("Fecha de cierre")]
@@ -31,6 +41,7 @@ namespace GComFuelManager.Shared.ReportesDTO
         public double CantidadFacturada { get; set; }
         [DisplayName("Sobrante / Faltante")]
         public double Diferencia { get; set; }
+        public double Porcentaje => (Diferencia == 0 ? 1 : Diferencia) / (CantidadFacturada == 0 ? 1 : CantidadFacturada);
         [DisplayName("Unidad de medida")]
         public string UnidadMedida { get; set; } = string.Empty;
         public double Temperatura { get; set; }

@@ -35,6 +35,10 @@
                     }
                 </Virtualize>
             </CascadingValue>
+            @if (FilaInferior is not null)
+            {
+                @FilaInferior
+            }
         }
         else if (Datos is not null && Datos.Count.Equals(0))
         {
@@ -63,6 +67,7 @@
     [Parameter] public List<Type> Datos { get; set; } = new List<Type>();
     [Parameter] public RenderFragment<Type> Columnas { get; set; } = null!;
     [Parameter] public RenderFragment Cabeceras { get; set; } = null!;
+    [Parameter] public RenderFragment FilaInferior { get; set; } = null!;
     [Parameter] public RenderFragment Inferior { get; set; } = null!;
     [Parameter] public RenderFragment Filtros { get; set; } = null!;
     [Parameter] public bool? Cargando { get; set; }

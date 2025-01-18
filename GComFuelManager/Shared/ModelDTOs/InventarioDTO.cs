@@ -1,9 +1,20 @@
 ﻿using GComFuelManager.Shared.Enums;
 using GComFuelManager.Shared.Filtro;
+using GComFuelManager.Shared.ReportesDTO;
 using OfficeOpenXml.Attributes;
 
 namespace GComFuelManager.Shared.ModelDTOs
 {
+    public class InventarioTotalesDTO
+    {
+        public double TotalCantidad { get; set; } = 0;
+        public double TotalCantidadFacturada { get; set; } = 0;
+        public double TotalDiferencia => TotalCantidad - TotalCantidadFacturada;
+        public double Porcentaje => (TotalDiferencia == 0 ? 1 : TotalDiferencia) / (TotalCantidadFacturada == 0 ? 1 : TotalCantidadFacturada);
+        public string PorcentajeFormato => String.Format("{0:P2}", Porcentaje);
+        public IEnumerable<InventarioDTO> Inventarios { get; set; } = new List<InventarioDTO>();
+    }
+
     public class InventarioDTO : Parametros_Busqueda_Gen
     {
         public int Id { get; set; }
@@ -35,6 +46,8 @@ namespace GComFuelManager.Shared.ModelDTOs
         public string OrigenDestino { get; set; } = string.Empty;
         public DateTime FechaMovimiento { get; set; } = DateTime.Today;
         [EpplusIgnore] public bool FechaNULL { get; set; } = false;
+        public double Porcentaje => (Diferencia == 0 ? 1 : Diferencia) / (CantidadFacturada == 0 ? 1 : CantidadFacturada);
+        public string PorcentajeFormato => String.Format("{0:P2}", Porcentaje);
 
         public string UnidadMedida { get; set; } = string.Empty;
         public int UnidadMedidaId { get; set; }

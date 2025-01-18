@@ -22,7 +22,10 @@ namespace GComFuelManager.Server.Automapper
                 {
                     if (int.TryParse(x.TipoMovimiento.Abreviacion, out int tm))
                         if (tm >= 20)
+                        {
                             y.Cantidad *= -1;
+                            y.CantidadFacturada *= -1;
+                        }
                 });
             CreateMap<Inventario, InventarioPostDTO>();
             CreateMap<InventarioPostDTO, Inventario>()
@@ -44,7 +47,7 @@ namespace GComFuelManager.Server.Automapper
             CreateMap<TerminalPostDTO, Tad>();
 
             CreateMap<Vendedor, VendedorDTO>();
-            CreateMap<InventarioCierre, InventarioCierre>(); 
+            CreateMap<InventarioCierre, InventarioCierre>();
             CreateMap<InventarioCierre, InventarioCierreDTO>()
                 .ForMember(x => x.OrdenReservado, op =>
                 {
